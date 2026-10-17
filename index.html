@@ -88,7 +88,7 @@ input::placeholder{color:#9AA0AC}
 .banner{border:1px solid var(--line);background:var(--side);border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;font-size:13.5px;color:var(--ink2)}
 
 .list{border-top:1px solid var(--line)}
-.row{display:grid;grid-template-columns:22px 26px 44px minmax(0,1.7fr) minmax(0,1fr) 96px 54px 36px;gap:12px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:0}
+.row{display:grid;grid-template-columns:22px 26px 44px minmax(0,1.7fr) minmax(0,1fr) 96px 54px 72px;gap:12px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:0}
 .row.th{cursor:default;font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--muted);padding-block:10px;position:sticky;top:0;background:var(--bg);z-index:2}
 .row.th:hover{background:var(--bg)}
 .row:hover{background:var(--hover)}
@@ -270,7 +270,9 @@ textarea{font:inherit;font-size:14px;line-height:1.6;color:var(--ink);background
   .head h1{font-size:24px}
   .head .actions{width:100%}
   .head .actions .btn{flex:1;justify-content:center}
-  .row{grid-template-columns:24px 44px minmax(0,1fr) 42px 30px;gap:10px;padding:8px 2px}
+  .row{grid-template-columns:20px 44px minmax(0,1fr) 64px;gap:8px;padding:8px 2px}
+  .row .dur{display:none}
+  .racts .more{padding:6px}
   .row .idx,.row .alb,.row .stars{display:none}
   .row.th{display:none}
   :root{--player-h:112px}
@@ -312,6 +314,16 @@ textarea{font:inherit;font-size:14px;line-height:1.6;color:var(--ink);background
 .tplus svg{width:14px;height:14px}
 .more:disabled{opacity:.3;pointer-events:none}
 .tablist .none{padding:12px 14px;font-size:13px;color:var(--muted)}
+.racts{display:flex;gap:2px;align-items:center;justify-content:flex-end}
+.more.edit{color:var(--ink2)}
+.addmemo{display:inline-flex;align-items:center;gap:4px;margin-top:3px;background:none;border:0;padding:1px 0;font-size:12px;color:var(--muted);cursor:pointer}
+.addmemo svg{width:11px;height:11px}
+.addmemo:hover{color:var(--accent)}
+.t .memo{cursor:pointer}
+.t .memo:hover em{text-decoration:underline;text-decoration-color:var(--line2)}
+.ehead{display:flex;gap:12px;align-items:center}.ehead .art{width:56px;height:56px}.ehead h2{margin:0}
+.nowedit{flex:none;color:var(--muted)}
+.now .t{flex:1}
 .chip.more-tags{background:none;border-style:dashed;color:var(--muted)}
 .btn.wide{width:100%;justify-content:center;padding-block:11px}
 .or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}
@@ -335,11 +347,10 @@ textarea{font:inherit;font-size:14px;line-height:1.6;color:var(--ink);background
 @media (max-width:760px){
   .mob-nav{display:flex;gap:4px;background:var(--side);border:1px solid var(--line);border-radius:10px;padding:4px;margin:0 0 18px;overflow-x:auto;scrollbar-width:none}
   .mob-nav::-webkit-scrollbar{display:none}
-  .mob-nav button{flex:1 1 0;min-width:0;border:0;background:none;border-radius:7px;padding:8px 6px;font-size:13px;font-weight:600;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .mob-nav.many button{flex:0 0 auto;min-width:76px;max-width:150px}
+  .mob-nav button{flex:1 0 auto;min-width:max-content;border:0;background:none;border-radius:7px;padding:8px 6px;font-size:13px;font-weight:600;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mob-nav .tabadd{flex:0 0 36px!important;min-width:36px!important;display:grid;place-items:center;color:var(--muted);padding:0}
   .mob-nav .tabadd svg{width:16px;height:16px}
-  .mob-nav.many .tabadd{position:sticky;right:-4px;background:var(--side);box-shadow:-10px 0 10px -4px var(--side);border-radius:7px}
+  .mob-nav .tabadd{position:sticky;right:-4px;background:var(--side);box-shadow:-10px 0 10px -4px var(--side);border-radius:7px}
   .mob-nav button[aria-current="true"]{background:#fff;color:var(--ink);border:0;box-shadow:0 1px 3px rgba(17,19,24,.12)}
   body.drawer-open .side{display:flex;position:fixed;inset:0 auto 0 0;width:min(300px,86vw);z-index:36;box-shadow:12px 0 40px rgba(17,19,24,.18);padding-top:calc(22px + env(safe-area-inset-top,0px));padding-bottom:calc(var(--player-h) + 20px)}
   body.drawer-open .dveil{display:block;position:fixed;inset:0;z-index:35;background:rgba(17,19,24,.35)}
@@ -372,7 +383,7 @@ textarea{font:inherit;font-size:14px;line-height:1.6;color:var(--ink);background
   <div class="pin">
     <div class="now">
       <div class="art" id="pArt"></div>
-      <div class="t"><b id="pTitle">曲を選ぶと再生します</b><span id="pArtist">—</span></div>
+      <div class="t"><b id="pTitle">曲を選ぶと再生します</b><span id="pArtist">—</span></div><button class="ib nowedit" data-act="editNow" id="bNowEdit" aria-label="再生中の曲の曲名・メモを編集" title="曲名・メモを編集" hidden></button>
     </div>
     <div class="ctl">
       <div class="btns">
@@ -620,11 +631,11 @@ function rowHTML(t,i,ctx,dnd){const cur=S.queue[S.qi]===t.id,sel=S.sel.has(t.id)
   return`<div class="row${cur?' playing':''}${sel?' selected':''}" data-play="${t.id}" data-sid="${t.id}" data-i="${i}">
    ${lead}<span class="idx">${cur?`<span class="eq${$('#audio').paused?' paused':''}"><i></i><i></i><i></i></span>`:i+1}</span>
    <div class="art" ${artStyle(t)}>${t.art?'':IC.note}</div>
-   <div class="t"><b data-rename="${t.id}" title="ダブルクリックで名前を変更">${esc(t.title)}${t.sample?'<span class="badge">サンプル</span>':''}${avail}</b><span>${esc(t.artist)}</span>${t.memo?`<div class="memo" data-memo="${t.id}">${IC.memo}<em>${esc(t.memo.replace(/\s*\n\s*/g,' ／ '))}</em></div>`:''}${chips?`<div class="chipline">${chips}</div>`:''}</div>
+   <div class="t"><b data-rename="${t.id}" title="ダブルクリックで名前を変更">${esc(t.title)}${t.sample?'<span class="badge">サンプル</span>':''}${avail}</b><span>${esc(t.artist)}</span>${t.memo?`<div class="memo" data-act="memoEdit" data-id="${t.id}" title="タップでメモを編集">${IC.memo}<em>${esc(t.memo.replace(/\s*\n\s*/g,' ／ '))}</em></div>`:(t.sample?'':`<button class="addmemo" data-act="memoEdit" data-id="${t.id}">${IC.plus}メモを追加</button>`)}${chips?`<div class="chipline">${chips}</div>`:''}</div>
    <div class="alb">${esc(t.album)}${t.year?' · '+esc(t.year):''}</div>
    <div class="stars">${stars(t.rating)}</div>
    <div class="dur">${fmt(t.duration)}</div>
-   <button class="more" data-menu="${t.id}" aria-label="「${esc(t.title)}」のメニュー">${IC.dots}</button></div>`}
+   <span class="racts"><button class="more edit" data-act="rename" data-id="${t.id}" aria-label="「${esc(t.title)}」の曲名・メモを編集" title="曲名・メモを編集">${IC.pen}</button><button class="more" data-menu="${t.id}" aria-label="「${esc(t.title)}」のメニュー">${IC.dots}</button></span></div>`}
 const EMPTY={pl:['このプレイリストはまだ空です','上の「曲を追加」から、ライブラリの曲や新しい曲を入れられます。'],cat:['このカテゴリにはまだ曲がありません','上の「曲を追加」から、ライブラリの曲や新しい曲を入れられます。'],lib:['曲が見つかりません','検索語を変えるか、曲を取り込んでください。']};
 function listBlock(list,ctx,dnd){if(!list.length){const[a,b]=EMPTY[ctx]||EMPTY.lib;return`<div class="list"><div class="empty"><b>${a}</b>${b}</div></div>`}
   return`<div class="list"${dnd?` data-sortable="${ctx==='pl'?'pl':'order'}"`:''}><div class="row th"><span></span><span class="idx">#</span><span></span><span>タイトル</span><span>アルバム</span><span>評価</span><span class="dur">時間</span><span></span></div>${list.map((t,i)=>rowHTML(t,i,ctx,dnd)).join('')}</div>`}
@@ -632,7 +643,7 @@ function headHTML(title,meta,acts,o={}){const cv='cover'in o?`<div class="cover"
   return`<div class="head"><div class="hl">${cv}<div style="min-width:0">${o.kicker?`<div class="kicker">${esc(o.kicker)}</div>`:''}<h1>${esc(title)}</h1><div class="meta">${meta}</div>${o.memo?`<div class="hmemo">${esc(o.memo)}</div>`:''}</div></div><div class="actions">${acts}</div></div>`}
 const metaOf=l=>`${l.length}曲 · ${fmtLong(l.reduce((a,t)=>a+(isFinite(t.duration)?t.duration:0),0))}`;
 const playActs=`<button class="btn primary" data-act="playAll">${IC.play}すべて再生</button><button class="btn" data-act="shufAll">${IC.shuf}シャッフル</button>`;
-const DRAG_HINT=`左端の <span class="gripmark">${IC.grip}</span> をドラッグすると順番を変えられます。曲名のダブルクリックで名前を変更できます。`;
+const DRAG_HINT=`左端の <span class="gripmark">${IC.grip}</span> をドラッグすると順番を変えられます。右側の <span class="gripmark">${IC.pen}</span> で曲名・メモを編集できます。`;
 function toolbarHTML(o){return`<div class="toolbar">${o.search?`<input type="search" id="q" placeholder="曲名・アーティスト・メモ・タグで検索" value="${esc(S.q)}" aria-label="検索">`:'<span class="spacer"></span>'}
   ${o.sort?`<select id="sort" aria-label="並び順">${[['manual','自分の並び順'],['added','追加が新しい順'],['title','曲名順'],['artist','アーティスト順'],['rating','評価が高い順'],['plays','よく聴く順']].map(([k,l])=>`<option value="${k}"${S.sort===k?' selected':''}>${l}</option>`).join('')}</select>`:''}
   ${o.back?`<button class="btn" data-view="${o.back}">← ${{cats:'カテゴリ一覧',pls:'プレイリスト一覧',artists:'アーティスト一覧',albums:'アルバム一覧'}[o.back]||'一覧'}へ戻る</button>`:''}
@@ -721,7 +732,7 @@ function mediaSession(t){if(!('mediaSession'in navigator))return;try{navigator.m
 function renderPlayer(){const t=S.tracks.get(S.queue[S.qi]);
   $('#pArt').innerHTML=t&&t.art?'':IC.note;$('#pArt').style.backgroundImage=t&&t.art?`url('${t.art}')`:'';
   $('#pTitle').textContent=t?t.title:'曲を選ぶと再生します';$('#pArtist').textContent=t?t.artist:'—';
-  $('#pStars').innerHTML=t?stars(t.rating):'';
+  $('#pStars').innerHTML=t?stars(t.rating):'';const ne=$('#bNowEdit');ne.hidden=!t||!!t.sample;if(!ne.innerHTML)ne.innerHTML=IC.memo;
   const playing=!audio.paused&&!!audio.src;$('#bPlay').innerHTML=playing?IC.pause:IC.play;$('#bPlay').setAttribute('aria-label',playing?'一時停止':'再生');
   $('#bShuf').innerHTML=IC.shuf;$('#bShuf').classList.toggle('on',S.shuffle);$('#bShuf').setAttribute('aria-pressed',S.shuffle);
   $('#bRep').innerHTML=S.repeat==='one'?IC.rep1:IC.rep;$('#bRep').classList.toggle('on',S.repeat!=='off');$('#bRep').title={off:'リピートなし',all:'全曲リピート',one:'1曲リピート'}[S.repeat];
@@ -763,10 +774,14 @@ function editSheet(id){const t=S.tracks.get(id);if(!t)return;const tags=new Set(
       saveTrack(t);if(plc)savePlaylists();closeSheet();render();toast('保存しました')}})}
 function nameSheet(title,initial,cb,ph){sheet(`<h2>${esc(title)}</h2><div class="fields"><label class="full">名前<input id="plName" value="${esc(initial||'')}" placeholder="${esc(ph||'')}"></label></div><div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">キャンセル</button><button class="btn primary" id="okName">決定</button></span></div>`,
   el=>{const ok=()=>{const v=$('#plName').value.trim();if(!v){$('#plName').focus();return}cb(v);closeSheet()};$('#okName').onclick=ok;$('#plName').onkeydown=e=>{if(e.key==='Enter')ok()}})}
-function renameSheet(id){const t=S.tracks.get(id);if(!t)return;
-  sheet(`<h2>名前を変更</h2><div class="fields"><label class="full">曲名<input id="rnT" value="${esc(t.title)}"></label><label>アーティスト<input id="rnA" value="${esc(t.artist)}"></label><label>アルバム<input id="rnB" value="${esc(t.album)}"></label></div><div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">キャンセル</button><button class="btn primary" id="rnOk">保存</button></span></div>`,
-  el=>{const ok=()=>{t.title=$('#rnT').value.trim()||t.title;t.artist=$('#rnA').value.trim()||t.artist;t.album=$('#rnB').value.trim();saveTrack(t);closeSheet();render();toast('名前を変更しました')};
-    $('#rnOk').onclick=ok;el.querySelectorAll('input').forEach(i=>i.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing)ok()});const i=$('#rnT');i.focus();i.select()})}
+function renameSheet(id,focus){const t=S.tracks.get(id);if(!t)return;
+  sheet(`<div class="ehead"><div class="art" ${artStyle(t)}>${t.art?'':IC.note}</div><div class="t"><h2>曲名・メモを編集</h2><span>${esc(t.fileName||t.title)}</span></div></div>
+   <div class="fields"><label class="full">曲名<input id="rnT" value="${esc(t.title)}"></label><label>アーティスト<input id="rnA" value="${esc(t.artist)}"></label><label>アルバム<input id="rnB" value="${esc(t.album)}"></label>
+   <label class="full">メモ<textarea id="rnM" rows="5" placeholder="例：サビ前のギターが好き／友達の結婚式で流した／カラオケの練習中">${esc(t.memo||'')}</textarea></label></div>
+   <div class="foot"><button class="btn" data-act="edit" data-id="${t.id}">${IC.star}評価・タグ・カテゴリ</button><span class="actions"><button class="btn" data-act="close">キャンセル</button><button class="btn primary" id="rnOk">保存</button></span></div>`,
+  el=>{const ok=()=>{t.title=$('#rnT').value.trim()||t.title;t.artist=$('#rnA').value.trim()||t.artist;t.album=$('#rnB').value.trim();t.memo=$('#rnM').value.trim();saveTrack(t);closeSheet();render();toast('保存しました')};
+    $('#rnOk').onclick=ok;el.querySelectorAll('input').forEach(i=>i.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing)ok()});
+    setTimeout(()=>{const f=focus==='memo'?$('#rnM'):$('#rnT');if(!f)return;f.focus();if(focus==='memo'){const n=f.value.length;f.setSelectionRange(n,n)}else f.select()},0)})}
 function memoSheet(title,initial,ph,cb){sheet(`<h2>${esc(title)}</h2><textarea id="memoT" rows="5" placeholder="${esc(ph)}">${esc(initial||'')}</textarea><div class="foot"><span>${initial?'<button class="btn danger" id="memoClr">メモを消す</button>':''}</span><span class="actions"><button class="btn" data-act="close">キャンセル</button><button class="btn primary" id="memoOk">保存</button></span></div>`,
   el=>{$('#memoOk').onclick=()=>{cb($('#memoT').value.trim());closeSheet();toast('メモを保存しました')};const c=$('#memoClr');if(c)c.onclick=()=>{cb('');closeSheet();toast('メモを消しました')}})}
 function catPicker(ids){const one=ids.length===1?S.tracks.get(ids[0]):null,cur=one?(hasCat(one)?one.cat:''):null;
@@ -916,7 +931,7 @@ async function wipeAll(){closeSheet();audio.pause();audio.removeAttribute('src')
 /* ---------- メニュー ---------- */
 function closeMenu(){$('#menu')?.remove()}
 function openMenu(btn,id){closeMenu();const t=S.tracks.get(id);if(!t)return;const p=S.playlists.find(x=>'pl:'+x.id===S.view&&!x.rule);
-  const items=[['play','再生',IC.play],['playNext','次に再生',IC.next],'-',['rename','名前を変更',IC.pen],['memo',t.memo?'メモを編集':'メモを書く',IC.memo],['setCat','カテゴリを変更',IC.folder],['addPl','プレイリストに追加',IC.list],['edit','評価・タグ・曲情報',IC.star],'-',...(p?[['rmFromPl','このプレイリストから外す',IC.x]]:[]),['askDel','曲を削除',IC.trash,'danger']];
+  const items=[['play','再生',IC.play],['playNext','次に再生',IC.next],'-',['rename','曲名を変更',IC.pen],['memo',t.memo?'メモを編集':'メモを追加',IC.memo],['setCat','カテゴリを変更',IC.folder],['addPl','プレイリストに追加',IC.list],['edit','評価・タグ・曲情報',IC.star],'-',...(p?[['rmFromPl','このプレイリストから外す',IC.x]]:[]),['askDel','曲を削除',IC.trash,'danger']];
   const m=document.createElement('div');m.className='menu';m.id='menu';m.setAttribute('role','menu');
   m.innerHTML=`<div class="mh">${esc(t.title)}</div>`+items.map(x=>x==='-'?'<hr>':`<button role="menuitem" data-mact="${x[0]}" data-id="${id}"${x[3]?` class="${x[3]}"`:''}>${x[2]}${x[1]}</button>`).join('');
   document.body.appendChild(m);const r=btn.getBoundingClientRect(),mw=m.offsetWidth,mh=m.offsetHeight;
@@ -926,7 +941,7 @@ function menuAction(act,id){const t=S.tracks.get(id);if(!t)return;closeMenu();
     case'play':startQueue(current.length?current:[t],id,false);break;
     case'playNext':if(!S.queue.length){startQueue([t],null,false);break}{const i=S.queue.indexOf(id);if(i>=0&&i!==S.qi){S.queue.splice(i,1);if(i<S.qi)S.qi--}if(S.queue[S.qi]!==id)S.queue.splice(S.qi+1,0,id);toast(`「${t.title}」を次に再生します`)}break;
     case'rename':renameSheet(id);break;
-    case'memo':memoSheet(`「${t.title}」のメモ`,t.memo,'例：サビ前のギターが好き／友達の結婚式で流した',v=>{t.memo=v;saveTrack(t);render()});break;
+    case'memo':renameSheet(id,'memo');break;
     case'setCat':catPicker([id]);break;case'addPl':plPicker([id]);break;case'edit':editSheet(id);break;
     case'rmFromPl':{const p=S.playlists.find(x=>'pl:'+x.id===S.view);if(p){p.ids=p.ids.filter(x=>x!==id);savePlaylists();render();toast('プレイリストから外しました')}break}
     case'askDel':askDel(id);break}}
@@ -953,6 +968,9 @@ document.addEventListener('click',e=>{
       case'renamePl':if(p)nameSheet('プレイリスト名を変更',p.name,n=>{p.name=n;savePlaylists();render()});break;
       case'memoPl':if(p)memoSheet(`「${p.name}」のメモ`,p.memo,'例：金曜の夜に聴く用。テンポが速い順に並べる',vv=>{p.memo=vv;savePlaylists();render()});break;
       case'editTabs':tabsSheet();break;
+      case'rename':closeMenu();renameSheet(id);break;
+      case'memoEdit':renameSheet(id,'memo');break;
+      case'editNow':{const cid=S.queue[S.qi];if(cid)renameSheet(cid,'memo');break}
       case'openDrawer':document.body.classList.add('drawer-open');break;
       case'closeDrawer':document.body.classList.remove('drawer-open');break;
       case'addTo':addSheet(targetOfView());break;
@@ -981,8 +999,7 @@ document.addEventListener('click',e=>{
     if(e.detail>1)return;
     if(S.queue[S.qi]===id&&audio.src){audio.paused?audio.play():audio.pause();return}startQueue(current,id,false)}
 });
-document.addEventListener('dblclick',e=>{const b=e.target.closest('[data-rename]');if(b&&!S.selMode){e.preventDefault();renameSheet(b.dataset.rename);return}
-  const m=e.target.closest('[data-memo]');if(m)menuAction('memo',m.dataset.memo)});
+document.addEventListener('dblclick',e=>{const b=e.target.closest('[data-rename]');if(b&&!S.selMode){e.preventDefault();renameSheet(b.dataset.rename)}});
 window.addEventListener('resize',closeMenu);document.addEventListener('scroll',closeMenu,true);
 $('#fileIn').onchange=e=>{importFiles(e.target.files);e.target.value=''};
 $('#dirIn').onchange=e=>{importFiles(e.target.files);e.target.value=''};
