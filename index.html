@@ -666,6 +666,48 @@ button.badge.key:hover{background:var(--accent);color:#fff}
   .kc{height:40px;font-size:11.5px}
 }
 @media (prefers-reduced-motion:reduce){.keyhud{transition:none}}
+/* 十字キー・転調 */
+.kpad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto auto auto;gap:8px;max-width:340px;margin:0 auto;width:100%;grid-template-areas:". up ." "left mid right" ". down ."}
+.kp{border:1px solid var(--line2);background:#fff;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:8px 4px;min-height:74px;color:var(--ink);font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.kp i{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--side);color:var(--ink)}
+.kp i svg{width:18px;height:18px}
+.kp b{font-size:12.5px;font-weight:800;line-height:1.2;text-align:center}
+.kp small{font-size:10.5px;color:var(--muted);font-weight:600}
+.kp:hover:not(:disabled){border-color:var(--ink2)}
+.kp:active:not(:disabled){transform:scale(.96);background:var(--hover)}
+.kp:disabled{opacity:.38;cursor:default}
+.kp.up{grid-area:up;border-radius:16px 16px 10px 10px}.kp.down{grid-area:down;border-radius:10px 10px 16px 16px}
+.kp.left{grid-area:left;border-radius:16px 10px 10px 16px}.kp.right{grid-area:right;border-radius:10px 16px 16px 10px}
+.kp.left i,.kp.right i{background:#FBEFF1;color:var(--accent)}
+.kp.left small,.kp.right small{color:var(--accent)}
+.kp.mid{grid-area:mid;cursor:default;background:var(--ink);border-color:var(--ink);color:#fff;border-radius:50%;aspect-ratio:1;min-height:0;align-self:center;justify-self:center;width:100%;max-width:112px}
+.kp.mid b{font-size:30px;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kpad.on .kp.mid{background:var(--accent);border-color:var(--accent)}
+.kp.mid em{font-style:normal;font-size:12px;font-weight:700;opacity:.9}
+.kp.mid small{color:rgba(255,255,255,.75);font-size:9.5px;text-align:center;line-height:1.3;padding:0 6px}
+.kp-note{text-align:center;font-size:11.5px;color:var(--muted);margin:6px 0 0}
+.mtl{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.mtl-h{display:flex;justify-content:space-between;align-items:baseline}.mtl-h b{font-size:13px}.mtl-h span{font-size:11.5px;color:var(--muted)}
+.tl{position:relative;height:30px;border-radius:8px;background:var(--side);overflow:hidden}
+.tl[data-act]{cursor:pointer}
+.tl-seg{position:absolute;top:0;bottom:0;display:grid;place-items:center;font-size:11px;font-weight:800;color:#fff}
+.tl-seg.on{background:linear-gradient(180deg,#E25D70,var(--accent))}
+.tl-mk{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink)}
+.tl-ph{position:absolute;top:-2px;bottom:-2px;width:3px;margin-left:-1.5px;background:var(--ink);border-radius:2px;box-shadow:0 0 0 2px #fff}
+.tl-ax{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.mlist{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.mrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:6px 8px}
+.mt{display:inline-flex;align-items:center;gap:4px;border:0;background:var(--side);border-radius:999px;padding:4px 10px;font-weight:700;font-size:12.5px;font-variant-numeric:tabular-nums}
+.mt svg{width:11px;height:11px}.mt:disabled{opacity:.6}
+.md{flex:1;font-size:12.5px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px}.md b{font-size:15px;color:var(--accent)}.md small{width:100%;font-size:11px;color:var(--muted)}
+.cbtn.sm{width:32px;height:32px}.cbtn.sm svg{width:15px;height:15px}
+.seekwrap{position:relative;flex:1;display:flex;align-items:center;min-width:0}
+.seekwrap input{width:100%}
+#seekMarks{position:absolute;inset:0;pointer-events:none}
+#seekMarks i{position:absolute;top:50%;width:3px;height:11px;margin:-5.5px 0 0 -1.5px;background:var(--accent);border-radius:2px}
+.np-key .kpad{max-width:280px}.np-key .kp{min-height:64px}.np-key .kp.mid b{font-size:26px}
+.keysheet .foot .actions{flex-wrap:wrap}
+@media (max-width:760px){.kp{min-height:70px}.kpad{gap:7px}}
 @media (min-width:761px){.mob-top{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -700,7 +742,7 @@ button.badge.key:hover{background:var(--accent);color:#fff}
         <button class="ib mkey" id="bKey" data-act="keyOpen" aria-label="キー（移調）を変える"></button>
         <button class="ib opt" id="bRep" aria-label="リピート" title="リピート"></button>
       </div>
-      <div class="seek"><span id="tCur">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="再生位置"><span id="tDur">0:00</span></div>
+      <div class="seek"><span id="tCur">0:00</span><span class="seekwrap"><input type="range" id="seek" min="0" max="1000" value="0" aria-label="再生位置"><span id="seekMarks" aria-hidden="true"></span></span><span id="tDur">0:00</span></div>
     </div>
     <div class="vol"><div class="keyctl" id="pKey" role="group" aria-label="キー（移調）"></div><span class="stars" id="pStars"></span><button class="ib" id="bNowP" data-act="toggleNow" aria-label="再生中の曲を表示" title="再生中の曲を表示"></button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg><input type="range" id="vol" min="0" max="100" value="85" aria-label="音量"></div>
   </div>
@@ -771,12 +813,13 @@ const IC={
  timer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 1.6M9.5 2.5h5M19 6l1.5-1.5"/></svg>',
  sharp:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>',
  flat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"/></svg>',
+ chevl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 6-6 6 6 6"/></svg>',
  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>'
 };
 const MOODS=['明るい','元気が出る','落ち着く','切ない','エモい','激しい','おしゃれ'];
 const SCENES=['作業','ドライブ','朝','夜','寝る前','運動','移動中','カフェ'];
 
-const S={tracks:new Map(),playlists:[],cats:[],sel:new Set(),selMode:false,view:'all',q:'',sort:'manual',queue:[],qi:-1,np:true,stop1:null,pre:null,needResume:false,artistImgs:{},imgTarget:null,hmenu:null,shuffle:false,repeat:'off',autoNext:false,importTarget:null,pendingCount:null,
+const S={tracks:new Map(),playlists:[],cats:[],sel:new Set(),selMode:false,view:'all',q:'',sort:'manual',queue:[],qi:-1,np:true,tlTick:0,stop1:null,pre:null,needResume:false,artistImgs:{},imgTarget:null,hmenu:null,shuffle:false,repeat:'off',autoNext:false,importTarget:null,pendingCount:null,
   cloud:null,col:null,assets:null,cloudState:'checking',upNote:'',localOK:true};
 
 /* ---------- IndexedDB (この端末の保存) ---------- */
@@ -962,7 +1005,7 @@ function rowHTML(t,i,ctx,dnd){const cur=S.queue[S.qi]===t.id,sel=S.sel.has(t.id)
   return`<div class="row${cur?' playing':''}${sel?' selected':''}" data-play="${t.id}" data-sid="${t.id}" data-i="${i}">
    ${lead}<span class="idx">${cur?`<span class="eq${$('#audio').paused?' paused':''}"><i></i><i></i><i></i></span>`:i+1}</span>
    <div class="art" ${artStyle(t)}>${t.art?'':ini(t)}<span class="artplay">${cur&&!$('#audio').paused?IC.pause:IC.play}</span></div>
-   <div class="t"><b data-rename="${t.id}" title="ダブルクリックで名前を変更">${esc(t.title)}${t.sample?'<span class="badge">サンプル</span>':''}${t.key?`<button class="badge key" data-act="keyOpen" data-id="${t.id}" title="キーを変える">キー${keyTxt(t.key)}</button>`:''}${avail}</b><span>${esc(t.artist)}</span>${t.memo?`<div class="memo" data-act="memoEdit" data-id="${t.id}" title="タップでメモを編集">${IC.memo}<em>${esc(t.memo.replace(/\s*\n\s*/g,' ／ '))}</em></div>`:(t.sample?'':`<button class="addmemo" data-act="memoEdit" data-id="${t.id}">${IC.plus}メモを追加</button>`)}${chips?`<div class="chipline">${chips}</div>`:''}</div>
+   <div class="t"><b data-rename="${t.id}" title="ダブルクリックで名前を変更">${esc(t.title)}${t.sample?'<span class="badge">サンプル</span>':''}${t.key||(t.mods&&t.mods.length)?`<button class="badge key" data-act="keyOpen" data-id="${t.id}" title="キーを変える">${t.key?'キー'+keyTxt(t.key):''}${t.mods&&t.mods.length?(t.key?'・':'')+'転調'+t.mods.length:''}</button>`:''}${avail}</b><span>${esc(t.artist)}</span>${t.memo?`<div class="memo" data-act="memoEdit" data-id="${t.id}" title="タップでメモを編集">${IC.memo}<em>${esc(t.memo.replace(/\s*\n\s*/g,' ／ '))}</em></div>`:(t.sample?'':`<button class="addmemo" data-act="memoEdit" data-id="${t.id}">${IC.plus}メモを追加</button>`)}${chips?`<div class="chipline">${chips}</div>`:''}</div>
    <div class="alb">${esc(t.album)}${t.year?' · '+esc(t.year):''}</div>
    <div class="stars">${stars(t.rating)}</div>
    <div class="dur">${fmt(t.duration)}</div>
@@ -1049,7 +1092,7 @@ async function prefetchNext(){const i=nextIndex();if(i<0)return;const id=S.queue
 function advanceSync(){const i=nextIndex();if(i<0){renderPlayer();return true}
   const id=S.queue[i];if(!(S.pre&&S.pre.id===id))return false;
   const t=S.tracks.get(id);if(!t)return false;
-  const old=curURL;curURL=S.pre.url;S.pre=null;S.qi=i;audio.src=curURL;if(KEY.st||t.key)applyKey();
+  const old=curURL;curURL=S.pre.url;S.pre=null;S.qi=i;audio.src=curURL;if(KEY.st||hasKeyFx(t))applyKey();
   const pr=audio.play();if(pr&&pr.catch)pr.catch(()=>{S.needResume=true});
   if(old&&old.startsWith('blob:')&&old!==curURL)setTimeout(()=>URL.revokeObjectURL(old),3000);
   t.plays=(t.plays||0)+1;t.lastPlayed=Date.now();saveTrack(t);mediaSession(t);
@@ -1073,7 +1116,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)return;
   else if(audio.ended&&S.autoNext&&S.repeat!=='one'&&nextIndex()>=0)next()});
 audio.addEventListener('play',()=>{if(S.pendingCount&&S.queue[S.qi]===S.pendingCount){const t=S.tracks.get(S.pendingCount);S.pendingCount=null;if(t){t.plays=(t.plays||0)+1;t.lastPlayed=Date.now();saveTrack(t)}}});
 audio.addEventListener('play',renderSoon);audio.addEventListener('pause',renderSoon);
-audio.addEventListener('timeupdate',()=>{checkTimer();if(seeking)return;const d=audio.duration;$('#tCur').textContent=fmt(audio.currentTime);$('#tDur').textContent=fmt(d);$('#seek').value=d?audio.currentTime/d*1000:0;$('#seek').style.setProperty('--p',(d?audio.currentTime/d*100:0)+'%');
+audio.addEventListener('timeupdate',()=>{checkTimer();keyTick();if(S.tlTick++%4===0){const p=$('.tl-ph'),t=S.tracks.get(S.queue[S.qi]);if(p&&t&&t.duration)document.querySelectorAll('.tl-ph').forEach(x=>x.style.left=Math.min(100,audio.currentTime/t.duration*100)+'%')}if(seeking)return;const d=audio.duration;$('#tCur').textContent=fmt(audio.currentTime);$('#tDur').textContent=fmt(d);$('#seek').value=d?audio.currentTime/d*1000:0;$('#seek').style.setProperty('--p',(d?audio.currentTime/d*100:0)+'%');
   if('mediaSession'in navigator&&d&&isFinite(d)){try{navigator.mediaSession.setPositionState({duration:d,position:Math.min(audio.currentTime,d),playbackRate:1})}catch(e){}}});
 let seeking=false;$('#seek').addEventListener('input',e=>{seeking=true;e.target.style.setProperty('--p',e.target.value/10+'%');const d=audio.duration;if(d)$('#tCur').textContent=fmt(e.target.value/1000*d)});
 $('#seek').addEventListener('change',e=>{const d=audio.duration;if(d)audio.currentTime=e.target.value/1000*d;seeking=false});
@@ -1101,8 +1144,9 @@ audio.addEventListener('play',()=>{try{navigator.mediaSession.playbackState='pla
 audio.addEventListener('pause',()=>{try{navigator.mediaSession.playbackState='paused'}catch(_){}});
 function renderPlayer(){const t=S.tracks.get(S.queue[S.qi]);
   const pa=$('#pArt');pa.innerHTML=t?(t.art?'':ini(t)):IC.note;pa.style.backgroundImage=t?(t.art?`url('${t.art}')`:sleeveBg(seedOf(t))):'';pa.toggleAttribute('data-sleeve',!!t&&!t.art);
+  const sm=$('#seekMarks');if(sm)sm.innerHTML=t&&t.mods&&t.mods.length&&t.duration?t.mods.map(m=>`<i style="left:${m.t/t.duration*100}%" title="${fmt(m.t)}から転調 ${keyTxt(m.d)}"></i>`).join(''):'';
   const pk=$('#pKey');if(pk)pk.innerHTML=t?keyCtlHTML(t,false):'';
-  const bk=$('#bKey');if(bk){const k=(t&&t.key)||0;bk.innerHTML=`<span class="mk-i">♯♭</span><span class="mk-v">${t?(k?keyTxt(k):'キー'):'キー'}</span>`;bk.classList.toggle('on',!!k);bk.disabled=!t}
+  const bk=$('#bKey');if(bk){const k=t?(t.key||0)+segD(t,audio.currentTime):0;bk.innerHTML=`<span class="mk-i">♯♭</span><span class="mk-v">${t?(k?keyTxt(k):'キー'):'キー'}</span>`;bk.classList.toggle('on',!!k);bk.disabled=!t}
   const bn=$('#bNowP');if(!bn.innerHTML)bn.innerHTML=IC.panel;bn.classList.toggle('on',S.np);renderNow(t);
   $('#pTitle').textContent=t?t.title:'曲を選ぶと再生します';$('#pArtist').textContent=t?t.artist:'—';
   $('#pStars').innerHTML=t?stars(t.rating):'';const ne=$('#bNowEdit');ne.hidden=!t||!!t.sample;if(!ne.innerHTML)ne.innerHTML=IC.memo;
@@ -1165,26 +1209,45 @@ function keyName(t,k){if(!t||!t.origKey)return'';const m=/m$/.test(t.origKey),i=
 function keySub(k){return k?`半音${Math.abs(k)}つ${k>0?'上げ':'下げ'}`:'原曲キー'}
 function keyCtlHTML(t,big){const k=(t&&t.key)||0,id=t?t.id:'';const nm=keyName(t,k);
   if(!big)return`<div class="kbox${k?' on':''}"><button class="kb" data-act="keyStep" data-d="-1" data-id="${id}" aria-label="キーを半音下げる" title="半音下げる（［キー）">${IC.flat}</button><button class="kv" data-act="keyOpen" data-id="${id}" title="キーの設定を開く"><b>${k?keyTxt(k):'原曲'}</b></button><button class="kb" data-act="keyStep" data-d="1" data-id="${id}" aria-label="キーを半音上げる" title="半音上げる（］キー）">${IC.sharp}</button></div>`;
-  return`<div class="kpanel${k?' on':''}"><div class="kmain"><button class="kbig" data-act="keyStep" data-d="-1" data-id="${id}" aria-label="キーを半音下げる">${IC.flat}<small>下げる</small></button>
-   <div class="kread"><b>${k?keyTxt(k):'±0'}</b><span>${keySub(k)}</span>${nm?`<em>${esc(nm)}<i>原曲 ${esc(t.origKey)}</i></em>`:''}</div>
-   <button class="kbig" data-act="keyStep" data-d="1" data-id="${id}" aria-label="キーを半音上げる">${IC.sharp}<small>上げる</small></button></div>
-   <div class="kstrip" role="radiogroup" aria-label="キーを選ぶ">${Array.from({length:13},(_,i)=>i-6).map(v=>`<button role="radio" aria-checked="${k===v}" class="kc${v===0?' z':''}" data-act="keySet" data-k="${v}" data-id="${id}" aria-label="${v?keyTxt(v):'原曲キー'}">${v===0?'0':(v>0?'+'+v:'−'+(-v))}</button>`).join('')}</div>
-   <div class="kends"><span>低く</span><span class="kz">0 = 原曲キー</span>${Math.abs(k)>6?`<span class="kfar">${keyTxt(k)}（目盛りの外）</span>`:''}<span>高く</span></div></div>`}
+  return keyPadHTML(t)+modTimelineHTML(t,false)}
+/* 十字キー：▲▼＝曲全体（移調）／◀▶＝ここから（転調） */
+function keyPadHTML(t){const id=t.id,base=t.key||0,live=S.queue[S.qi]===id&&!!audio.src;const now=live?audio.currentTime:0;
+  const seg=segD(t,now),eff=base+seg,nm=keyName(t,eff);
+  return`<div class="kpad${eff?' on':''}" role="group" aria-label="キーの十字操作">
+   <button class="kp up" data-act="keyStep" data-d="1" data-id="${id}" aria-label="曲全体を半音上げる"><i>${IC.up}</i><b>上げる</b><small>曲全体</small></button>
+   <button class="kp left" data-act="modStep" data-d="-1" data-id="${id}"${live?'':' disabled'} aria-label="今の位置から半音下げる（転調）"><i>${IC.chevl}</i><b>ここから<br>下げる</b><small>転調</small></button>
+   <div class="kp mid" aria-live="polite"><b>${eff?keyTxt(eff):'±0'}</b>${nm?`<em>${esc(nm)}</em>`:''}<small>全体 ${keyTxt(base)}${(t.mods||[]).length?` ／ 転調 ${keyTxt(seg)}`:''}</small></div>
+   <button class="kp right" data-act="modStep" data-d="1" data-id="${id}"${live?'':' disabled'} aria-label="今の位置から半音上げる（転調）"><i>${IC.chev}</i><b>ここから<br>上げる</b><small>転調</small></button>
+   <button class="kp down" data-act="keyStep" data-d="-1" data-id="${id}" aria-label="曲全体を半音下げる"><i>${IC.down}</i><b>下げる</b><small>曲全体</small></button>
+  </div>${live?'':'<p class="kp-note">◀ ▶（転調）は、この曲を再生中に使えます</p>'}`}
+function modTimelineHTML(t,full){const mods=t.mods||[],D=isFinite(t.duration)&&t.duration>0?t.duration:0;const live=S.queue[S.qi]===t.id&&!!audio.src;
+  if(!D)return'';const pos=live?Math.min(100,audio.currentTime/D*100):0;let prev=0,segs='',d0=0;
+  [...mods,{t:D,d:null}].forEach(m=>{const w=(m.t-prev)/D*100;segs+=`<span class="tl-seg${d0?' on':''}" style="left:${prev/D*100}%;width:${w}%">${d0&&w>8?keyTxt(d0):''}</span>`;prev=m.t;d0=m.d});
+  return`<div class="mtl"><div class="mtl-h"><b>転調</b><span>${mods.length?`${mods.length}か所`:'なし（▶ ◀ で今の位置から追加）'}</span></div>
+   <div class="tl" ${live?`data-act="tlSeek" data-id="${t.id}" title="タップでその位置へ移動"`:''}>${segs}${mods.map(m=>`<i class="tl-mk" style="left:${m.t/D*100}%"></i>`).join('')}${live?`<i class="tl-ph" style="left:${pos}%"></i>`:''}</div>
+   <div class="tl-ax"><span>0:00</span><span>${fmt(D)}</span></div>
+   ${full&&mods.length?`<div class="mlist">${mods.map((m,i)=>`<div class="mrow"><button class="mt" data-act="modSeek" data-i="${i}" data-id="${t.id}"${live?'':' disabled'} title="この位置へ移動">${IC.play}${fmt(m.t)}</button><span class="md">から<b>${keyTxt(m.d)}</b><small>実際のキー ${keyTxt((t.key||0)+m.d)}</small></span><span class="actions"><button class="cbtn sm" data-act="modAdj" data-i="${i}" data-d="-1" data-id="${t.id}" aria-label="半音下げる">${IC.flat}</button><button class="cbtn sm" data-act="modAdj" data-i="${i}" data-d="1" data-id="${t.id}" aria-label="半音上げる">${IC.sharp}</button><button class="cbtn sm" data-act="modDel" data-i="${i}" data-id="${t.id}" aria-label="この転調を削除">${IC.trash}</button></span></div>`).join('')}</div>`:''}</div>`}
+function segD(t,sec){let d=0;for(const m of(t.mods||[])){if(m.t<=sec+0.05)d=m.d;else break}return d}
+function hasKeyFx(t){return!!(t&&((t.key||0)||(t.mods&&t.mods.length)))}
+function normMods(t){const a=(t.mods||[]).filter(m=>isFinite(m.t)).sort((x,y)=>x.t-y.t);const out=[];let prev=0;for(const m of a){m.d=Math.max(-12,Math.min(12,m.d));if(m.d!==prev){out.push(m);prev=m.d}}t.mods=out}
+function afterKeyEdit(t,label){if(!t.sample)saveTrack(t);if(S.queue[S.qi]===t.id)applyKey();renderPlayer();renderView();if($('#layer2 .keysheet'))renderKeySheet();else keyHud(t,(t.key||0)+segD(t,S.queue[S.qi]===t.id?audio.currentTime:0),label)}
+function modStep(id,d){const t=S.tracks.get(id);if(!t)return;if(S.queue[S.qi]!==id||!audio.src){toast('転調は、この曲を再生中に使えます');return}
+  const now=Math.round(audio.currentTime*10)/10;t.mods=(t.mods||[]).map(m=>({...m}));const near=t.mods.find(m=>Math.abs(m.t-now)<1.5);
+  if(near)near.d+=d;else t.mods.push({t:now,d:segD(t,now)+d});normMods(t);afterKeyEdit(t,`${fmt(now)}から転調`)}
 function keySheet(id){const t=S.tracks.get(id||S.queue[S.qi]);if(!t){toast('曲を再生するか、曲を選ぶとキーを変えられます');return}S.keyTarget=t.id;renderKeySheet()}
 function renderKeySheet(){const L=$('#layer2'),t=S.tracks.get(S.keyTarget);if(!t){L.innerHTML='';return}const k=t.key||0;
   const opts=['',...NOTES,...NOTES.map(n=>n+'m')].map(v=>`<option value="${v}"${(t.origKey||'')===v?' selected':''}>${v?v.replace(/m$/,'')+(v.endsWith('m')?' マイナー':' メジャー'):'わからない'}</option>`).join('');
   const playing=S.queue[S.qi]===t.id;
   L.innerHTML=`<div class="veil top kveil" data-act="keyClose"><div class="sheet keysheet" role="dialog" aria-modal="true" aria-label="キー（移調）">
-   <div class="ks-head"><div class="art" ${artStyle(t)}>${t.art?'':ini(t)}</div><div class="t"><h2>キー（移調）</h2><span>${esc(t.title)}${playing?'':'（再生していない曲）'}</span></div><button class="cbtn" data-act="keyClose" aria-label="閉じる">${IC.x}</button></div>
-   ${keyCtlHTML(t,true)}
+   <div class="ks-head"><div class="art" ${artStyle(t)}>${t.art?'':ini(t)}</div><div class="t"><h2>キー（移調・転調）</h2><span>${esc(t.title)}${playing?'':'（再生していない曲）'}</span></div><button class="cbtn" data-act="keyClose" aria-label="閉じる">${IC.x}</button></div>
+   ${keyPadHTML(t)}${modTimelineHTML(t,true)}
    <div class="ks-row"><label for="ksOrig">原曲のキー<small>わかる場合に選ぶと、移調後のキー名を表示します</small></label><select id="ksOrig">${opts}</select></div>
-   <div class="foot"><button class="btn" data-act="keySet" data-k="0" data-id="${t.id}"${k?'':' disabled'}>${IC.undo}原曲キーに戻す</button><span class="actions"><button class="btn primary" data-act="keyClose">完了</button></span></div>
-   <p class="muted ks-note">テンポは変わりません。設定は曲ごとに保存されます。<span class="pconly">PCでは ［ と ］ キーでも変えられます。</span></p></div></div>`;
+   <div class="foot"><span class="actions"><button class="btn" data-act="keySet" data-k="0" data-id="${t.id}"${k?'':' disabled'}>${IC.undo}全体を原曲キーに</button><button class="btn" data-act="modClear" data-id="${t.id}"${(t.mods||[]).length?'':' disabled'}>${IC.trash}転調をすべて消す</button></span><span class="actions"><button class="btn primary" data-act="keyClose">完了</button></span></div>
+   <p class="muted ks-note">▲▼は曲全体（移調）、◀▶は今の再生位置から先（転調）を半音ずつ変えます。テンポは変わりません。設定は曲ごとに保存されます。<span class="pconly">PCでは ［ と ］ キーでも変えられます。</span></p></div></div>`;
   $('#ksOrig').onchange=e=>{t.origKey=e.target.value;if(!t.sample)saveTrack(t);renderKeySheet();renderPlayer()}}
-let hudT;function keyHud(t,k){let h=$('#keyHud');if(!h){h=document.createElement('div');h.id='keyHud';h.className='keyhud';h.setAttribute('aria-live','polite');document.body.appendChild(h)}
-  const nm=keyName(t,k);h.innerHTML=`<span>キー</span><b>${k?keyTxt(k):'原曲'}</b>${nm?`<em>${esc(nm)}</em>`:''}`;h.classList.remove('show');void h.offsetWidth;h.classList.add('show');clearTimeout(hudT);hudT=setTimeout(()=>h.classList.remove('show'),900)}
-function setKeyFor(id,k){const t=S.tracks.get(id);if(!t)return;k=Math.max(-12,Math.min(12,k));if(k===(t.key||0))return;t.key=k;if(!t.sample)saveTrack(t);
-  if(S.queue[S.qi]===id)applyKey();renderPlayer();renderView();if($('#layer2 .keysheet'))renderKeySheet();else keyHud(t,k)}
+let hudT;function keyHud(t,k,label){let h=$('#keyHud');if(!h){h=document.createElement('div');h.id='keyHud';h.className='keyhud';h.setAttribute('aria-live','polite');document.body.appendChild(h)}
+  const nm=keyName(t,k);h.innerHTML=`<span>${esc(label||'キー')}</span><b>${k?keyTxt(k):'原曲'}</b>${nm?`<em>${esc(nm)}</em>`:''}`;h.classList.remove('show');void h.offsetWidth;h.classList.add('show');clearTimeout(hudT);hudT=setTimeout(()=>h.classList.remove('show'),900)}
+function setKeyFor(id,k){const t=S.tracks.get(id);if(!t)return;k=Math.max(-12,Math.min(12,k));if(k===(t.key||0))return;t.key=k;afterKeyEdit(t,'曲全体')}
 async function ensureKeyGraph(){if(KEY.st)return true;if(KEY.failed)return false;if(KEY.ready)return KEY.ready;
   KEY.ready=(async()=>{try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC||!window.AudioWorkletNode)throw new Error('unsupported');
     const ctx=new AC({latencyHint:'playback'});await ctx.audioWorklet.addModule('vendor/soundtouch-processor.js');
@@ -1194,9 +1257,16 @@ async function ensureKeyGraph(){if(KEY.st)return true;if(KEY.failed)return false
    catch(e){KEY.failed=true;toast('このブラウザでは移調が使えません。最新のChrome・Safariでお試しください');return false}})();
   return KEY.ready}
 function routeKey(on){if(!KEY.st||KEY.routed===on)return;try{KEY.src.disconnect()}catch(_){}KEY.src.connect(on?KEY.st:KEY.ctx.destination);KEY.routed=on}
-async function applyKey(){const t=S.tracks.get(S.queue[S.qi]);const k=(t&&t.key)||0;
-  if(k&&!KEY.st){if(!(await ensureKeyGraph()))return}
-  if(!KEY.st)return;KEY.st.parameters.get('pitchSemitones').setValueAtTime(k,KEY.ctx.currentTime);routeKey(!!k);if(!audio.paused&&KEY.ctx.state!=='running')KEY.ctx.resume()}
+let lastEff=null,schedAt=null;
+async function applyKey(){const t=S.tracks.get(S.queue[S.qi]);const fx=hasKeyFx(t);
+  if(fx&&!KEY.st){if(!(await ensureKeyGraph()))return}
+  if(!KEY.st)return;const v=t?(t.key||0)+segD(t,audio.currentTime):0;const pr=KEY.st.parameters.get('pitchSemitones');
+  try{pr.cancelScheduledValues(0)}catch(_){}pr.setValueAtTime(v,KEY.ctx.currentTime);lastEff=v;schedAt=null;routeKey(fx);if(!audio.paused&&KEY.ctx.state!=='running')KEY.ctx.resume()}
+function keyTick(){const t=S.tracks.get(S.queue[S.qi]);if(!KEY.st||!t||!(t.mods&&t.mods.length))return;const now=audio.currentTime,pr=KEY.st.parameters.get('pitchSemitones');
+  const v=(t.key||0)+segD(t,now);if(v!==lastEff){pr.setValueAtTime(v,KEY.ctx.currentTime);lastEff=v;if($('#nowp .kpad')||$('#layer2 .keysheet'))refreshKeyUI()}
+  const nx=t.mods.find(m=>m.t>now+0.05);if(nx&&nx.t-now<0.6&&schedAt!==nx.t&&!audio.paused){pr.setValueAtTime((t.key||0)+nx.d,KEY.ctx.currentTime+(nx.t-now)/(audio.playbackRate||1));schedAt=nx.t}}
+let kuiT=0;function refreshKeyUI(){const n=Date.now();if(n-kuiT<300)return;kuiT=n;if($('#layer2 .keysheet'))renderKeySheet();const t=S.tracks.get(S.queue[S.qi]);if(t)renderNow(t)}
+audio.addEventListener('seeked',()=>{if(KEY.st)applyKey()});
 function changeKey(d,abs){const t=S.tracks.get(S.queue[S.qi]);if(!t){toast('曲を再生すると、キーを変えられます');return}setKeyFor(t.id,abs!=null?abs:(t.key||0)+d)}
 audio.addEventListener('play',()=>{if(KEY.ctx&&KEY.ctx.state!=='running')KEY.ctx.resume()});
 function renderNow(t){const el=$('#nowp');if(!el)return;
@@ -1249,7 +1319,7 @@ function nameSheet(title,initial,cb,ph){sheet(`<h2>${esc(title)}</h2><div class=
 function renameSheet(id,focus){const t=S.tracks.get(id);if(!t)return;
   sheet(`<div class="ehead"><button class="art earts" data-act="setArtTrack" data-id="${t.id}" ${artStyle(t,'',true)} aria-label="ジャケット画像を変更">${t.art?'':ini(t)}</button><div class="t"><h2>曲名・メモを編集</h2><span>${esc(t.fileName||t.title)}</span><span class="eimg"><button class="lnk" data-act="setArtTrack" data-id="${t.id}">${IC.image}ジャケット画像を変更</button>${t.artCustom?`<button class="lnk" data-act="resetArtTrack" data-id="${t.id}">${IC.undo}元に戻す</button>`:''}</span></div></div>
    <div class="fields"><label class="full">曲名<input id="rnT" value="${esc(t.title)}"></label><label>アーティスト<input id="rnA" value="${esc(t.artist)}"></label><label>アルバム<input id="rnB" value="${esc(t.album)}"></label>
-   <label>キー（移調）<select id="rnK">${Array.from({length:25},(_,i)=>12-i).map(k=>`<option value="${k}"${(t.key||0)===k?' selected':''}>${k?keyTxt(k)+'（半音'+Math.abs(k)+'つ'+(k>0?'上':'下')+'）':'原曲キー'}</option>`).join('')}</select></label>
+   <label>キー（曲全体）<select id="rnK">${Array.from({length:25},(_,i)=>12-i).map(k=>`<option value="${k}"${(t.key||0)===k?' selected':''}>${k?keyTxt(k)+'（半音'+Math.abs(k)+'つ'+(k>0?'上':'下')+'）':'原曲キー'}</option>`).join('')}</select></label>
    <label class="full">メモ<textarea id="rnM" rows="5" placeholder="例：サビ前のギターが好き／友達の結婚式で流した／カラオケの練習中">${esc(t.memo||'')}</textarea></label></div>
    <div class="foot"><button class="btn" data-act="edit" data-id="${t.id}">${IC.star}評価・タグ・カテゴリ</button><span class="actions"><button class="btn" data-act="close">キャンセル</button><button class="btn primary" id="rnOk">保存</button></span></div>`,
   el=>{const ok=()=>{t.title=$('#rnT').value.trim()||t.title;t.artist=$('#rnA').value.trim()||t.artist;t.album=$('#rnB').value.trim();t.memo=$('#rnM').value.trim();const nk=+$('#rnK').value;const kc=(t.key||0)!==nk;t.key=nk;saveTrack(t);closeSheet();render();if(kc&&S.queue[S.qi]===t.id)applyKey();toast('保存しました')};
@@ -1539,6 +1609,12 @@ document.addEventListener('click',e=>{
     if(act==='keyStep'){const t=S.tracks.get(id||S.queue[S.qi]);if(t)setKeyFor(t.id,(t.key||0)+(+a.dataset.d));else changeKey(+a.dataset.d);return}
     if(act==='keySet'){setKeyFor(id||S.queue[S.qi],+a.dataset.k);return}
     if(act==='keyOpen'){keySheet(id);return}
+    if(act==='modStep'){modStep(id,+a.dataset.d);return}
+    if(act==='modSeek'){const t=S.tracks.get(id),m=t&&t.mods[+a.dataset.i];if(m&&S.queue[S.qi]===id){audio.currentTime=Math.max(0,m.t-2);toast(`${fmt(m.t)}の少し前から再生します`)}return}
+    if(act==='modAdj'){const t=S.tracks.get(id),m=t&&t.mods[+a.dataset.i];if(m){t.mods=t.mods.map(x=>({...x}));t.mods[+a.dataset.i].d+=+a.dataset.d;normMods(t);afterKeyEdit(t,`${fmt(m.t)}から転調`)}return}
+    if(act==='modDel'){const t=S.tracks.get(id);if(t){t.mods=t.mods.filter((_,i)=>i!==+a.dataset.i);normMods(t);afterKeyEdit(t,'転調を削除')}return}
+    if(act==='modClear'){const t=S.tracks.get(id);if(t){t.mods=[];afterKeyEdit(t,'転調をすべて消去')}return}
+    if(act==='tlSeek'){const t=S.tracks.get(id);if(t&&S.queue[S.qi]===id&&t.duration){const r=a.getBoundingClientRect();audio.currentTime=Math.max(0,Math.min(t.duration-0.2,(e.clientX-r.left)/r.width*t.duration))}return}
     if(act==='keyClose'){if(a.classList.contains('veil')&&e.target!==a)return;$('#layer2').innerHTML='';return}
     if(act==='stopMenu'){e.stopPropagation();openStopMenu(a);return}
     if(act==='toggleNow'){if(innerWidth>=1280)setNp(!S.np);else document.body.classList.add('np-full');return}
