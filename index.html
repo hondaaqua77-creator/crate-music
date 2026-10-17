@@ -708,6 +708,39 @@ button.badge.key:hover{background:var(--accent);color:#fff}
 .np-key .kpad{max-width:280px}.np-key .kp{min-height:64px}.np-key .kp.mid b{font-size:26px}
 .keysheet .foot .actions{flex-wrap:wrap}
 @media (max-width:760px){.kp{min-height:70px}.kpad{gap:7px}}
+/* 楽譜ビューア */
+.scorev{position:fixed;left:0;right:0;top:0;bottom:calc(var(--player-h) + env(safe-area-inset-bottom,0px));z-index:30;background:#ECEDF1;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.sv-bar{display:flex;align-items:center;gap:10px;padding:10px max(14px,env(safe-area-inset-right,0px)) 10px max(14px,env(safe-area-inset-left,0px));background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.sv-title{flex:1;min-width:120px;display:flex;flex-direction:column}.sv-title b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sv-title span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sv-pg,.sv-zoom{display:flex;align-items:center;gap:6px}
+#svPage,#svZoom{min-width:56px;text-align:center;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+.btn.sm{padding:6px 11px;font-size:12.5px}.btn.sm svg{width:14px;height:14px}
+.sv-stage{position:relative;flex:1;overflow:hidden;touch-action:none;cursor:grab;outline:none}
+.sv-stage.grab{cursor:grabbing}
+.sv-stage canvas{position:absolute;left:0;top:0;transform-origin:0 0;background:#fff;box-shadow:0 10px 30px -12px rgba(20,22,27,.35),0 0 0 1px rgba(20,22,27,.06)}
+.sv-edge{position:absolute;top:0;bottom:0;width:14%;max-width:110px;border:0;background:transparent;cursor:pointer;z-index:2}
+.sv-edge.l{left:0}.sv-edge.r{right:0}
+.sv-edge:hover{background:linear-gradient(90deg,rgba(20,22,27,.06),transparent)}.sv-edge.r:hover{background:linear-gradient(270deg,rgba(20,22,27,.06),transparent)}
+.sv-turn{background:#fff;border-top:1px solid var(--line);padding:10px max(14px,env(safe-area-inset-right,0px)) 12px max(14px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:8px}
+.sv-auto{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:600}.sv-auto input{accent-color:var(--accent);width:16px;height:16px}
+.sv-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.sv-chip{flex:none;display:flex;flex-direction:column;align-items:center;border:1px solid var(--line2);background:#fff;border-radius:10px;padding:4px 10px;min-width:54px}
+.sv-chip b{font-size:13px}.sv-chip span{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sv-chip.on{background:var(--ink);border-color:var(--ink);color:#fff}.sv-chip.on span{color:rgba(255,255,255,.75)}
+.sv-set{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.sv-set .muted{font-size:12px}
+.sv-empty{position:absolute;inset:0;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--muted)}.sv-empty b{color:var(--ink);font-size:16px}
+.scorerow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#fff;border:1px solid var(--line2);border-radius:12px;padding:11px 14px;margin-top:16px;cursor:pointer}
+.scorerow:hover{border-color:var(--ink2)}.scorerow>svg{width:20px;height:20px;color:var(--ink);flex:none}
+.scorerow span{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;font-size:12px;color:var(--muted)}.scorerow b{font-size:13.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scorerow em{font-style:normal;font-size:12.5px;font-weight:700;color:var(--accent)}
+.escore{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12px;color:var(--ink2)}
+.escore>svg{width:18px;height:18px;flex:none}.escore span{flex:1;display:flex;flex-direction:column;min-width:0}.escore b{font-size:13px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+button.badge.score{border:0;cursor:pointer;font:inherit;font-size:10.5px;font-weight:700;background:var(--ink);color:#fff}
+@media (max-width:760px){
+  .sv-bar{gap:4px;padding-block:8px;flex-wrap:nowrap}.sv-title{display:none}
+  .sv-bar .cbtn{width:36px;height:36px}.sv-pg,.sv-zoom{gap:2px}.sv-zoom .btn{display:none}.sv-pg{margin-right:auto}
+  #svPage{min-width:44px}#svZoom{min-width:42px;font-size:12px}
+}
 @media (min-width:761px){.mob-top{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -752,6 +785,8 @@ button.badge.key:hover{background:var(--accent);color:#fff}
 <input type="file" id="dirIn" webkitdirectory multiple hidden>
 <input type="file" id="jsonIn" accept=".json,application/json" hidden>
 <input type="file" id="imgIn" accept="image/*" hidden>
+<input type="file" id="pdfIn" accept="application/pdf,.pdf" hidden>
+<div id="scoreView" class="scorev" hidden></div>
 <audio id="audio" preload="auto"></audio>
 <div id="bulk" class="bulk" hidden></div>
 <div id="layer"></div>
@@ -814,6 +849,10 @@ const IC={
  sharp:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>',
  flat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"/></svg>',
  chevl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 6-6 6 6 6"/></svg>',
+ score:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l4 4v14H6z"/><path d="M9 10h7M9 13h7M9 16h7"/><circle cx="10" cy="18.2" r="1.3" fill="currentColor" stroke="none"/></svg>',
+ fitw:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M6 9l-3 3 3 3M18 9l3 3-3 3"/></svg>',
+ fitp:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="3" width="12" height="18" rx="1.5"/><path d="M9 8h6M9 12h6"/></svg>',
+ flag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>',
  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>'
 };
 const MOODS=['明るい','元気が出る','落ち着く','切ない','エモい','激しい','おしゃれ'];
@@ -1005,7 +1044,7 @@ function rowHTML(t,i,ctx,dnd){const cur=S.queue[S.qi]===t.id,sel=S.sel.has(t.id)
   return`<div class="row${cur?' playing':''}${sel?' selected':''}" data-play="${t.id}" data-sid="${t.id}" data-i="${i}">
    ${lead}<span class="idx">${cur?`<span class="eq${$('#audio').paused?' paused':''}"><i></i><i></i><i></i></span>`:i+1}</span>
    <div class="art" ${artStyle(t)}>${t.art?'':ini(t)}<span class="artplay">${cur&&!$('#audio').paused?IC.pause:IC.play}</span></div>
-   <div class="t"><b data-rename="${t.id}" title="ダブルクリックで名前を変更">${esc(t.title)}${t.sample?'<span class="badge">サンプル</span>':''}${t.key||(t.mods&&t.mods.length)?`<button class="badge key" data-act="keyOpen" data-id="${t.id}" title="キーを変える">${t.key?'キー'+keyTxt(t.key):''}${t.mods&&t.mods.length?(t.key?'・':'')+'転調'+t.mods.length:''}</button>`:''}${avail}</b><span>${esc(t.artist)}</span>${t.memo?`<div class="memo" data-act="memoEdit" data-id="${t.id}" title="タップでメモを編集">${IC.memo}<em>${esc(t.memo.replace(/\s*\n\s*/g,' ／ '))}</em></div>`:(t.sample?'':`<button class="addmemo" data-act="memoEdit" data-id="${t.id}">${IC.plus}メモを追加</button>`)}${chips?`<div class="chipline">${chips}</div>`:''}</div>
+   <div class="t"><b data-rename="${t.id}" title="ダブルクリックで名前を変更">${esc(t.title)}${t.sample?'<span class="badge">サンプル</span>':''}${t.score?`<button class="badge score" data-act="scoreOpen" data-id="${t.id}" title="楽譜を開く">楽譜</button>`:''}${t.key||(t.mods&&t.mods.length)?`<button class="badge key" data-act="keyOpen" data-id="${t.id}" title="キーを変える">${t.key?'キー'+keyTxt(t.key):''}${t.mods&&t.mods.length?(t.key?'・':'')+'転調'+t.mods.length:''}</button>`:''}${avail}</b><span>${esc(t.artist)}</span>${t.memo?`<div class="memo" data-act="memoEdit" data-id="${t.id}" title="タップでメモを編集">${IC.memo}<em>${esc(t.memo.replace(/\s*\n\s*/g,' ／ '))}</em></div>`:(t.sample?'':`<button class="addmemo" data-act="memoEdit" data-id="${t.id}">${IC.plus}メモを追加</button>`)}${chips?`<div class="chipline">${chips}</div>`:''}</div>
    <div class="alb">${esc(t.album)}${t.year?' · '+esc(t.year):''}</div>
    <div class="stars">${stars(t.rating)}</div>
    <div class="dur">${fmt(t.duration)}</div>
@@ -1116,7 +1155,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)return;
   else if(audio.ended&&S.autoNext&&S.repeat!=='one'&&nextIndex()>=0)next()});
 audio.addEventListener('play',()=>{if(S.pendingCount&&S.queue[S.qi]===S.pendingCount){const t=S.tracks.get(S.pendingCount);S.pendingCount=null;if(t){t.plays=(t.plays||0)+1;t.lastPlayed=Date.now();saveTrack(t)}}});
 audio.addEventListener('play',renderSoon);audio.addEventListener('pause',renderSoon);
-audio.addEventListener('timeupdate',()=>{checkTimer();keyTick();if(S.tlTick++%4===0){const p=$('.tl-ph'),t=S.tracks.get(S.queue[S.qi]);if(p&&t&&t.duration)document.querySelectorAll('.tl-ph').forEach(x=>x.style.left=Math.min(100,audio.currentTime/t.duration*100)+'%')}if(seeking)return;const d=audio.duration;$('#tCur').textContent=fmt(audio.currentTime);$('#tDur').textContent=fmt(d);$('#seek').value=d?audio.currentTime/d*1000:0;$('#seek').style.setProperty('--p',(d?audio.currentTime/d*100:0)+'%');
+audio.addEventListener('timeupdate',()=>{checkTimer();keyTick();if(SV.doc){scoreAutoTurn();if(S.tlTick%4===0&&$('#svTurn [data-act=scoreTurnSet]'))renderTurnBar()}if(S.tlTick++%4===0){const p=$('.tl-ph'),t=S.tracks.get(S.queue[S.qi]);if(p&&t&&t.duration)document.querySelectorAll('.tl-ph').forEach(x=>x.style.left=Math.min(100,audio.currentTime/t.duration*100)+'%')}if(seeking)return;const d=audio.duration;$('#tCur').textContent=fmt(audio.currentTime);$('#tDur').textContent=fmt(d);$('#seek').value=d?audio.currentTime/d*1000:0;$('#seek').style.setProperty('--p',(d?audio.currentTime/d*100:0)+'%');
   if('mediaSession'in navigator&&d&&isFinite(d)){try{navigator.mediaSession.setPositionState({duration:d,position:Math.min(audio.currentTime,d),playbackRate:1})}catch(e){}}});
 let seeking=false;$('#seek').addEventListener('input',e=>{seeking=true;e.target.style.setProperty('--p',e.target.value/10+'%');const d=audio.duration;if(d)$('#tCur').textContent=fmt(e.target.value/1000*d)});
 $('#seek').addEventListener('change',e=>{const d=audio.duration;if(d)audio.currentTime=e.target.value/1000*d;seeking=false});
@@ -1277,6 +1316,7 @@ function renderNow(t){const el=$('#nowp');if(!el)return;
    <button class="np-art" data-act="setArtNow" ${artStyle(t,'',true)} aria-label="ジャケット画像を変更" title="ジャケット画像を変更">${t.art?'':ini(t)}</button>
    <div class="np-title"><b>${esc(t.title)}</b><span>${esc(t.artist)}${t.album?' — '+esc(t.album):''}</span></div>
    <div class="np-meta"><span class="stars">${stars(t.rating)}</span>${hasCat(t)?`<span class="chip cat">${IC.folder}${esc(catName(t.cat))}</span>`:''}</div>
+   ${t.sample?'':`<button class="scorerow" data-act="scoreOpen" data-id="${t.id}">${IC.score}<span>楽譜<b>${t.score?esc(t.score.name)+`（${t.score.pages}ページ）`:'PDFを取り込んで表示'}</b></span><em>${t.score?'開く':'取り込む'}</em></button>`}
    <div class="np-key"><div class="nk-h"><b>キー（移調）</b><button class="lnk" data-act="keyOpen" data-id="${t.id}">原曲のキーを設定</button></div>${keyCtlHTML(t,true)}</div>
    <div class="np-memo">${t.memo?`<p>${esc(t.memo)}</p>`:'<p class="none">この曲のメモはまだありません</p>'}${t.sample?'':`<button class="btn" data-act="memoEdit" data-id="${t.id}">${IC.memo}${t.memo?'メモを編集':'メモを追加'}</button>`}</div>
    <div class="np-q"><h4>次に再生<small>曲が終わると止まります</small></h4>${up.length?up.map(([i,u])=>`<button class="np-qi" data-qi="${i}"><span class="art" ${artStyle(u)}>${u.art?'':ini(u)}</span><span class="t"><b>${esc(u.title)}</b><span>${esc(u.artist)}</span></span><span class="dur">${fmt(u.duration)}</span></button>`).join(''):'<p class="none">この後に再生する曲はありません</p>'}</div>`}
@@ -1319,6 +1359,7 @@ function nameSheet(title,initial,cb,ph){sheet(`<h2>${esc(title)}</h2><div class=
 function renameSheet(id,focus){const t=S.tracks.get(id);if(!t)return;
   sheet(`<div class="ehead"><button class="art earts" data-act="setArtTrack" data-id="${t.id}" ${artStyle(t,'',true)} aria-label="ジャケット画像を変更">${t.art?'':ini(t)}</button><div class="t"><h2>曲名・メモを編集</h2><span>${esc(t.fileName||t.title)}</span><span class="eimg"><button class="lnk" data-act="setArtTrack" data-id="${t.id}">${IC.image}ジャケット画像を変更</button>${t.artCustom?`<button class="lnk" data-act="resetArtTrack" data-id="${t.id}">${IC.undo}元に戻す</button>`:''}</span></div></div>
    <div class="fields"><label class="full">曲名<input id="rnT" value="${esc(t.title)}"></label><label>アーティスト<input id="rnA" value="${esc(t.artist)}"></label><label>アルバム<input id="rnB" value="${esc(t.album)}"></label>
+   <div class="full escore">${IC.score}<span>楽譜PDF<b>${t.score?esc(t.score.name):'なし'}</b></span>${t.sample?'':`<button type="button" class="btn sm" data-act="scoreOpen" data-id="${t.id}">${t.score?'開く':'取り込む'}</button>`}</div>
    <label>キー（曲全体）<select id="rnK">${Array.from({length:25},(_,i)=>12-i).map(k=>`<option value="${k}"${(t.key||0)===k?' selected':''}>${k?keyTxt(k)+'（半音'+Math.abs(k)+'つ'+(k>0?'上':'下')+'）':'原曲キー'}</option>`).join('')}</select></label>
    <label class="full">メモ<textarea id="rnM" rows="5" placeholder="例：サビ前のギターが好き／友達の結婚式で流した／カラオケの練習中">${esc(t.memo||'')}</textarea></label></div>
    <div class="foot"><button class="btn" data-act="edit" data-id="${t.id}">${IC.star}評価・タグ・カテゴリ</button><span class="actions"><button class="btn" data-act="close">キャンセル</button><button class="btn primary" id="rnOk">保存</button></span></div>`,
@@ -1463,6 +1504,79 @@ function resetImage(tg){
   render();toast(tg.type==='track'||tg.type==='album'?'元の画像に戻しました':'画像を外しました')}
 function viewTarget(){const v=S.view;if(v.startsWith('cat:')&&v!=='cat:none')return{type:'cat',id:v.slice(4)};if(v.startsWith('pl:'))return{type:'pl',id:v.slice(3)};
   if(v.startsWith('album|'))return{type:'album',id:v.slice(6)};if(v.startsWith('artist|'))return{type:'artist',id:v.slice(7)};return null}
+/* ---------- 楽譜（PDF） ---------- */
+let pdfjsLib=null;
+async function loadPdfjs(){if(pdfjsLib)return pdfjsLib;const m=await import('./vendor/pdfjs/pdf.min.mjs');m.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.mjs';pdfjsLib=m;return m}
+async function openPdfDoc(buf){const lib=await loadPdfjs();return lib.getDocument({data:new Uint8Array(buf),cMapUrl:'vendor/pdfjs/cmaps/',cMapPacked:true,standardFontDataUrl:'vendor/pdfjs/standard_fonts/',wasmUrl:'vendor/pdfjs/wasm/'}).promise}
+function pickScore(id){const t=S.tracks.get(id);if(!t)return;if(t.sample){toast('サンプル曲には楽譜を取り込めません。自分の曲で試してください');return}S.pdfTarget=id;const i=$('#pdfIn');i.value='';i.click()}
+async function importScore(file){const id=S.pdfTarget;S.pdfTarget=null;const t=S.tracks.get(id);if(!t||!file)return;
+  if(!/pdf/i.test(file.type)&&!/\.pdf$/i.test(file.name)){toast('PDFファイルを選んでください');return}
+  progress('楽譜を読み込み中…');let pages=0;try{const buf=await file.arrayBuffer();const doc=await openPdfDoc(buf.slice(0));pages=doc.numPages;doc.destroy()}catch(e){progress(null);toast('このPDFは読み込めませんでした。別のPDFでお試しください');return}
+  await tx('blobs','readwrite',st=>st.put(new Blob([file],{type:'application/pdf'}),'pdf:'+id));progress(null);
+  t.score={name:file.name,size:file.size,pages,at:Date.now(),view:{},turns:{},page:1,auto:true};saveTrack(t);render();toast(`楽譜（${pages}ページ）を取り込みました`);openScore(id)}
+async function removeScore(id){const t=S.tracks.get(id);if(!t)return;await tx('blobs','readwrite',st=>st.delete('pdf:'+id));delete t.score;saveTrack(t);closeScore();render();toast('楽譜を削除しました')}
+const SV={id:null,doc:null,page:1,z:1,x:0,y:0,pw:0,ph:0,task:null,rz:null,lastUser:0,noFile:false};
+async function openScore(id){const t=S.tracks.get(id);if(!t)return;if(!t.score){pickScore(id);return}
+  closeMenu();document.body.classList.remove('np-full');const el=$('#scoreView');el.hidden=false;document.body.classList.add('score-open');SV.id=id;SV.noFile=false;
+  el.innerHTML=scoreShell(t);bindScore();
+  const blob=await tx('blobs','readonly',st=>st.get('pdf:'+id));
+  if(!blob){SV.noFile=true;$('#svStage').innerHTML=`<div class="sv-empty"><b>この端末に楽譜PDFがありません</b><span>バックアップから移した場合など、PDFファイル自体は引き継がれません。もう一度取り込んでください。</span><button class="btn primary" data-act="scoreReplace" data-id="${id}">${IC.score}楽譜PDFを取り込む</button></div>`;return}
+  try{progress('楽譜を表示中…');if(SV.doc){SV.doc.destroy();SV.doc=null}SV.doc=await openPdfDoc(await blob.arrayBuffer());progress(null)}catch(e){progress(null);toast('楽譜を開けませんでした');return}
+  if(SV.id!==id)return;await gotoPage(Math.min(t.score.page||1,SV.doc.numPages),true)}
+function closeScore(){const el=$('#scoreView');if(el.hidden)return;el.hidden=true;el.innerHTML='';document.body.classList.remove('score-open');if(SV.task)try{SV.task.cancel()}catch(_){}if(SV.doc){SV.doc.destroy();SV.doc=null}SV.id=null}
+function fmtTurn(t,p){const v=t.score.turns&&t.score.turns[p];return v!=null?fmt(v):(p===1?'0:00':'—')}
+function scoreShell(t){const live=S.queue[S.qi]===t.id;const sc=t.score;
+  return`<div class="sv-bar">
+   <button class="cbtn" data-act="scoreClose" aria-label="楽譜を閉じる" title="閉じる（Esc）">${IC.x}</button>
+   <div class="sv-title"><b>${esc(t.title)}</b><span>${esc(sc.name)}</span></div>
+   <div class="sv-pg"><button class="cbtn" data-act="scorePage" data-d="-1" aria-label="前のページ">${IC.chevl}</button><span id="svPage">1 / ${sc.pages}</span><button class="cbtn" data-act="scorePage" data-d="1" aria-label="次のページ">${IC.chev}</button></div>
+   <div class="sv-zoom"><button class="cbtn" data-act="scoreZoom" data-d="-1" aria-label="縮小">${IC.zoomout}</button><span id="svZoom">100%</span><button class="cbtn" data-act="scoreZoom" data-d="1" aria-label="拡大">${IC.zoomin}</button>
+    <button class="btn sm" data-act="scoreFit" data-m="w" title="横幅に合わせる">${IC.fitw}<span>幅に合わせる</span></button><button class="btn sm" data-act="scoreFit" data-m="p" title="ページ全体を表示">${IC.fitp}<span>全体</span></button></div>
+   <button class="cbtn" data-act="scoreMenu" data-id="${t.id}" aria-label="楽譜のメニュー">${IC.dots}</button></div>
+  <div class="sv-stage" id="svStage" tabindex="0" aria-label="楽譜。ドラッグで移動、ピンチやCtrl＋ホイールで拡大縮小"><canvas id="svCv"></canvas><button class="sv-edge l" data-act="scorePage" data-d="-1" aria-label="前のページ"></button><button class="sv-edge r" data-act="scorePage" data-d="1" aria-label="次のページ"></button></div>
+  <div class="sv-turn" id="svTurn"></div>`}
+function renderTurnBar(){const t=S.tracks.get(SV.id),el=$('#svTurn');if(!t||!el||!t.score)return;const sc=t.score,live=S.queue[S.qi]===t.id&&!!audio.src,p=SV.page;const cur=sc.turns[p];
+  el.innerHTML=`<label class="sv-auto"><input type="checkbox" id="svAuto"${sc.auto?' checked':''}><span>再生に合わせて自動でめくる</span></label>
+   <div class="sv-chips">${Array.from({length:sc.pages},(_,i)=>i+1).map(n=>`<button class="sv-chip${n===p?' on':''}" data-act="scoreGo" data-p="${n}" title="${n}ページ目へ"><b>${n}</b><span>${fmtTurn(t,n)}</span></button>`).join('')}</div>
+   <div class="sv-set">${p===1?'<span class="muted">1ページ目は曲の最初から表示します</span>':`<button class="btn sm${cur!=null?'':' primary'}" data-act="scoreTurnSet"${live?'':' disabled'} title="${live?'':'この曲を再生中に使えます'}">${IC.flag}${cur!=null?`めくる位置を今（${fmt(audio.currentTime)}）に変更`:`このページを今の再生位置（${live?fmt(audio.currentTime):'—'}）から表示`}</button>${cur!=null?`<button class="btn sm" data-act="scoreTurnDel">解除</button>`:''}${live?'':'<span class="muted">この曲を再生すると設定できます</span>'}`}</div>`;
+  $('#svAuto').onchange=e=>{sc.auto=e.target.checked;saveTrack(t)}}
+function stageSize(){const st=$('#svStage');return{w:st.clientWidth,h:st.clientHeight}}
+function fitWZ(){return 1}
+function baseScale(){const{w}=stageSize();return Math.max(.05,(w-32)/SV.pw)}
+function placeFromView(v){const{w,h}=stageSize(),cs=baseScale()*SV.z;if(v&&v.cx!=null){SV.x=w/2-v.cx*SV.pw*cs;SV.y=h/2-v.cy*SV.ph*cs}else{SV.x=(w-SV.pw*cs)/2;SV.y=16}clampPos()}
+function clampPos(){const{w,h}=stageSize(),cs=baseScale()*SV.z,W=SV.pw*cs,H=SV.ph*cs,m=80;
+  if(W<=w)SV.x=Math.min(Math.max(SV.x,Math.min(16,(w-W)/2)),Math.max(w-W-16,(w-W)/2));else SV.x=Math.min(m,Math.max(w-W-m,SV.x));
+  if(H<=h)SV.y=Math.min(Math.max(SV.y,0),h-H);else SV.y=Math.min(m,Math.max(h-H-m,SV.y))}
+function applyXform(){const cv=$('#svCv');if(!cv)return;const cs=baseScale()*SV.z;cv.style.width=SV.pw*cs+'px';cv.style.height=SV.ph*cs+'px';cv.style.transform=`translate(${SV.x}px,${SV.y}px)`;const zl=$('#svZoom');if(zl)zl.textContent=Math.round(SV.z*100)+'%'}
+async function drawPage(){if(!SV.doc)return;const page=await SV.doc.getPage(SV.page);const cv=$('#svCv');if(!cv)return;const cs=baseScale()*SV.z,dpr=Math.min(devicePixelRatio||1,2.5);
+  let rs=cs*dpr;const maxPx=4096;rs=Math.min(rs,maxPx/SV.pw,maxPx/SV.ph);const vp=page.getViewport({scale:rs});
+  if(SV.task)try{SV.task.cancel()}catch(_){}const off=document.createElement('canvas');off.width=Math.floor(vp.width);off.height=Math.floor(vp.height);const g=off.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,off.width,off.height);
+  SV.task=page.render({canvasContext:g,viewport:vp});try{await SV.task.promise}catch(e){return}SV.task=null;
+  cv.width=off.width;cv.height=off.height;cv.getContext('2d').drawImage(off,0,0);applyXform()}
+function redrawSoon(){clearTimeout(SV.rz);SV.rz=setTimeout(drawPage,180)}
+async function gotoPage(n,restore){if(!SV.doc)return;n=Math.max(1,Math.min(SV.doc.numPages,n));const t=S.tracks.get(SV.id);SV.page=n;
+  const page=await SV.doc.getPage(n);const vp=page.getViewport({scale:1});SV.pw=vp.width;SV.ph=vp.height;
+  const v=t&&t.score.view&&t.score.view[n];SV.z=v&&v.z?v.z:1;placeFromView(v);applyXform();
+  $('#svPage').textContent=`${n} / ${SV.doc.numPages}`;if(t&&t.score.page!==n){t.score.page=n;clearTimeout(SV.pgT);SV.pgT=setTimeout(()=>saveTrack(t),600)}renderTurnBar();await drawPage()}
+let svSaveT;function saveViewSoon(){clearTimeout(svSaveT);svSaveT=setTimeout(()=>{const t=S.tracks.get(SV.id);if(!t||!t.score)return;const{w,h}=stageSize(),cs=baseScale()*SV.z;
+  t.score.view=t.score.view||{};t.score.view[SV.page]={z:+SV.z.toFixed(3),cx:+((w/2-SV.x)/(SV.pw*cs)).toFixed(4),cy:+((h/2-SV.y)/(SV.ph*cs)).toFixed(4)};saveTrack(t)},400)}
+function zoomAt(nz,px,py){nz=Math.max(.25,Math.min(6,nz));const cs0=baseScale()*SV.z,cs1=baseScale()*nz;const ux=(px-SV.x)/cs0,uy=(py-SV.y)/cs0;SV.z=nz;SV.x=px-ux*cs1;SV.y=py-uy*cs1;clampPos();applyXform();redrawSoon();saveViewSoon();SV.lastUser=Date.now()}
+function fitMode(m){const{w,h}=stageSize();if(m==='p'){SV.z=Math.min((h-24)/(SV.ph*baseScale()),1)}else SV.z=1;placeFromView(null);if(m==='p')SV.y=Math.max(0,(h-SV.ph*baseScale()*SV.z)/2);applyXform();redrawSoon();saveViewSoon()}
+function bindScore(){const st=$('#svStage');const pts=new Map();let last=null,pinch=null,moved=0,downAt=0;
+  st.addEventListener('pointerdown',e=>{if(e.target.closest('.sv-edge'))return;st.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;downAt=Date.now();
+    if(pts.size===2){const[a,b]=[...pts.values()];const r=st.getBoundingClientRect();pinch={d:Math.hypot(a.x-b.x,a.y-b.y),z:SV.z,cx:(a.x+b.x)/2-r.left,cy:(a.y+b.y)/2-r.top}}last={x:e.clientX,y:e.clientY};st.classList.add('grab')});
+  st.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size>=2&&pinch){const[a,b]=[...pts.values()];zoomAt(pinch.z*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d,pinch.cx,pinch.cy);return}
+    if(last){const dx=e.clientX-last.x,dy=e.clientY-last.y;moved+=Math.abs(dx)+Math.abs(dy);SV.x+=dx;SV.y+=dy;last={x:e.clientX,y:e.clientY};clampPos();applyXform();SV.lastUser=Date.now()}});
+  const up=e=>{if(!pts.has(e.pointerId))return;pts.delete(e.pointerId);if(pts.size<2)pinch=null;const r=[...pts.values()][0];last=r?{x:r.x,y:r.y}:null;if(!pts.size){st.classList.remove('grab');if(moved>3)saveViewSoon();moved=0}};
+  st.addEventListener('pointerup',up);st.addEventListener('pointercancel',up);
+  st.addEventListener('wheel',e=>{e.preventDefault();const r=st.getBoundingClientRect();if(e.ctrlKey||e.metaKey){zoomAt(SV.z*Math.exp(-e.deltaY*0.0022),e.clientX-r.left,e.clientY-r.top)}else{SV.x-=e.deltaX;SV.y-=e.deltaY;clampPos();applyXform();saveViewSoon();SV.lastUser=Date.now()}},{passive:false});
+  st.addEventListener('dblclick',e=>{const r=st.getBoundingClientRect();zoomAt(SV.z>1.4?1:2,e.clientX-r.left,e.clientY-r.top)});
+  window.addEventListener('resize',onScoreResize)}
+function onScoreResize(){if(!SV.doc||$('#scoreView').hidden)return;const t=S.tracks.get(SV.id);placeFromView(t&&t.score.view[SV.page]);applyXform();redrawSoon()}
+function scoreAutoTurn(){if(!SV.doc||!SV.id||S.queue[S.qi]!==SV.id)return;const t=S.tracks.get(SV.id);if(!t||!t.score||!t.score.auto)return;if(Date.now()-SV.lastUser<2500)return;
+  const now=audio.currentTime;let best=1,bt=-1;for(const[p,v]of Object.entries(t.score.turns||{})){if(v<=now+0.1&&v>bt){bt=v;best=+p}}if(bt<0)best=1;if(best!==SV.page)gotoPage(best)}
+function scoreMenu(btn,id){openActMenu(btn,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['scoreDelete','楽譜を削除',IC.trash,'danger']])}
 function smartSheet(){const tagsUsed=[...new Set(all().flatMap(t=>t.tags||[]))],genres=[...new Set(all().map(t=>t.genre).filter(Boolean))],artists=[...new Set(all().map(t=>t.artist).filter(Boolean))];
   const opt=(l,ph)=>`<option value="">${ph}</option>`+l.sort((a,b)=>a.localeCompare(b,'ja')).map(x=>`<option>${esc(x)}</option>`).join('');
   sheet(`<h2>条件で自動プレイリスト</h2><p style="margin:0;color:var(--muted);font-size:13px">条件に合う曲が自動で集まります。曲の評価やタグを変えると中身も変わります。</p>
@@ -1478,7 +1592,7 @@ function smartSheet(){const tagsUsed=[...new Set(all().flatMap(t=>t.tags||[]))],
 
 async function deleteTrack(id){const t=S.tracks.get(id);if(!t)return;S.tracks.delete(id);
   if(t.sample){render();return}
-  await tx('blobs','readwrite',s=>s.delete(id));await tx('tracks','readwrite',s=>s.delete(id));
+  await tx('blobs','readwrite',s=>s.delete(id));await tx('blobs','readwrite',s=>s.delete('pdf:'+id));await tx('tracks','readwrite',s=>s.delete(id));if(SV.id===id)closeScore();
   S.playlists.forEach(p=>{if(p.ids.includes(id))p.ids=p.ids.filter(x=>x!==id)});savePlaylists();
   if(S.cloud){S.cloud.collection(S.col).doc('t_'+id).delete().catch(()=>{})}
   if(S.assets&&t.assetId){S.assets.delete(t.assetId).catch(()=>{})}
@@ -1572,7 +1686,7 @@ function openActMenu(btn,items){closeMenu();if(!items.length)return;const m=docu
   m.innerHTML=items.map(x=>x==='-'?'<hr>':`<button role="menuitem" data-act="${x[0]}"${x[3]?` class="${x[3]}"`:''}>${x[2]}${x[1]}</button>`).join('');
   document.body.appendChild(m);const r=btn.getBoundingClientRect(),mw=m.offsetWidth,mh=m.offsetHeight;let x=r.left,y=r.bottom+6;if(x+mw>innerWidth-8)x=innerWidth-mw-8;if(y+mh>innerHeight-8)y=r.top-mh-6;m.style.left=Math.max(8,x)+'px';m.style.top=Math.max(8,y)+'px';m.querySelector('button')?.focus()}
 function openMenu(btn,id){closeMenu();const t=S.tracks.get(id);if(!t)return;const p=S.playlists.find(x=>'pl:'+x.id===S.view&&!x.rule);
-  const items=[['play','再生',IC.play],['playNext','次に再生',IC.next],'-',['rename','曲名を変更',IC.pen],['memo',t.memo?'メモを編集':'メモを追加',IC.memo],['setCat','カテゴリを変更',IC.folder],['addPl','プレイリストに追加',IC.list],['keyOpen','キー（移調）を変える',IC.sharp],['setArt','ジャケット画像を変更',IC.image],...(t.artCustom?[['resetArt','ジャケット画像を元に戻す',IC.undo]]:[]),['edit','評価・タグ・曲情報',IC.star],'-',...(p?[['rmFromPl','このプレイリストから外す',IC.x]]:[]),['askDel','曲を削除',IC.trash,'danger']];
+  const items=[['play','再生',IC.play],['playNext','次に再生',IC.next],'-',['rename','曲名を変更',IC.pen],['memo',t.memo?'メモを編集':'メモを追加',IC.memo],['setCat','カテゴリを変更',IC.folder],['addPl','プレイリストに追加',IC.list],['scoreOpen',t.score?'楽譜を開く':'楽譜（PDF）を取り込む',IC.score],['keyOpen','キー（移調）を変える',IC.sharp],['setArt','ジャケット画像を変更',IC.image],...(t.artCustom?[['resetArt','ジャケット画像を元に戻す',IC.undo]]:[]),['edit','評価・タグ・曲情報',IC.star],'-',...(p?[['rmFromPl','このプレイリストから外す',IC.x]]:[]),['askDel','曲を削除',IC.trash,'danger']];
   const m=document.createElement('div');m.className='menu';m.id='menu';m.setAttribute('role','menu');
   m.innerHTML=`<div class="mh">${esc(t.title)}</div>`+items.map(x=>x==='-'?'<hr>':`<button role="menuitem" data-mact="${x[0]}" data-id="${id}"${x[3]?` class="${x[3]}"`:''}>${x[2]}${x[1]}</button>`).join('');
   document.body.appendChild(m);const r=btn.getBoundingClientRect(),mw=m.offsetWidth,mh=m.offsetHeight;
@@ -1585,6 +1699,7 @@ function menuAction(act,id){const t=S.tracks.get(id);if(!t)return;closeMenu();
     case'memo':renameSheet(id,'memo');break;
     case'setCat':catPicker([id]);break;case'addPl':plPicker([id]);break;case'edit':editSheet(id);break;
     case'keyOpen':keySheet(id);break;
+    case'scoreOpen':openScore(id);break;
     case'setArt':pickImage({type:'track',id});break;case'resetArt':resetImage({type:'track',id});break;
     case'rmFromPl':{const p=S.playlists.find(x=>'pl:'+x.id===S.view);if(p){p.ids=p.ids.filter(x=>x!==id);savePlaylists();render();toast('プレイリストから外しました')}break}
     case'askDel':askDel(id);break}}
@@ -1609,6 +1724,21 @@ document.addEventListener('click',e=>{
     if(act==='keyStep'){const t=S.tracks.get(id||S.queue[S.qi]);if(t)setKeyFor(t.id,(t.key||0)+(+a.dataset.d));else changeKey(+a.dataset.d);return}
     if(act==='keySet'){setKeyFor(id||S.queue[S.qi],+a.dataset.k);return}
     if(act==='keyOpen'){keySheet(id);return}
+    if(act==='scoreOpen'){openScore(id||S.queue[S.qi]);return}
+    if(act==='scoreClose'){closeScore();return}
+    if(act==='scorePage'){SV.lastUser=Date.now();gotoPage(SV.page+(+a.dataset.d));return}
+    if(act==='scoreGo'){SV.lastUser=Date.now();gotoPage(+a.dataset.p);return}
+    if(act==='scoreZoom'){const{w,h}=stageSize();zoomAt(SV.z*(+a.dataset.d>0?1.2:1/1.2),w/2,h/2);return}
+    if(act==='scoreFit'){fitMode(a.dataset.m);return}
+    if(act==='scoreFitW'){fitMode('w');return}if(act==='scoreFitP'){fitMode('p');return}
+    if(act==='scoreMenu'){openActMenu(a,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['scoreDelete','楽譜を削除',IC.trash,'danger']]);return}
+    if(act==='scoreReplace'){pickScore(SV.id||id);return}
+    if(act==='scoreDelete'){const sid=SV.id;sheet(`<h2>楽譜を削除しますか？</h2><p style="margin:0;color:var(--muted)">この曲に取り込んだ楽譜PDFと、表示位置・ページめくり位置の設定が消えます。元のPDFファイルは消えません。</p><div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">キャンセル</button><button class="btn danger" data-act="scoreDelGo" data-id="${sid}">削除する</button></span></div>`);return}
+    if(act==='scoreDelGo'){closeSheet();removeScore(id);return}
+    if(act==='scoreResetView'){const t=S.tracks.get(SV.id);if(t){delete t.score.view[SV.page];saveTrack(t);gotoPage(SV.page,true)}return}
+    if(act==='scoreTurnClear'){const t=S.tracks.get(SV.id);if(t){t.score.turns={};saveTrack(t);renderTurnBar();toast('ページめくり位置を解除しました')}return}
+    if(act==='scoreTurnSet'){const t=S.tracks.get(SV.id);if(t&&S.queue[S.qi]===t.id){t.score.turns[SV.page]=Math.round(audio.currentTime*10)/10;saveTrack(t);renderTurnBar();toast(`${SV.page}ページ目を ${fmt(audio.currentTime)} から表示します`)}return}
+    if(act==='scoreTurnDel'){const t=S.tracks.get(SV.id);if(t){delete t.score.turns[SV.page];saveTrack(t);renderTurnBar()}return}
     if(act==='modStep'){modStep(id,+a.dataset.d);return}
     if(act==='modSeek'){const t=S.tracks.get(id),m=t&&t.mods[+a.dataset.i];if(m&&S.queue[S.qi]===id){audio.currentTime=Math.max(0,m.t-2);toast(`${fmt(m.t)}の少し前から再生します`)}return}
     if(act==='modAdj'){const t=S.tracks.get(id),m=t&&t.mods[+a.dataset.i];if(m){t.mods=t.mods.map(x=>({...x}));t.mods[+a.dataset.i].d+=+a.dataset.d;normMods(t);afterKeyEdit(t,`${fmt(m.t)}から転調`)}return}
@@ -1673,6 +1803,7 @@ document.addEventListener('dblclick',e=>{const b=e.target.closest('[data-rename]
 window.addEventListener('resize',closeMenu);document.addEventListener('scroll',closeMenu,true);
 $('#fileIn').onchange=e=>{importFiles(e.target.files);e.target.value=''};
 $('#dirIn').onchange=e=>{importFiles(e.target.files);e.target.value=''};
+$('#pdfIn').onchange=e=>{const f=e.target.files[0];importScore(f);e.target.value=''};
 $('#imgIn').onchange=e=>{const f=e.target.files[0];applyImageFile(f);e.target.value=''};
 $('#jsonIn').onchange=e=>{const f=e.target.files[0];if(f)importBackup(f);e.target.value=''};
 let dragN=0;
@@ -1685,7 +1816,10 @@ window.addEventListener('drop',async e=>{if(!e.dataTransfer?.files?.length)retur
     for(const en of items)await walk(en);importFiles(files)}else importFiles(e.dataTransfer.files)});
 document.addEventListener('keydown',e=>{const tag=(document.activeElement||{}).tagName||'';
   if((e.key==='['||e.key===']')&&!/INPUT|TEXTAREA|SELECT/.test(tag)&&S.queue.length){e.preventDefault();const t=S.tracks.get(S.keyTarget&&$('#layer2 .keysheet')?S.keyTarget:S.queue[S.qi]);if(t)setKeyFor(t.id,(t.key||0)+(e.key===']'?1:-1));return}
-  if(e.key==='Escape'&&$('#layer2').innerHTML){$('#layer2').innerHTML='';return}if(e.key==='Escape'){closeMenu();if($('#layer .veil'))closeSheet();if(S.selMode&&!$('#layer .veil')){S.selMode=false;S.sel.clear();renderView()}}
+  if(e.key==='Escape'&&$('#layer2').innerHTML){$('#layer2').innerHTML='';return}
+  if(SV.doc&&!$('#layer .veil')&&!/INPUT|TEXTAREA|SELECT/.test(tag)){if(e.key==='Escape'){closeScore();return}
+    if(e.key==='ArrowRight'||e.key==='PageDown'){e.preventDefault();SV.lastUser=Date.now();gotoPage(SV.page+1);return}if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();SV.lastUser=Date.now();gotoPage(SV.page-1);return}
+    if(e.key==='+'||e.key==='='){const{w,h}=stageSize();zoomAt(SV.z*1.2,w/2,h/2);return}if(e.key==='-'){const{w,h}=stageSize();zoomAt(SV.z/1.2,w/2,h/2);return}}if(e.key==='Escape'){closeMenu();if($('#layer .veil'))closeSheet();if(S.selMode&&!$('#layer .veil')){S.selMode=false;S.sel.clear();renderView()}}
   if(e.code==='Space'&&!/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName)&&!$('#layer .veil')){e.preventDefault();$('#bPlay').click()}});
 
 let toastT;function toast(msg){progress(msg);clearTimeout(toastT);toastT=setTimeout(()=>progress(null),3600)}
