@@ -1,6 +1,6 @@
 /* CRATE service worker: アプリ本体を端末に保存してオフラインで起動できるようにする */
-const VERSION = 'crate-v11';
-const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'vendor/jsmediatags.min.js',
+const VERSION = 'crate-v12';
+const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'vendor/jsmediatags.min.js','vendor/soundtouch-processor.js',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
