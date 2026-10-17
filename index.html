@@ -563,8 +563,12 @@ button.np-art{display:block;border:0;padding:0;cursor:pointer}
 .bgnote>svg{width:18px;height:18px;flex:none;color:var(--ok);margin-top:2px}
 .bgnote>div{display:flex;flex-direction:column;gap:2px}.bgnote b{font-size:13.5px}.bgnote span{font-size:12.5px;color:var(--ink2);line-height:1.6}
 /* 停止の設定 */
-#bAuto.haslab{width:auto;border-radius:999px;padding:0 12px 0 10px;gap:6px;display:inline-flex;align-items:center;height:32px}
-#bAuto .slab{font-size:12px;font-weight:700;white-space:nowrap}
+#bAuto{width:auto;height:34px;border-radius:999px;padding:0 13px 0 10px;gap:6px;display:inline-flex;align-items:center;border:1px solid var(--line2);background:#fff;color:var(--ink2)}
+#bAuto:hover{border-color:var(--ink2);color:var(--ink);background:#fff}
+#bAuto svg{width:17px;height:17px}
+#bAuto.on{background:var(--accent);border-color:var(--accent);color:#fff}
+#bAuto .scap{display:none}
+#bAuto .slab{font-size:12.5px;font-weight:700;white-space:nowrap}
 .stopmenu{min-width:280px;padding:8px}
 .stopmenu .mh{padding:8px 10px 4px;font-size:12px}
 .stopmenu [role=menuitemradio]{display:flex;gap:12px;align-items:center;padding:8px 10px}
@@ -580,7 +584,19 @@ button.np-art{display:block;border:0;padding:0;cursor:pointer}
 .stopmenu .schip:hover{background:var(--hover)}
 .stopmenu .schip.on{background:var(--accent);border-color:var(--accent);color:#fff}
 .snote{font-size:12px;color:var(--accent);font-weight:600;padding:0 10px 6px}
-@media (max-width:760px){#bAuto.haslab .slab{display:none}#bAuto.haslab{width:36px;padding:0;justify-content:center}}
+@media (max-width:760px){.btns .ib#bAuto{display:flex;align-items:center}#bAuto{flex-direction:column;justify-content:center;gap:1px;height:auto;min-width:46px;padding:3px 4px;border-radius:9px}#bAuto svg{width:16px;height:16px}#bAuto .slab{display:none}#bAuto .scap{display:block;font-size:9.5px;font-weight:700;line-height:1.1;white-space:nowrap}}
+.stoprow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#fff;border:1px solid var(--line2);border-radius:12px;padding:11px 14px;margin-top:16px;cursor:pointer}
+.stoprow:hover{border-color:var(--ink2)}
+.stoprow>svg{width:20px;height:20px;color:var(--accent);flex:none}
+.stoprow span{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;font-size:12px;color:var(--muted)}
+.stoprow b{font-size:14px;color:var(--ink);font-weight:700}
+.stoprow em{font-style:normal;font-size:12.5px;font-weight:700;color:var(--accent);flex:none}
+.sec .stoprow{margin:0 0 12px}
+.stoptip{position:fixed;z-index:50;background:var(--ink);color:#fff;border-radius:12px;padding:12px 40px 12px 14px;display:flex;flex-direction:column;gap:2px;max-width:260px;box-shadow:0 14px 30px -10px rgba(20,22,27,.5);animation:tipIn .2s ease-out}
+.stoptip b{font-size:13.5px}.stoptip span{font-size:12px;color:rgba(255,255,255,.8);line-height:1.5}
+.stoptip button{position:absolute;top:8px;right:8px;background:none;border:0;color:#fff;opacity:.7;padding:2px}.stoptip button svg{width:16px;height:16px}
+.stoptip::after{content:"";position:absolute;bottom:-6px;left:calc(var(--ax,50%) - 6px);width:12px;height:12px;background:var(--ink);transform:rotate(45deg);border-radius:2px}
+@keyframes tipIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (min-width:761px){.mob-top{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -613,7 +629,6 @@ button.np-art{display:block;border:0;padding:0;cursor:pointer}
         <button class="ib play" id="bPlay" aria-label="再生"></button>
         <button class="ib" id="bNext" aria-label="次の曲"></button>
         <button class="ib opt" id="bRep" aria-label="リピート" title="リピート"></button>
-        <button class="ib" id="bAuto" aria-label="曲が終わったら止める"></button>
       </div>
       <div class="seek"><span id="tCur">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="再生位置"><span id="tDur">0:00</span></div>
     </div>
@@ -683,12 +698,13 @@ const IC={
  rotate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>',
  zoomin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2M11 8.5v5M8.5 11h5"/></svg>',
  zoomout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2M8.5 11h5"/></svg>',
+ timer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 1.6M9.5 2.5h5M19 6l1.5-1.5"/></svg>',
  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>'
 };
 const MOODS=['明るい','元気が出る','落ち着く','切ない','エモい','激しい','おしゃれ'];
 const SCENES=['作業','ドライブ','朝','夜','寝る前','運動','移動中','カフェ'];
 
-const S={tracks:new Map(),playlists:[],cats:[],sel:new Set(),selMode:false,view:'all',q:'',sort:'manual',queue:[],qi:-1,np:true,stop1:null,pre:null,needResume:false,artistImgs:{},imgTarget:null,hmenu:null,shuffle:false,repeat:'off',autoNext:true,importTarget:null,pendingCount:null,
+const S={tracks:new Map(),playlists:[],cats:[],sel:new Set(),selMode:false,view:'all',q:'',sort:'manual',queue:[],qi:-1,np:true,stop1:null,pre:null,needResume:false,artistImgs:{},imgTarget:null,hmenu:null,shuffle:false,repeat:'off',autoNext:false,importTarget:null,pendingCount:null,
   cloud:null,col:null,assets:null,cloudState:'checking',upNote:'',localOK:true};
 
 /* ---------- IndexedDB (この端末の保存) ---------- */
@@ -1026,9 +1042,12 @@ function stopLabel(){const st=S.stop1;
   if(st){if(st.mode==='once')return'この曲で停止';if(st.mode==='count')return`あと${st.left}曲で停止`;
     if(st.mode==='timer'){const m=Math.max(0,Math.ceil((st.at-Date.now())/60000));return`${m}分後に停止`}}
   return S.autoNext?'':'1曲ごとに停止'}
+function stopShort(){const st=S.stop1;if(st){if(st.mode==='once')return'この曲';if(st.mode==='count')return`あと${st.left}曲`;if(st.mode==='timer')return`${Math.max(0,Math.ceil((st.at-Date.now())/60000))}分`}return S.autoNext?'停止設定':'毎回停止'}
+function stopFull(){return stopLabel()||'止めずに次の曲へ（連続再生）'}
 function renderStopBtn(){const ba=$('#bAuto');if(!ba)return;const lab=stopLabel(),on=!!lab;
-  ba.innerHTML=(on?IC.stop1:IC.cont)+(on?`<span class="slab">${esc(lab)}</span>`:'');ba.classList.toggle('on',on);ba.classList.toggle('haslab',on);
-  ba.title=on?`停止の設定：${lab}（押して変更）`:'停止の設定：連続再生（押すと、曲の終わりや時間で止める設定ができます）';ba.setAttribute('aria-label',ba.title);ba.setAttribute('aria-haspopup','menu')}
+  ba.innerHTML=`${IC.timer}<span class="slab">${esc(on?lab:'停止設定')}</span><span class="scap">${esc(stopShort())}</span>`;ba.classList.toggle('on',on);
+  ba.title=on?`曲の止め方：${lab}（押して変更）`:'曲の止め方を設定（曲が終わったら止める・曲数で止める・タイマー）';ba.setAttribute('aria-label',ba.title);ba.setAttribute('aria-haspopup','menu');
+  document.querySelectorAll('.stoprow b').forEach(b=>b.textContent=stopFull())}
 function consumeStop(){const st=S.stop1;if(!st)return'';
   if(st.mode==='once'){S.stop1=null;return'この曲が終わったので停止しました'}
   if(st.mode==='count'){st.left--;if(st.left<=0){S.stop1=null;return'指定した曲数を再生したので停止しました'}return''}
@@ -1058,6 +1077,12 @@ function openStopMenu(btn){closeMenu();const st=S.stop1,cur=st?(st.mode==='once'
    ${st&&st.mode==='timer'?`<div class="snote">${esc(stopLabel())}</div>`:''}${st?`<hr><button data-act="stopSet" data-v="off" class="danger">${IC.x}一時的な停止を解除</button>`:''}`;
   document.body.appendChild(m);const r=btn.getBoundingClientRect(),mw=m.offsetWidth,mh=m.offsetHeight;
   let x=Math.min(innerWidth-mw-8,Math.max(8,r.right-mw)),y=r.top-mh-8;if(y<8)y=Math.min(innerHeight-mh-8,r.bottom+8);m.style.left=x+'px';m.style.top=Math.max(8,y)+'px';m.querySelector('[aria-checked=true],button')?.focus()}
+function stopHint(){let seen=false;try{seen=localStorage.getItem('crate.stopHint')==='1'}catch(_){seen=true}if(seen||$('#stopTip'))return;
+  const b=$('#bAuto');if(!b||!b.offsetParent)return;const r=b.getBoundingClientRect();const d=document.createElement('div');d.id='stopTip';d.className='stoptip';d.setAttribute('role','status');
+  d.innerHTML=`<b>曲の止め方はここ</b><span>曲が終わったら止める・曲数で止める・タイマーを選べます</span><button aria-label="閉じる">${IC.x}</button>`;document.body.appendChild(d);
+  const w=d.offsetWidth;d.style.left=Math.max(8,Math.min(innerWidth-w-8,r.left+r.width/2-w+28))+'px';d.style.top=(r.top-d.offsetHeight-12)+'px';d.style.setProperty('--ax',(r.left+r.width/2-parseFloat(d.style.left))+'px');
+  const done=()=>{d.remove();try{localStorage.setItem('crate.stopHint','1')}catch(_){}};d.querySelector('button').onclick=done;b.addEventListener('click',done,{once:true});setTimeout(()=>{if(d.isConnected)done()},9000)}
+
 function renderNow(t){const el=$('#nowp');if(!el)return;
   const close=`<button class="np-close" data-act="closeNow" aria-label="閉じる">${IC.down2}</button>`;
   if(!t){el.innerHTML=`${close}<div class="np-empty"><div class="np-art" ${artStyle(null,'crate')}>${ini(null,'C')}</div><b>再生中の曲はありません</b><span>曲を選ぶと、ここにジャケットとメモ、次に再生する曲が表示されます。</span></div>`;return}
@@ -1067,11 +1092,11 @@ function renderNow(t){const el=$('#nowp');if(!el)return;
    <div class="np-title"><b>${esc(t.title)}</b><span>${esc(t.artist)}${t.album?' — '+esc(t.album):''}</span></div>
    <div class="np-meta"><span class="stars">${stars(t.rating)}</span>${hasCat(t)?`<span class="chip cat">${IC.folder}${esc(catName(t.cat))}</span>`:''}</div>
    <div class="np-memo">${t.memo?`<p>${esc(t.memo)}</p>`:'<p class="none">この曲のメモはまだありません</p>'}${t.sample?'':`<button class="btn" data-act="memoEdit" data-id="${t.id}">${IC.memo}${t.memo?'メモを編集':'メモを追加'}</button>`}</div>
-   <div class="np-q"><h4>次に再生${stopLabel()?`<small>${esc(stopLabel())}</small>`:''}</h4>${up.length?up.map(([i,u])=>`<button class="np-qi" data-qi="${i}"><span class="art" ${artStyle(u)}>${u.art?'':ini(u)}</span><span class="t"><b>${esc(u.title)}</b><span>${esc(u.artist)}</span></span><span class="dur">${fmt(u.duration)}</span></button>`).join(''):'<p class="none">この後に再生する曲はありません</p>'}</div>`}
+   <div class="np-q"><h4>次に再生<small>曲が終わると止まります</small></h4>${up.length?up.map(([i,u])=>`<button class="np-qi" data-qi="${i}"><span class="art" ${artStyle(u)}>${u.art?'':ini(u)}</span><span class="t"><b>${esc(u.title)}</b><span>${esc(u.artist)}</span></span><span class="dur">${fmt(u.duration)}</span></button>`).join(''):'<p class="none">この後に再生する曲はありません</p>'}</div>`}
 function setNp(v){S.np=v;try{localStorage.setItem('crate.np',v?'1':'0')}catch(_){}document.body.classList.toggle('np-open',v);renderPlayer()}
 function setAutoNext(v,quiet){S.autoNext=v;try{localStorage.setItem('crate.autoNext',v?'1':'0')}catch(_){}renderPlayer();
   if(!quiet)toast(v?'連続再生：曲が終わると次の曲を自動で再生します':'1曲ごとに停止：曲が終わったら止まります（▶で次の曲へ）')}
-$('#bAuto').onclick=e=>{e.stopPropagation();if($('#menu')&&$('#menu').classList.contains('stopmenu')){closeMenu();return}openStopMenu($('#bAuto'))};
+
 $('#bPlay').onclick=()=>{if(!audio.src){const l=current.length?current:sorted(all());return startQueue(l,null,false)}audio.paused?audio.play():audio.pause()};
 $('#bNext').onclick=()=>next();$('#bPrev').onclick=prev;
 $('#bShuf').onclick=()=>{setTimeout(prefetchNext,0);S.shuffle=!S.shuffle;if(S.queue.length){const cur=S.queue[S.qi];const src=current.length?current.map(t=>t.id):S.queue;
@@ -1325,13 +1350,13 @@ async function settingsSheet(){const m=modeText();let used='確認できませ�
   sheet(`<h2>設定・データ</h2>
    <div class="sec"><h5>保存の状態</h5><div class="kv"><span>モード</span><b><span class="dot${S.cloudState==='on'?' on':''}"></span>${esc(m.t)}</b><span>曲数</span><b class="mono">${real.length}曲${noFile?`（うち${noFile}曲はこの端末にファイルなし）`:''}</b><span>端末の使用量</span><b class="mono">${esc(used)}</b></div><p class="muted" style="margin:8px 0 0">${esc(m.d)}</p></div>
    <div class="sec"><h5>曲の保護</h5><div class="pstat sm ${S.prot&&S.prot.ok?'ok':'ng'}">${S.prot&&S.prot.ok?IC.check:IC.lock}<div><b>${S.prot&&S.prot.ok?'保護されています（自動で消えません）':'まだ保護されていません'}</b><span>${S.prot&&S.prot.ok?'取り込んだ曲はブラウザに自動で削除されません。':'ブラウザが曲を自動で削除する場合があります。'}</span></div><button class="btn" data-act="protInfo">${S.prot&&S.prot.ok?'詳しく':'保護する'}</button></div></div>
-   <div class="sec"><h5>再生</h5><label class="sw"><input type="checkbox" id="setAuto"${S.autoNext?' checked':''}><span><b>曲が終わったら次の曲を自動で再生する</b><small>オフにすると1曲ごとに止まります。「この曲で止める」「曲数で止める」「タイマー」は、再生バーの停止ボタンから選べます。</small></span></label>
-   <div class="bgnote">${IC.check}<div><b>画面を消しても再生が続きます</b><span>ロック画面・通知の操作パネルから、再生／一時停止／前後の曲／早送りができます。${isIOS()?(isStandalone()?'iPhoneのホーム画面版では、iOSの制限により画面ロック中に次の曲へ自動で進まないことがあります。その場合は画面をつけると自動で再開します。':'iPhoneのSafariでは画面ロック中も次の曲へ進みます。'):''}</span></div></div></div>
+   <div class="sec"><h5>再生</h5><p class="muted" style="margin:0">曲が終わると自動で止まります。▶を押すと次の曲を再生します。</p>
+   <div class="bgnote">${IC.check}<div><b>画面を消しても再生が続きます</b><span>ロック画面・通知の操作パネルから、再生／一時停止／前後の曲の操作ができます。</span></div></div></div>
    <div class="sec"><h5>バックアップ・端末の移行</h5><p class="muted" style="margin:0 0 10px">評価・メモ・カテゴリ・プレイリスト・並び順をファイルに書き出します（曲ファイルは含みません）。新しい端末で読み込んだあと、同じ曲ファイルを取り込むと整理内容がそのまま復元されます。</p>
     <div class="actions"><button class="btn" id="expBtn">${IC.down}バックアップを書き出す</button><button class="btn" id="impBtn">${IC.up}バックアップを読み込む</button></div><div class="muted" style="margin-top:8px;font-size:12.5px">${(()=>{let lb=0;try{lb=+localStorage.getItem('crate.lastBackup')||0}catch(_){}return lb?`最後のバックアップ：${new Date(lb).toLocaleDateString('ja-JP')}`:'まだバックアップを書き出していません'})()}</div><div class="muted" id="bkMsg" style="margin-top:8px;font-size:12.5px"></div></div>
    <div class="sec"><h5>データの削除</h5><div class="actions" id="wipeZone"><button class="btn danger" id="wipeAsk">${IC.trash}この端末のデータをすべて削除</button></div></div>
    <div class="foot"><button class="btn" data-act="help">使い方を見る</button><span class="actions"><button class="btn primary" data-act="close">閉じる</button></span></div>`,
-  el=>{$('#setAuto').onchange=e=>setAutoNext(e.target.checked,true);$('#expBtn').onclick=exportBackup;$('#impBtn').onclick=()=>$('#jsonIn').click();
+  el=>{$('#expBtn').onclick=exportBackup;$('#impBtn').onclick=()=>$('#jsonIn').click();
     $('#wipeAsk').onclick=()=>{$('#wipeZone').innerHTML=`<span style="color:var(--danger);font-size:13px">曲ファイル・整理内容がすべて消えます。元のファイルは残ります。</span><button class="btn danger" id="wipeGo">削除する</button><button class="btn" id="wipeNo">やめる</button>`;
       $('#wipeGo').onclick=wipeAll;$('#wipeNo').onclick=settingsSheet}})}
 function backupData(){return{app:'CRATE',version:1,exportedAt:new Date().toISOString(),tracks:all().filter(t=>!t.sample).map(local),playlists:S.playlists.filter(p=>!p.sample),cats:S.cats.filter(c=>!c.sample),artistImgs:S.artistImgs}}
@@ -1391,6 +1416,7 @@ document.addEventListener('click',e=>{
     if(a.closest('#menu'))closeMenu();
     if(act==='hmenu'){openActMenu(a,S.hmenu||[]);return}
     if(act==='stopSet'){setStop(a.dataset.v);return}
+    if(act==='stopMenu'){e.stopPropagation();openStopMenu(a);return}
     if(act==='toggleNow'){if(innerWidth>=1280)setNp(!S.np);else document.body.classList.add('np-full');return}
     if(act==='closeNow'){document.body.classList.remove('np-full');return}
     const p=S.playlists.find(x=>'pl:'+x.id===S.view),c=S.cats.find(x=>'cat:'+x.id===S.view);
@@ -1475,7 +1501,7 @@ function progress(msg){let el=$('#prog');if(!msg){el&&el.remove();return}if(!el)
     const cts=await tx('kv','readonly',s=>s.get('cats'));if(Array.isArray(cts))S.cats=[...S.cats.filter(c=>c.sample),...cts];
     if(ts.length)removeSamples(true)}
   try{S.np=localStorage.getItem('crate.np')!=='0'}catch(_){S.np=true}document.body.classList.toggle('np-open',S.np);
-  try{const so=localStorage.getItem('otodana.sort');if(so)S.sort=so;if(localStorage.getItem('crate.autoNext')==='0')S.autoNext=false;const tb=JSON.parse(localStorage.getItem('crate.tabs')||'null');if(Array.isArray(tb)&&tb.length)S.tabs=tb}catch(_){}
+  try{const so=localStorage.getItem('otodana.sort');if(so)S.sort=so;const tb=JSON.parse(localStorage.getItem('crate.tabs')||'null');if(Array.isArray(tb)&&tb.length)S.tabs=tb}catch(_){}
   try{navigator.storage?.persist?.()}catch(_){}
   ensureOrder();render();initCloud();refreshProt(all().some(t=>!t.sample));
   let welcomed=false;try{welcomed=localStorage.getItem('crate.welcomed')==='1'}catch(_){welcomed=true}
