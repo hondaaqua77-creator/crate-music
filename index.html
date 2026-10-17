@@ -301,6 +301,17 @@ textarea{font:inherit;font-size:14px;line-height:1.6;color:var(--ink);background
 .vt em{font-style:normal;font-size:12.5px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vchev{color:#B3B8C3;display:grid;place-items:center}.vchev svg{width:18px;height:18px}
 .vlist+.hint{margin:8px 0 0}
+.tablist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.tli{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 8px 8px 14px;border-bottom:1px solid var(--line);background:#fff;font:inherit;text-align:left;width:100%;border-left:0;border-right:0;border-top:0}
+.tli:last-child{border-bottom:0}
+.tli .actions{gap:2px;flex-wrap:nowrap}
+.tln{display:flex;flex-direction:column;min-width:0;font-size:14px;font-weight:600}
+.tln small{font-size:11px;color:var(--muted);font-weight:500}
+.tli.add{cursor:pointer}.tli.add:hover{background:var(--hover)}
+.tplus{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:600;color:var(--accent);white-space:nowrap}
+.tplus svg{width:14px;height:14px}
+.more:disabled{opacity:.3;pointer-events:none}
+.tablist .none{padding:12px 14px;font-size:13px;color:var(--muted)}
 .chip.more-tags{background:none;border-style:dashed;color:var(--muted)}
 .btn.wide{width:100%;justify-content:center;padding-block:11px}
 .or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}
@@ -322,8 +333,13 @@ textarea{font:inherit;font-size:14px;line-height:1.6;color:var(--ink);background
 .dveil{display:none}
 .mleft{display:flex;align-items:center;gap:6px;min-width:0}
 @media (max-width:760px){
-  .mob-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;background:var(--side);border:1px solid var(--line);border-radius:10px;padding:4px;margin:0 0 18px;overflow:visible}
-  .mob-nav button{border:0;background:none;border-radius:7px;padding:8px 2px;font-size:13px;font-weight:600;color:var(--ink2);white-space:nowrap}
+  .mob-nav{display:flex;gap:4px;background:var(--side);border:1px solid var(--line);border-radius:10px;padding:4px;margin:0 0 18px;overflow-x:auto;scrollbar-width:none}
+  .mob-nav::-webkit-scrollbar{display:none}
+  .mob-nav button{flex:1 1 0;min-width:0;border:0;background:none;border-radius:7px;padding:8px 6px;font-size:13px;font-weight:600;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mob-nav.many button{flex:0 0 auto;min-width:76px;max-width:150px}
+  .mob-nav .tabadd{flex:0 0 36px!important;min-width:36px!important;display:grid;place-items:center;color:var(--muted);padding:0}
+  .mob-nav .tabadd svg{width:16px;height:16px}
+  .mob-nav.many .tabadd{position:sticky;right:-4px;background:var(--side);box-shadow:-10px 0 10px -4px var(--side);border-radius:7px}
   .mob-nav button[aria-current="true"]{background:#fff;color:var(--ink);border:0;box-shadow:0 1px 3px rgba(17,19,24,.12)}
   body.drawer-open .side{display:flex;position:fixed;inset:0 auto 0 0;width:min(300px,86vw);z-index:36;box-shadow:12px 0 40px rgba(17,19,24,.18);padding-top:calc(22px + env(safe-area-inset-top,0px));padding-bottom:calc(var(--player-h) + 20px)}
   body.drawer-open .dveil{display:block;position:fixed;inset:0;z-index:35;background:rgba(17,19,24,.35)}
@@ -589,8 +605,9 @@ function renderSide(){const{lib,cats,none,pls}=navItems();const cur=S.view.split
    <div class="shelf"><h3><button class="hlink" data-view="cats">カテゴリ</button><span><button data-act="newCat" title="新しいカテゴリ">＋新規</button></span></h3><div class="nav" data-sortable="cats">${cats.map(btn).join('')||'<span class="none">曲をジャンル・用途ごとに分けられます</span>'}</div>${none?`<div class="nav">${btn(none)}</div>`:''}</div>
    <div class="shelf"><h3><button class="hlink" data-view="pls">プレイリスト</button><span><button data-act="newPl" title="新しいプレイリスト">＋新規</button><button data-act="newSmart" title="条件で自動作成">＋自動</button></span></h3><div class="nav" data-sortable="pls">${pls.map(btn).join('')||'<span class="none">まだありません</span>'}</div></div>
    <div class="sync"><div>${cs}</div><div class="sidelinks"><button data-act="settings">${IC.gear}設定・バックアップ</button><button data-act="help">${IC.help}使い方</button></div>${S.upNote?`<div>${esc(S.upNote)}</div>`:''}<div class="mono">${S.tracks.size}曲 / ${fmtLong(all().reduce((a,t)=>a+(isFinite(t.duration)?t.duration:0),0))}</div></div>`;
-  const tab=S.view==='all'?'all':(S.view==='cats'||S.view.startsWith('cat:'))?'cats':(S.view==='pls'||S.view.startsWith('pl:'))?'pls':(S.view==='albums'||S.view.startsWith('album|'))?'albums':'';
-  $('#mobnav').innerHTML=[['all','曲'],['cats','カテゴリ'],['pls','プレイリスト'],['albums','アルバム']].map(([k,l])=>`<button data-view="${k}" aria-current="${tab===k}">${l}</button>`).join('');
+  const tabs=activeTabs(),tab=currentTab(tabs);
+  $('#mobnav').innerHTML=tabs.map(k=>`<button data-view="${esc(k)}" aria-current="${tab===k}">${esc(tabLabel(k))}</button>`).join('')+`<button class="tabadd" data-act="editTabs" aria-label="タブを追加・編集" title="タブを追加・編集">${IC.plus}</button>`;
+  $('#mobnav').classList.toggle('many',tabs.length>4);
   const mm=$('#mMenu');if(mm&&!mm.innerHTML)mm.innerHTML=IC.menu}
 
 function stars(r){r=r||0;return'★'.repeat(r)+`<span class="off">${'★'.repeat(5-r)}</span>`}
@@ -803,6 +820,29 @@ function addSheet(tg){if(!tg)return;const name=targetName(tg);const pick=new Set
 function renameGroup(key,oldName){const label=key==='album'?'アルバム':'アーティスト';
   nameSheet(`${label}名を変更`,oldName,n=>{if(n===oldName)return;const exists=all().some(t=>t[key]===n);
     all().filter(t=>t[key]===oldName).forEach(t=>{t[key]=n;saveTrack(t)});S.view=key+'|'+n;render();toast(exists?`「${n}」にまとめました`:`${label}名を「${n}」に変更しました`)})}
+/* ---------- 上部タブ（利用者が追加・編集） ---------- */
+const DEFAULT_TABS=['albums','cats','pls'];
+const FIXED_TABS=[['albums','アルバム'],['cats','カテゴリ'],['pls','プレイリスト'],['all','すべての曲'],['artists','アーティスト'],['dupes','重複チェック']];
+function tabLabel(k){const f=FIXED_TABS.find(x=>x[0]===k);if(f)return f[1];
+  if(k.startsWith('cat:'))return k==='cat:none'?'未分類':catName(k.slice(4));
+  if(k.startsWith('pl:'))return S.playlists.find(p=>'pl:'+p.id===k)?.name||'';return''}
+function tabValid(k){return FIXED_TABS.some(x=>x[0]===k)||(k.startsWith('cat:')&&(k==='cat:none'||S.cats.some(c=>'cat:'+c.id===k)))||(k.startsWith('pl:')&&S.playlists.some(p=>'pl:'+p.id===k))}
+function activeTabs(){const t=(S.tabs||DEFAULT_TABS).filter(tabValid);return t.length?t:DEFAULT_TABS}
+function currentTab(tabs){const v=S.view;if(tabs.includes(v))return v;
+  const g=v==='all'?'all':v.startsWith('cat:')?'cats':v.startsWith('pl:')?'pls':v.startsWith('album|')?'albums':v.startsWith('artist|')?'artists':'';return tabs.includes(g)?g:''}
+function saveTabs(t){S.tabs=t;try{localStorage.setItem('crate.tabs',JSON.stringify(t))}catch(_){}renderSide()}
+function tabsSheet(){const cur=activeTabs();
+  const cand=[...FIXED_TABS.map(x=>x[0]),...S.cats.map(c=>'cat:'+c.id),...S.playlists.map(p=>'pl:'+p.id)].filter(k=>!cur.includes(k));
+  const kind=k=>k.startsWith('cat:')?'カテゴリ':k.startsWith('pl:')?'プレイリスト':'';
+  sheet(`<h2>上部のタブを編集</h2><p class="muted" style="margin:0">よく使う項目をタブに追加できます。個別のカテゴリやプレイリストも追加できます。</p>
+   <div class="sec"><h5>表示中のタブ（${cur.length}）</h5><div class="tablist">${cur.map((k,i)=>`<div class="tli"><span class="tln">${esc(tabLabel(k))}${kind(k)?`<small>${kind(k)}</small>`:''}</span><span class="actions"><button class="more" data-tmove="${i}" data-dir="-1" aria-label="前へ"${i?'':' disabled'}>${IC.up}</button><button class="more" data-tmove="${i}" data-dir="1" aria-label="後ろへ"${i<cur.length-1?'':' disabled'}>${IC.down}</button><button class="more" data-tdel="${i}" aria-label="外す"${cur.length>1?'':' disabled'}>${IC.x}</button></span></div>`).join('')}</div></div>
+   <div class="sec"><h5>追加できる項目</h5><div class="tablist">${cand.map(k=>`<button class="tli add" data-tadd="${esc(k)}"><span class="tln">${esc(tabLabel(k))}${kind(k)?`<small>${kind(k)}</small>`:''}</span><span class="tplus">${IC.plus}追加</span></button>`).join('')||'<span class="none">追加できる項目はありません</span>'}</div></div>
+   <div class="foot"><button class="btn" id="tReset">初期設定に戻す</button><span class="actions"><button class="btn primary" data-act="close">完了</button></span></div>`,
+  el=>{el.addEventListener('click',e=>{const t=activeTabs().slice();const m=e.target.closest('[data-tmove]'),d=e.target.closest('[data-tdel]'),a=e.target.closest('[data-tadd]');
+    if(m){const i=+m.dataset.tmove,j=i+(+m.dataset.dir);if(j<0||j>=t.length)return;[t[i],t[j]]=[t[j],t[i]];saveTabs(t);tabsSheet()}
+    else if(d){if(t.length<2)return;t.splice(+d.dataset.tdel,1);saveTabs(t);tabsSheet()}
+    else if(a){t.push(a.dataset.tadd);saveTabs(t);tabsSheet()}});
+   $('#tReset').onclick=()=>{saveTabs(DEFAULT_TABS.slice());tabsSheet()}})}
 function smartSheet(){const tagsUsed=[...new Set(all().flatMap(t=>t.tags||[]))],genres=[...new Set(all().map(t=>t.genre).filter(Boolean))],artists=[...new Set(all().map(t=>t.artist).filter(Boolean))];
   const opt=(l,ph)=>`<option value="">${ph}</option>`+l.sort((a,b)=>a.localeCompare(b,'ja')).map(x=>`<option>${esc(x)}</option>`).join('');
   sheet(`<h2>条件で自動プレイリスト</h2><p style="margin:0;color:var(--muted);font-size:13px">条件に合う曲が自動で集まります。曲の評価やタグを変えると中身も変わります。</p>
@@ -912,6 +952,7 @@ document.addEventListener('click',e=>{
       case'newCat':nameSheet('新しいカテゴリ','',n=>{const ct={id:uid(),name:n};S.cats.push(ct);savePlaylists();S.view='cat:'+ct.id;render();toast('カテゴリを作りました。曲の「…」か「選択して整理」から曲を入れられます')},'例：邦楽、洋楽、アニソン、ライブ音源');break;
       case'renamePl':if(p)nameSheet('プレイリスト名を変更',p.name,n=>{p.name=n;savePlaylists();render()});break;
       case'memoPl':if(p)memoSheet(`「${p.name}」のメモ`,p.memo,'例：金曜の夜に聴く用。テンポが速い順に並べる',vv=>{p.memo=vv;savePlaylists();render()});break;
+      case'editTabs':tabsSheet();break;
       case'openDrawer':document.body.classList.add('drawer-open');break;
       case'closeDrawer':document.body.classList.remove('drawer-open');break;
       case'addTo':addSheet(targetOfView());break;
@@ -970,7 +1011,7 @@ function progress(msg){let el=$('#prog');if(!msg){el&&el.remove();return}if(!el)
     const pls=await tx('kv','readonly',s=>s.get('playlists'));if(Array.isArray(pls))S.playlists=[...S.playlists.filter(p=>p.sample),...pls];
     const cts=await tx('kv','readonly',s=>s.get('cats'));if(Array.isArray(cts))S.cats=[...S.cats.filter(c=>c.sample),...cts];
     if(ts.length)removeSamples(true)}
-  try{const so=localStorage.getItem('otodana.sort');if(so)S.sort=so;if(localStorage.getItem('crate.autoNext')==='0')S.autoNext=false}catch(_){}
+  try{const so=localStorage.getItem('otodana.sort');if(so)S.sort=so;if(localStorage.getItem('crate.autoNext')==='0')S.autoNext=false;const tb=JSON.parse(localStorage.getItem('crate.tabs')||'null');if(Array.isArray(tb)&&tb.length)S.tabs=tb}catch(_){}
   try{navigator.storage?.persist?.()}catch(_){}
   ensureOrder();render();initCloud();
   let welcomed=false;try{welcomed=localStorage.getItem('crate.welcomed')==='1'}catch(_){welcomed=true}
