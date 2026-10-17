@@ -324,6 +324,18 @@ textarea{font:inherit;font-size:14px;line-height:1.6;color:var(--ink);background
 .ehead{display:flex;gap:12px;align-items:center}.ehead .art{width:56px;height:56px}.ehead h2{margin:0}
 .nowedit{flex:none;color:var(--muted)}
 .now .t{flex:1}
+.banner.warn{background:#FFF6E8;border-color:#F3D9A4;color:var(--ink)}
+.banner.warn>span:first-child{display:flex;gap:10px;align-items:flex-start;flex:1 1 280px;min-width:0}
+.banner.warn>span:first-child>svg{width:18px;height:18px;flex:none;color:#B7791F;margin-top:2px}
+.pstat{display:flex;gap:12px;align-items:center;border-radius:10px;padding:12px 14px;border:1px solid}
+.pstat>svg{width:22px;height:22px;flex:none}
+.pstat>div{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}.pstat b{font-size:14.5px}.pstat span{font-size:12.5px;color:var(--ink2)}
+.pstat.ok{background:#EEF8F2;border-color:#BFE3CD}.pstat.ok>svg{color:var(--ok)}
+.pstat.ng{background:#FFF6E8;border-color:#F3D9A4}.pstat.ng>svg{color:#B7791F}
+.pstat .btn{flex:none}
+.psteps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:13.5px;line-height:1.6}
+.pnote{margin:0;padding-left:18px;font-size:13px;line-height:1.7;color:var(--ink2)}
+.warnnote{margin-top:12px}.warnnote svg{color:#B7791F!important}
 .chip.more-tags{background:none;border-style:dashed;color:var(--muted)}
 .btn.wide{width:100%;justify-content:center;padding-block:11px}
 .or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}
@@ -529,6 +541,7 @@ async function importFiles(list){
   progress(null);
   if(added&&[...S.tracks.values()].some(t=>t.sample)&&!(target&&String(target.id).startsWith('sample')))removeSamples(true);
   if(target&&got.length){applyAdd(target,got,true)}
+  if(added)refreshProt(true);
   render();
   toast(`${added}曲を取り込みました`+(skipped?`（${skipped}曲は取り込み済みのためスキップ）`:''))}
 
@@ -651,7 +664,7 @@ function toolbarHTML(o){return`<div class="toolbar">${o.search?`<input type="sea
 
 let current=[];
 function renderView(){const v=S.view;let h='';const hasSample=all().some(t=>t.sample);
-  const banner=hasSample?`<div class="banner"><span>いまは動作確認用のサンプル曲を表示しています。自分の曲を取り込むと自動で消えます。</span><span class="actions"><button class="btn primary" data-act="import">曲を取り込む</button><button class="btn" data-act="clearSamples">サンプルを消す</button></span></div>`:'';
+  const banner=protBannerHTML()+(hasSample?`<div class="banner"><span>いまは動作確認用のサンプル曲を表示しています。自分の曲を取り込むと自動で消えます。</span><span class="actions"><button class="btn primary" data-act="import">曲を取り込む</button><button class="btn" data-act="clearSamples">サンプルを消す</button></span></div>`:'');
   if(v==='all'||v.startsWith('artist|')||v.startsWith('album|')){
     let list=all(),title='すべての曲';
     if(v.startsWith('artist|')){const a=v.slice(7);list=list.filter(t=>(t.artist||'不明')===a);title=a}
@@ -898,14 +911,44 @@ function welcomeSheet(){const m=modeText();
    <div class="note">${IC.lock}<div><b>あなたの曲とメモは、あなたにしか見えません。</b><br>曲ファイルと整理内容はこの端末の中だけに保存され、インターネット上のどこにも送信されません。<br><span class="muted">保存の状態：${esc(m.t)}</span></div></div>
    <div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">サンプルで試す</button><button class="btn primary" data-act="welcomeImport">${IC.plus}自分の曲を取り込む</button></span></div></div>`);
   try{localStorage.setItem('crate.welcomed','1')}catch(_){}}
+/* ---------- 曲の保護（ブラウザによる自動削除を防ぐ） ---------- */
+let installEvt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;renderView()});
+window.addEventListener('appinstalled',()=>{installEvt=null;refreshProt(true)});
+const isIOS=()=>/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const isStandalone=()=>{try{return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true}catch(_){return false}};
+async function refreshProt(tryPersist){let persisted=false;
+  try{persisted=!!(await navigator.storage?.persisted?.())}catch(_){}
+  if(!persisted&&tryPersist){try{persisted=!!(await navigator.storage?.persist?.())}catch(_){}}
+  S.prot={persisted,standalone:isStandalone(),ios:isIOS(),supported:!!navigator.storage?.persist};
+  S.prot.ok=persisted||(S.prot.ios&&S.prot.standalone);render();return S.prot.ok}
+function protBannerHTML(){const real=all().some(t=>!t.sample);if(!real||!S.prot||S.prot.ok)return'';
+  let dis=0;try{dis=+localStorage.getItem('crate.protDismiss')||0}catch(_){}if(Date.now()-dis<3*864e5)return'';
+  return`<div class="banner warn"><span>${IC.lock}<span><b>曲が自動で消えないように保護してください</b><br>いまの状態では、端末の空き容量が少ないときや長く開かなかったときに、ブラウザが曲を自動で削除することがあります。</span></span><span class="actions"><button class="btn primary" data-act="protect">保護する</button><button class="btn" data-act="protLater">あとで</button></span></div>`}
+async function protectNow(){const ok=await refreshProt(true);
+  if(ok){toast('保護しました。ブラウザが曲を自動で削除することはありません');return}
+  if(installEvt){try{installEvt.prompt();const r=await installEvt.userChoice;installEvt=null;if(r&&r.outcome==='accepted'){setTimeout(()=>refreshProt(true),1500);toast('インストールしました。ホーム画面・アプリ一覧のCRATEから開いてください');return}}catch(_){}}
+  protectSheet()}
+function protectSheet(){const pr=S.prot||{};const ok=pr.ok;
+  const steps=pr.ios?(pr.standalone?'':`<ol class="psteps"><li>Safariで画面下の <b>共有ボタン</b> を押す</li><li><b>「ホーム画面に追加」</b>を選ぶ</li><li>ホーム画面にできた <b>CRATE</b> から開き、そこで曲を取り込む</li></ol>
+      <div class="note warnnote">${IC.help}<div>iPhoneでは、Safariで開いたCRATEとホーム画面のCRATEは<b>保存場所が別</b>です。Safariで取り込んだ曲はホーム画面版に引き継がれないため、ホーム画面版で取り込み直してください（評価やメモは「バックアップ」で移せます）。</div></div>`)
+    :`<ol class="psteps">${installEvt?`<li>下の <b>「アプリとしてインストール」</b> を押す</li>`:`<li>Chrome・Edgeの場合：アドレスバー右側の <b>インストールアイコン</b>、またはメニュー（︙）の <b>「アプリをインストール」</b> を選ぶ</li>`}<li>インストールしたCRATEから開き、もう一度 <b>「保護する」</b> を押す</li><li>Firefoxの場合は、表示される <b>「データの保存を許可」</b> で「許可」を選ぶ</li></ol>`;
+  sheet(`<h2>曲の保護</h2>
+   <div class="pstat ${ok?'ok':'ng'}">${ok?IC.check:IC.lock}<div><b>${ok?'保護されています':'まだ保護されていません'}</b><span>${ok?'取り込んだ曲はブラウザに自動で削除されません。':'空き容量が少ないときや、しばらく開かなかったときに、ブラウザが自動で削除する場合があります。'}</span></div></div>
+   ${ok?'':`<div class="sec"><h5>保護する手順</h5>${steps}</div>`}
+   <div class="sec"><h5>保護していても消える場合</h5><ul class="pnote"><li>ブラウザの設定で <b>「閲覧データ・サイトデータの削除」</b> を行ったとき</li><li>CRATEの「この端末のデータをすべて削除」や、アプリのアンインストールを行ったとき</li><li>端末の機種変更・初期化をしたとき</li></ul><p class="muted" style="margin:8px 0 0">念のため、元の曲ファイルは削除せずに保管し、整理内容は「バックアップを書き出す」で定期的に保存してください。</p></div>
+   <div class="foot"><span>${!ok&&installEvt?`<button class="btn" id="pInstall">${IC.down}アプリとしてインストール</button>`:''}</span><span class="actions"><button class="btn" data-act="close">閉じる</button>${ok?'':`<button class="btn primary" id="pRetry">保護する</button>`}</span></div>`,
+  el=>{const r=$('#pRetry');if(r)r.onclick=async()=>{const ok2=await refreshProt(true);if(ok2){toast('保護しました');protectSheet()}else{r.textContent='まだ保護できません（上の手順をお試しください）'}};
+    const i=$('#pInstall');if(i)i.onclick=async()=>{if(!installEvt)return;installEvt.prompt();const c=await installEvt.userChoice;installEvt=null;closeSheet();if(c&&c.outcome==='accepted')toast('インストールしました。アプリ一覧のCRATEから開いてください')}})}
 async function settingsSheet(){const m=modeText();let used='確認できません';
   try{const e=await navigator.storage?.estimate?.();if(e&&e.usage!=null)used=`${(e.usage/1048576).toFixed(0)}MB 使用中${e.quota?`（上限の目安 ${(e.quota/1073741824).toFixed(1)}GB）`:''}`}catch(_){}
   const real=all().filter(t=>!t.sample),noFile=real.filter(t=>!t.local&&!t.assetId).length;
   sheet(`<h2>設定・データ</h2>
    <div class="sec"><h5>保存の状態</h5><div class="kv"><span>モード</span><b><span class="dot${S.cloudState==='on'?' on':''}"></span>${esc(m.t)}</b><span>曲数</span><b class="mono">${real.length}曲${noFile?`（うち${noFile}曲はこの端末にファイルなし）`:''}</b><span>端末の使用量</span><b class="mono">${esc(used)}</b></div><p class="muted" style="margin:8px 0 0">${esc(m.d)}</p></div>
+   <div class="sec"><h5>曲の保護</h5><div class="pstat sm ${S.prot&&S.prot.ok?'ok':'ng'}">${S.prot&&S.prot.ok?IC.check:IC.lock}<div><b>${S.prot&&S.prot.ok?'保護されています（自動で消えません）':'まだ保護されていません'}</b><span>${S.prot&&S.prot.ok?'取り込んだ曲はブラウザに自動で削除されません。':'ブラウザが曲を自動で削除する場合があります。'}</span></div><button class="btn" data-act="protInfo">${S.prot&&S.prot.ok?'詳しく':'保護する'}</button></div></div>
    <div class="sec"><h5>再生</h5><label class="sw"><input type="checkbox" id="setAuto"${S.autoNext?' checked':''}><span><b>曲が終わったら次の曲を自動で再生する</b><small>オフにすると1曲ごとに止まります。再生バーのボタンでも切り替えられます。</small></span></label></div>
    <div class="sec"><h5>バックアップ・端末の移行</h5><p class="muted" style="margin:0 0 10px">評価・メモ・カテゴリ・プレイリスト・並び順をファイルに書き出します（曲ファイルは含みません）。新しい端末で読み込んだあと、同じ曲ファイルを取り込むと整理内容がそのまま復元されます。</p>
-    <div class="actions"><button class="btn" id="expBtn">${IC.down}バックアップを書き出す</button><button class="btn" id="impBtn">${IC.up}バックアップを読み込む</button></div><div class="muted" id="bkMsg" style="margin-top:8px;font-size:12.5px"></div></div>
+    <div class="actions"><button class="btn" id="expBtn">${IC.down}バックアップを書き出す</button><button class="btn" id="impBtn">${IC.up}バックアップを読み込む</button></div><div class="muted" style="margin-top:8px;font-size:12.5px">${(()=>{let lb=0;try{lb=+localStorage.getItem('crate.lastBackup')||0}catch(_){}return lb?`最後のバックアップ：${new Date(lb).toLocaleDateString('ja-JP')}`:'まだバックアップを書き出していません'})()}</div><div class="muted" id="bkMsg" style="margin-top:8px;font-size:12.5px"></div></div>
    <div class="sec"><h5>データの削除</h5><div class="actions" id="wipeZone"><button class="btn danger" id="wipeAsk">${IC.trash}この端末のデータをすべて削除</button></div></div>
    <div class="foot"><button class="btn" data-act="help">使い方を見る</button><span class="actions"><button class="btn primary" data-act="close">閉じる</button></span></div>`,
   el=>{$('#setAuto').onchange=e=>setAutoNext(e.target.checked,true);$('#expBtn').onclick=exportBackup;$('#impBtn').onclick=()=>$('#jsonIn').click();
@@ -914,6 +957,7 @@ async function settingsSheet(){const m=modeText();let used='確認できませ�
 function backupData(){return{app:'CRATE',version:1,exportedAt:new Date().toISOString(),tracks:all().filter(t=>!t.sample).map(local),playlists:S.playlists.filter(p=>!p.sample),cats:S.cats.filter(c=>!c.sample)}}
 async function exportBackup(){const msg=$('#bkMsg');const data=JSON.stringify(backupData());const d=new Date(),name=`crate-backup-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
   try{const u=URL.createObjectURL(new Blob([data],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);
+    try{localStorage.setItem('crate.lastBackup',String(Date.now()))}catch(_){}
     if(msg)msg.textContent=`「${name}」を書き出しました。ダウンロードフォルダ（iPhoneは「ファイル」アプリ）に保存されます。`}catch(e){if(msg)msg.textContent='書き出せませんでした。もう一度お試しください。'}}
 async function importBackup(file){let j;try{j=JSON.parse(await file.text())}catch(e){toast('バックアップファイルを読み込めませんでした。CRATEで書き出したファイルを選んでください。');return}
   if(!j||j.app!=='CRATE'||!Array.isArray(j.tracks)){toast('CRATEのバックアップファイルではありません。');return}
@@ -968,6 +1012,9 @@ document.addEventListener('click',e=>{
       case'renamePl':if(p)nameSheet('プレイリスト名を変更',p.name,n=>{p.name=n;savePlaylists();render()});break;
       case'memoPl':if(p)memoSheet(`「${p.name}」のメモ`,p.memo,'例：金曜の夜に聴く用。テンポが速い順に並べる',vv=>{p.memo=vv;savePlaylists();render()});break;
       case'editTabs':tabsSheet();break;
+      case'protect':protectNow();break;
+      case'protInfo':closeSheet();if(S.prot&&!S.prot.ok)protectNow();else protectSheet();break;
+      case'protLater':try{localStorage.setItem('crate.protDismiss',String(Date.now()))}catch(_){}renderView();toast('3日後にもう一度お知らせします。設定からいつでも保護できます');break;
       case'rename':closeMenu();renameSheet(id);break;
       case'memoEdit':renameSheet(id,'memo');break;
       case'editNow':{const cid=S.queue[S.qi];if(cid)renameSheet(cid,'memo');break}
@@ -1030,7 +1077,7 @@ function progress(msg){let el=$('#prog');if(!msg){el&&el.remove();return}if(!el)
     if(ts.length)removeSamples(true)}
   try{const so=localStorage.getItem('otodana.sort');if(so)S.sort=so;if(localStorage.getItem('crate.autoNext')==='0')S.autoNext=false;const tb=JSON.parse(localStorage.getItem('crate.tabs')||'null');if(Array.isArray(tb)&&tb.length)S.tabs=tb}catch(_){}
   try{navigator.storage?.persist?.()}catch(_){}
-  ensureOrder();render();initCloud();
+  ensureOrder();render();initCloud();refreshProt(all().some(t=>!t.sample));
   let welcomed=false;try{welcomed=localStorage.getItem('crate.welcomed')==='1'}catch(_){welcomed=true}
   if(!welcomed&&!all().some(t=>!t.sample))setTimeout(()=>{if(!$('#layer .veil'))welcomeSheet()},400)})();
 })();
