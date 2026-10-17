@@ -545,6 +545,19 @@ button.np-art{display:block;border:0;padding:0;cursor:pointer}
 .lnk svg{width:14px;height:14px}
 .lnk:hover{text-decoration:underline}
 @media (hover:none){.coverbtn .coverhint{opacity:.92}}
+/* トリミング */
+.veil.top{z-index:60}
+.sheet.crop{width:min(460px,100%);gap:16px}
+.crophead{display:flex;flex-direction:column;gap:4px}
+.cropbox{position:relative;width:min(380px,100%);aspect-ratio:1;margin:0 auto;border-radius:8px;overflow:hidden;background:#1A1C21;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 18px 40px -20px rgba(20,22,27,.55)}
+.cropbox.grab{cursor:grabbing}
+.cropbox:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.cropbox canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cropgrid{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to right,transparent calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% + .5px),transparent calc(66.66% + .5px)),linear-gradient(to bottom,transparent calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% + .5px),transparent calc(66.66% + .5px));opacity:.0;transition:opacity .15s}
+.cropbox.grab .cropgrid,.cropbox:hover .cropgrid{opacity:1}
+.cropbox.round::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:50%;box-shadow:0 0 0 999px rgba(20,22,27,.55)}
+.cropctl{display:flex;align-items:center;gap:10px;width:min(380px,100%);margin:0 auto}
+.cropctl input[type=range]{flex:1;height:4px;--p:0%}
 @media (min-width:761px){.mob-top{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -592,6 +605,7 @@ button.np-art{display:block;border:0;padding:0;cursor:pointer}
 <audio id="audio" preload="auto"></audio>
 <div id="bulk" class="bulk" hidden></div>
 <div id="layer"></div>
+<div id="layer2"></div>
 
 <script src="vendor/jsmediatags.min.js"></script>
 <script>
@@ -643,6 +657,9 @@ const IC={
  down2:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg>',
  image:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="m20.5 16-5-5-8 8.5"/></svg>',
  undo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>',
+ rotate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>',
+ zoomin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2M11 8.5v5M8.5 11h5"/></svg>',
+ zoomout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2M8.5 11h5"/></svg>',
  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>'
 };
 const MOODS=['明るい','元気が出る','落ち着く','切ない','エモい','激しい','おしゃれ'];
@@ -1080,17 +1097,52 @@ function tabsSheet(){const cur=activeTabs();
    $('#tReset').onclick=()=>{saveTabs(DEFAULT_TABS.slice());tabsSheet()}})}
 /* ---------- ジャケット・カバー画像 ---------- */
 function pickImage(tg){S.imgTarget=tg;const i=$('#imgIn');i.value='';i.click()}
-async function makeImages(file){const bmp=await createImageBitmap(file,{imageOrientation:'from-image'}).catch(()=>createImageBitmap(file));
-  const out={};for(const[k,n,q]of[['hi',640,.86],['thumb',160,.8]]){const c=document.createElement('canvas');c.width=c.height=n;const g=c.getContext('2d');
-    const side=Math.min(bmp.width,bmp.height),sx=(bmp.width-side)/2,sy=(bmp.height-side)/2;g.imageSmoothingQuality='high';g.drawImage(bmp,sx,sy,side,side,0,0,n,n);out[k]=c.toDataURL('image/jpeg',q)}
+async function loadBitmap(file){return createImageBitmap(file,{imageOrientation:'from-image'}).catch(()=>createImageBitmap(file))}
+function makeImagesFrom(src,sx,sy,side){const out={};for(const[k,n,q]of[['hi',640,.86],['thumb',160,.8]]){const c=document.createElement('canvas');c.width=c.height=n;const g=c.getContext('2d');
+    g.imageSmoothingQuality='high';g.fillStyle='#fff';g.fillRect(0,0,n,n);g.drawImage(src,sx,sy,side,side,0,0,n,n);out[k]=c.toDataURL('image/jpeg',q)}
   return out}
+function rotated(src){const c=document.createElement('canvas');c.width=src.height;c.height=src.width;const g=c.getContext('2d');g.translate(c.width,0);g.rotate(Math.PI/2);g.drawImage(src,0,0);return c}
+/* トリミング画面 */
+function cropSheet(bmp,tg,onDone){const L=$('#layer2');let src=bmp,z=1,ox=0,oy=0;const round=tg.type==='artist';
+  const label={track:'ジャケット画像',album:'アルバムのジャケット画像',cat:'カテゴリのカバー画像',pl:'プレイリストのカバー画像',artist:'アーティスト画像'}[tg.type]||'画像';
+  L.innerHTML=`<div class="veil top"><div class="sheet crop" role="dialog" aria-modal="true" aria-label="画像のトリミング">
+   <div class="crophead"><h2>${label}を切り抜く</h2><p class="muted" style="margin:0">ドラッグで位置を、スライダーやピンチで大きさを調整できます。</p></div>
+   <div class="cropbox${round?' round':''}" id="cropBox"><canvas id="cropCv"></canvas><div class="cropgrid"></div></div>
+   <div class="cropctl"><button class="cbtn" id="cZo" aria-label="縮小">${IC.zoomout}</button><input type="range" id="cZoom" min="100" max="500" value="100" aria-label="拡大率"><button class="cbtn" id="cZi" aria-label="拡大">${IC.zoomin}</button><button class="cbtn" id="cRot" aria-label="90度回転" title="90度回転">${IC.rotate}</button></div>
+   <div class="foot"><button class="btn" id="cReset">元の位置に戻す</button><span class="actions"><button class="btn" id="cCancel">キャンセル</button><button class="btn primary" id="cOk">この範囲で決定</button></span></div></div></div>`;
+  const box=$('#cropBox'),cv=$('#cropCv'),zr=$('#cZoom');let W=0;
+  const base=()=>Math.max(W/src.width,W/src.height),sc=()=>base()*z;
+  const clamp=()=>{const s2=sc(),mx=Math.max(0,(src.width*s2-W)/2),my=Math.max(0,(src.height*s2-W)/2);ox=Math.min(mx,Math.max(-mx,ox));oy=Math.min(my,Math.max(-my,oy))};
+  const rect=()=>{const s2=sc(),side=W/s2;return{sx:src.width/2-side/2-ox/s2,sy:src.height/2-side/2-oy/s2,side}};
+  const draw=()=>{W=box.clientWidth;const d=devicePixelRatio||1;if(cv.width!==Math.round(W*d)){cv.width=cv.height=Math.round(W*d)}clamp();const r=rect(),g=cv.getContext('2d');
+    g.imageSmoothingQuality='high';g.clearRect(0,0,cv.width,cv.height);g.drawImage(src,r.sx,r.sy,r.side,r.side,0,0,cv.width,cv.height);zr.value=Math.round(z*100);zr.style.setProperty('--p',((z-1)/4*100)+'%')};
+  const setZ=v=>{z=Math.min(5,Math.max(1,v));draw()};
+  const close=()=>{L.innerHTML='';window.removeEventListener('resize',draw)};
+  const pts=new Map();let last=null,pinch0=null;
+  box.addEventListener('pointerdown',e=>{box.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pts.size===2){const[a,b]=[...pts.values()];pinch0={d:Math.hypot(a.x-b.x,a.y-b.y),z}}last={x:e.clientX,y:e.clientY};box.classList.add('grab')});
+  box.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size>=2&&pinch0){const[a,b]=[...pts.values()];setZ(pinch0.z*Math.hypot(a.x-b.x,a.y-b.y)/pinch0.d);return}
+    if(last){ox+=e.clientX-last.x;oy+=e.clientY-last.y;last={x:e.clientX,y:e.clientY};draw()}});
+  const up=e=>{pts.delete(e.pointerId);if(pts.size<2)pinch0=null;const r=[...pts.values()][0];last=r?{x:r.x,y:r.y}:null;if(!pts.size)box.classList.remove('grab')};
+  box.addEventListener('pointerup',up);box.addEventListener('pointercancel',up);
+  box.addEventListener('wheel',e=>{e.preventDefault();setZ(z*(e.deltaY<0?1.08:1/1.08))},{passive:false});
+  box.addEventListener('keydown',e=>{const k={ArrowLeft:[8,0],ArrowRight:[-8,0],ArrowUp:[0,8],ArrowDown:[0,-8]}[e.key];if(k){e.preventDefault();ox+=k[0];oy+=k[1];draw()}else if(e.key==='+'||e.key==='='){setZ(z*1.1)}else if(e.key==='-'){setZ(z/1.1)}});
+  box.tabIndex=0;
+  zr.oninput=()=>setZ(zr.value/100);$('#cZi').onclick=()=>setZ(z*1.2);$('#cZo').onclick=()=>setZ(z/1.2);
+  $('#cRot').onclick=()=>{src=rotated(src);ox=oy=0;draw()};
+  $('#cReset').onclick=()=>{z=1;ox=oy=0;draw()};
+  $('#cCancel').onclick=close;L.querySelector('.veil').addEventListener('click',e=>{if(e.target.classList.contains('veil'))close()});
+  $('#cOk').onclick=()=>{const r=rect();const im=makeImagesFrom(src,r.sx,r.sy,r.side);close();onDone(im)};
+  window.addEventListener('resize',draw);requestAnimationFrame(draw)}
 function setTrackArt(t,im){if(!t.artCustom)t.artOrig={art:t.art||null,artHi:t.artHi||null};t.art=im.thumb;t.artHi=im.hi;t.artCustom=true;saveTrack(t)}
 function resetTrackArt(t){if(!t.artCustom)return;const o=t.artOrig||{};t.art=o.art||null;t.artHi=o.artHi||null;t.artCustom=false;delete t.artOrig;saveTrack(t)}
 function saveArtistImgs(){tx('kv','readwrite',s=>s.put(S.artistImgs,'artistImgs'))}
 function collOf(tg){return tg.type==='cat'?S.cats.find(c=>c.id===tg.id):tg.type==='pl'?S.playlists.find(p=>p.id===tg.id):null}
 async function applyImageFile(file){const tg=S.imgTarget;S.imgTarget=null;if(!tg||!file)return;
   if(!/^image\//.test(file.type)&&!/\.(jpe?g|png|webp|gif|heic|heif|avif|bmp)$/i.test(file.name)){toast('画像ファイル（JPEG・PNGなど）を選んでください');return}
-  let im;try{progress('画像を読み込み中…');im=await makeImages(file)}catch(e){progress(null);toast('この画像は読み込めませんでした。JPEGかPNGの画像を選んでください');return}progress(null);
+  let bmp;try{progress('画像を読み込み中…');bmp=await loadBitmap(file)}catch(e){progress(null);toast('この画像は読み込めませんでした。JPEGかPNGの画像を選んでください');return}progress(null);
+  cropSheet(bmp,tg,im=>applyImages(tg,im))}
+function applyImages(tg,im){
   if(tg.type==='track'){const t=S.tracks.get(tg.id);if(!t)return;setTrackArt(t,im);const ea=$('#layer .earts');if(ea){ea.style.backgroundImage=`url('${im.hi}')`;ea.removeAttribute('data-sleeve');ea.innerHTML=''}}
   else if(tg.type==='album'){all().filter(t=>t.album===tg.id).forEach(t=>setTrackArt(t,im))}
   else if(tg.type==='artist'){S.artistImgs[tg.id]={hi:im.hi,thumb:im.thumb};saveArtistImgs()}
@@ -1309,7 +1361,7 @@ window.addEventListener('drop',async e=>{if(!e.dataTransfer?.files?.length)retur
   const items=[...(e.dataTransfer.items||[])].map(i=>i.webkitGetAsEntry&&i.webkitGetAsEntry()).filter(Boolean);
   if(items.some(x=>x.isDirectory)){const files=[];const walk=en=>new Promise(res=>{if(en.isFile)en.file(f=>{files.push(f);res()},res);else{const r=en.createReader(),acc=[];const rd=()=>r.readEntries(async es=>{if(!es.length){for(const x of acc)await walk(x);res()}else{acc.push(...es);rd()}},res);rd()}});
     for(const en of items)await walk(en);importFiles(files)}else importFiles(e.dataTransfer.files)});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMenu();if($('#layer .veil'))closeSheet();if(S.selMode&&!$('#layer .veil')){S.selMode=false;S.sel.clear();renderView()}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#layer2').innerHTML){$('#layer2').innerHTML='';return}if(e.key==='Escape'){closeMenu();if($('#layer .veil'))closeSheet();if(S.selMode&&!$('#layer .veil')){S.selMode=false;S.sel.clear();renderView()}}
   if(e.code==='Space'&&!/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName)&&!$('#layer .veil')){e.preventDefault();$('#bPlay').click()}});
 
 let toastT;function toast(msg){progress(msg);clearTimeout(toastT);toastT=setTimeout(()=>progress(null),3600)}
