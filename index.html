@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="CRATE">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Noto+Sans+JP:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap">
 <style>
 /* Layout: pro desktop music library on white — quiet grey sidebar, tabular track list with column headers, collection header with cover, white transport bar. Single light theme by design. */
 :root{
@@ -112,7 +112,7 @@ input::placeholder{color:#9AA0AC}
 .more{background:none;border:0;border-radius:8px;padding:5px;color:var(--muted);display:grid;place-items:center}
 .more:hover{background:#fff;color:var(--ink);box-shadow:0 0 0 1px var(--line2)}
 .more svg{width:18px;height:18px}
-.chipline{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
+.chipline{display:flex;gap:4px;flex-wrap:nowrap;overflow:hidden;margin-top:3px}
 .chip{font-size:11px;padding:1px 8px;border-radius:999px;background:var(--hover);color:var(--ink2);border:1px solid var(--line)}
 .badge{font-size:10.5px;padding:1px 6px;border-radius:4px;background:var(--hover);color:var(--muted);margin-left:8px;vertical-align:1px;font-weight:600}
 .empty{padding:56px 20px;text-align:center;color:var(--muted)}
@@ -373,6 +373,165 @@ textarea{font:inherit;font-size:14px;line-height:1.6;color:var(--ink);background
   .btns .ib#bAuto{display:grid}
   .mob-top .brand{font-size:19px}
 }
+
+/* ===== v6 本格デザイン =====
+   Concept: listening room on white paper — cover art is the hero (generated deep-tone sleeves for files without artwork),
+   quiet chrome, one signal red for play/active. Layout: sidebar | library | now-playing panel (desktop ≥1280). */
+:root{--bg:#FFFFFF;--side:#F7F7F9;--hover:#F2F3F5;--sel:#FBEFF1;--ink:#14161B;--ink2:#41464F;--muted:#747A86;--line:#ECEDF0;--line2:#DADDE2;
+  --f-body:"Hanken Grotesk","Noto Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;--f-mono:"Hanken Grotesk","Noto Sans JP",system-ui,sans-serif;--player-h:84px}
+body{font-size:14.5px;font-feature-settings:"palt" 1;letter-spacing:.005em}
+.mono,.dur,.idx,.n,#tCur,#tDur{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+/* sleeves */
+[data-sleeve]{display:grid!important;place-items:end start!important;color:#fff!important}
+.ini{font-family:"Syne","Noto Sans JP",sans-serif;font-style:normal;font-weight:800;color:rgba(255,255,255,.94);line-height:.82;letter-spacing:-.02em;padding:0 0 9% 10%;font-size:clamp(14px,42%,120px)}
+.art .ini{font-size:17px;padding:0 0 5px 6px}
+.art.sm .ini{font-size:14px;padding:0 0 3px 4px}
+.mosaic{display:grid!important;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;overflow:hidden;padding:0!important;background:var(--line)!important}
+.mosaic span{background-size:cover;background-position:center;min-width:0;min-height:0}
+/* app frame */
+.app{grid-template-columns:248px minmax(0,1fr)}
+.side{background:var(--side);border-right:1px solid var(--line);gap:26px;padding-top:24px}
+.brand{font-size:21px}
+.shelf h3{font-size:12px;letter-spacing:0;font-weight:600;color:var(--muted);margin:0 0 4px 10px}
+.nav button{padding:7px 10px;font-size:14px;color:var(--ink2);border-radius:7px}
+.nav button[aria-current="true"]{background:#fff;color:var(--ink);font-weight:700;box-shadow:0 1px 2px rgba(20,22,27,.05),0 0 0 1px var(--line)}
+.nav button .n{font-family:var(--f-body);font-size:12px}
+.main{padding-block:36px calc(var(--player-h) + 40px);padding-left:max(40px,env(safe-area-inset-left,0px));padding-right:max(40px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1120px}
+/* headline */
+.head{display:flex;flex-wrap:nowrap;align-items:flex-end;justify-content:flex-start;gap:32px;margin-bottom:28px}
+.head .cover{width:232px;height:232px;flex:none;border-radius:8px;background-size:cover;background-position:center;box-shadow:0 22px 44px -18px rgba(20,22,27,.45),0 2px 6px rgba(20,22,27,.08);color:#fff}
+.head .cover .ini{font-size:112px;padding:0 0 18px 20px}
+.htext{min-width:0;display:flex;flex-direction:column}
+.head .kicker{font-size:13px;font-weight:600;letter-spacing:0;color:var(--muted);margin-bottom:6px}
+.head h1{font-size:clamp(30px,4.2vw,52px);font-weight:800;line-height:1.08;letter-spacing:-.025em;margin:0}
+.head .meta{font-size:13.5px;color:var(--muted);margin-top:10px}
+.hmemo{margin-top:12px;border-left:2px solid var(--accent);padding-left:12px;color:var(--ink2);font-size:14px;max-width:60ch}
+.hacts{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:20px}
+.pbtn{width:52px;height:52px;border-radius:50%;border:0;background:var(--accent);color:#fff;display:grid;place-items:center;box-shadow:0 8px 18px -8px rgba(210,52,74,.7);transition:transform .12s}
+.pbtn:hover{transform:scale(1.05);background:#C42E44}
+.pbtn svg{width:22px;height:22px;margin-left:3px}
+.cbtn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line2);background:#fff;color:var(--ink2);display:grid;place-items:center}
+.cbtn:hover{border-color:var(--ink2);color:var(--ink)}
+.cbtn svg{width:18px;height:18px}
+.btn{border-radius:999px;padding:8px 16px;font-weight:600}
+.btn.pill{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.pill:hover{background:#2B2E36}
+.btn.primary{border-radius:999px}
+.toolbar{margin:4px 0 10px}
+.toolbar input{border-radius:999px;background-color:var(--side);border-color:var(--side)}
+.toolbar select{border-radius:999px}
+.hint{font-size:12.5px}
+/* track list */
+.list{border-top:0}
+.row{border-bottom:0;border-radius:8px;padding:6px 10px;gap:14px}
+.row.th{border-bottom:1px solid var(--line);border-radius:0;font-size:12px;letter-spacing:0;font-weight:600;padding-block:8px;margin-bottom:6px;color:var(--muted)}
+.row.th svg{width:15px;height:15px;vertical-align:-3px}
+.row:hover{background:var(--hover)}
+.row.playing{background:var(--sel)}
+.row .art{position:relative;overflow:hidden;width:44px;height:44px;border-radius:5px;box-shadow:0 1px 2px rgba(20,22,27,.12)}
+.artplay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(20,22,27,.42);color:#fff;opacity:0;transition:opacity .12s}
+.artplay svg{width:18px;height:18px}
+.row:hover .artplay{opacity:1}
+.row.th .artplay{display:none}
+.t b{font-size:15px;font-weight:600}
+.t>span{font-size:13px}
+.row .idx{font-family:var(--f-body);font-size:13px}
+.dur{font-family:var(--f-body);font-size:13px}
+.chip{font-size:11px;background:#fff;border:1px solid var(--line2);color:var(--ink2)}
+.racts .more{opacity:.55}.row:hover .racts .more{opacity:1}
+/* collections */
+.grid{grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:28px 22px}
+.card .cover{border-radius:6px;box-shadow:0 16px 30px -16px rgba(20,22,27,.5),0 1px 3px rgba(20,22,27,.08);background-size:cover;margin-bottom:10px;color:#fff}
+.card .cover .ini{font-size:72px;padding:0 0 14px 14px}
+.card.round .cover .ini{padding:0;place-self:center;font-size:56px}
+.card.round .cover[data-sleeve]{place-items:center!important}
+.card b{font-size:14.5px}
+.vlist{border:0;border-radius:0;background:none;display:flex;flex-direction:column;gap:2px}
+.vrow{border-bottom:0;border-radius:10px;padding:10px 14px 10px 6px;grid-template-columns:22px 64px minmax(0,1fr) 24px;gap:16px}
+.vrow:hover{background:var(--hover)}
+.vcover{width:64px;height:64px;border-radius:6px;background-size:cover;box-shadow:0 10px 20px -12px rgba(20,22,27,.5);color:#fff}
+.vcover .ini{font-size:30px;padding:0 0 6px 7px}
+.vt b{font-size:16.5px}
+.vlist.sub{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.banner{border-radius:12px}
+/* player */
+.player{background:rgba(255,255,255,.97);border-top:1px solid var(--line);box-shadow:none}
+.pin{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) minmax(0,1fr)}
+.now{cursor:default}
+.now .art{width:56px;height:56px;border-radius:5px;box-shadow:0 6px 14px -8px rgba(20,22,27,.5);background-size:cover;background-position:center}
+.now .art .ini{font-size:22px}
+.now .t b{font-size:14.5px;font-weight:700}
+.ib{color:var(--ink2)}
+.ib.play{width:40px;height:40px;background:var(--ink)}
+.ib.play:hover{background:#2B2E36;transform:none}
+.seek{max-width:600px;font-family:var(--f-body)}
+input[type=range]{height:3px}
+input[type=range]:hover{height:5px}
+#bNowP.on{color:var(--accent)}
+/* now playing panel */
+.nowp{display:none;background:#fff;border-left:1px solid var(--line);overflow-y:auto;padding:28px 24px calc(var(--player-h) + 28px);min-width:0}
+@media (min-width:1280px){
+  body.np-open .app{grid-template-columns:248px minmax(0,1fr) 340px}
+  body.np-open .nowp{display:block}
+}
+.np-close{display:none}
+.np-label{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:14px}
+.np-art{width:100%;aspect-ratio:1;border-radius:8px;background-size:cover;background-position:center;box-shadow:0 26px 50px -24px rgba(20,22,27,.55),0 2px 6px rgba(20,22,27,.08);color:#fff}
+.np-art .ini{font-size:132px;padding:0 0 18px 20px}
+.np-title{margin-top:20px;display:flex;flex-direction:column;gap:3px}
+.np-title b{font-size:22px;font-weight:800;line-height:1.25;letter-spacing:-.015em}
+.np-title span{font-size:14px;color:var(--muted)}
+.np-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.np-meta .stars{font-size:15px}
+.np-memo{margin-top:18px;background:var(--side);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.np-memo p{margin:0;font-size:14px;line-height:1.75;white-space:pre-wrap;color:var(--ink)}
+.np-memo p.none,.np-q p.none{color:var(--muted);font-size:13px;margin:0}
+.np-memo .btn{background:#fff;padding:6px 12px;font-size:12.5px}
+.np-q{margin-top:26px}
+.np-q h4{margin:0 0 8px;font-size:15px;font-weight:700;display:flex;gap:8px;align-items:baseline}
+.np-q h4 small{font-size:11.5px;font-weight:600;color:var(--accent)}
+.np-qi{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;background:none;border:0;padding:6px;border-radius:8px;text-align:left}
+.np-qi:hover{background:var(--hover)}
+.np-qi .art{width:40px;height:40px;border-radius:4px;background-size:cover}
+.np-qi .art .ini{font-size:15px;padding:0 0 4px 5px}
+.np-qi .t b{font-size:13.5px}.np-qi .t>span{font-size:12px}
+.np-empty{display:flex;flex-direction:column;gap:8px;align-items:flex-start;color:var(--muted);font-size:13px}
+.np-empty .np-art{opacity:.18;margin-bottom:10px;box-shadow:none}
+.np-empty b{color:var(--ink);font-size:16px}
+/* overlay now playing (tablet / phone) */
+body.np-full .nowp{display:block;position:fixed;left:0;right:0;top:0;bottom:calc(var(--player-h) + env(safe-area-inset-bottom,0px));z-index:33;border-left:0;padding:calc(18px + env(safe-area-inset-top,0px)) max(22px,env(safe-area-inset-right,0px)) 28px max(22px,env(safe-area-inset-left,0px));animation:npUp .22s ease-out}
+body.np-full .np-close{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:0;background:var(--side);color:var(--ink);margin:0 auto 14px}
+body.np-full .np-close svg{width:22px;height:22px}
+body.np-full .np-label{text-align:center}
+body.np-full .np-art{max-width:420px;margin:0 auto}
+body.np-full .np-title,body.np-full .np-meta,body.np-full .np-memo,body.np-full .np-q{max-width:420px;margin-left:auto;margin-right:auto}
+@keyframes npUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+.menu{border-radius:12px}
+@media (max-width:760px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .pin{grid-template-columns:minmax(0,1fr) auto}
+  .main{padding-block:14px calc(var(--player-h) + 24px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .head{flex-direction:column;align-items:flex-start;gap:18px}
+  .head.has-cover{align-items:center;text-align:center}
+  .head.has-cover .htext{align-items:center}
+  .head.has-cover .hacts{justify-content:center}
+  .head .cover{width:min(64vw,240px);height:min(64vw,240px)}
+  .head .cover .ini{font-size:96px}
+  .head h1{font-size:28px}
+  .hacts{margin-top:16px}
+  .head .actions .btn,.hacts .btn{flex:0 0 auto}
+  .row{padding:6px 2px;gap:10px}
+  .now{cursor:pointer}
+  #bNowP{display:none}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 14px}
+  .card .cover .ini{font-size:56px}
+  .vrow{grid-template-columns:20px 56px minmax(0,1fr) 20px;gap:12px}
+  .vcover{width:56px;height:56px}
+  .np-art .ini{font-size:110px}
+}
+@media (min-width:761px) and (max-width:1279px){.now{cursor:pointer}}
+@media (prefers-reduced-motion:reduce){body.np-full .nowp{animation:none}}
 @media (min-width:761px){.mob-top{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -389,6 +548,7 @@ textarea{font:inherit;font-size:14px;line-height:1.6;color:var(--ink);background
     <div id="view"></div>
     </div>
   </main>
+  <aside class="nowp" id="nowp" aria-label="再生中"></aside>
 </div>
 
 <div class="player" id="player">
@@ -408,7 +568,7 @@ textarea{font:inherit;font-size:14px;line-height:1.6;color:var(--ink);background
       </div>
       <div class="seek"><span id="tCur">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="再生位置"><span id="tDur">0:00</span></div>
     </div>
-    <div class="vol"><span class="stars" id="pStars"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg><input type="range" id="vol" min="0" max="100" value="85" aria-label="音量"></div>
+    <div class="vol"><span class="stars" id="pStars"></span><button class="ib" id="bNowP" data-act="toggleNow" aria-label="再生中の曲を表示" title="再生中の曲を表示"></button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg><input type="range" id="vol" min="0" max="100" value="85" aria-label="音量"></div>
   </div>
 </div>
 
@@ -464,12 +624,15 @@ const IC={
  cont:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5v13l8-6.5z"/><path d="M12 5.5v13l8-6.5z"/></svg>',
  menu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
  chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg>',
+ clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+ panel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M14.5 4.5v15"/></svg>',
+ down2:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg>',
  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>'
 };
 const MOODS=['明るい','元気が出る','落ち着く','切ない','エモい','激しい','おしゃれ'];
 const SCENES=['作業','ドライブ','朝','夜','寝る前','運動','移動中','カフェ'];
 
-const S={tracks:new Map(),playlists:[],cats:[],sel:new Set(),selMode:false,view:'all',q:'',sort:'manual',queue:[],qi:-1,shuffle:false,repeat:'off',autoNext:true,importTarget:null,pendingCount:null,
+const S={tracks:new Map(),playlists:[],cats:[],sel:new Set(),selMode:false,view:'all',q:'',sort:'manual',queue:[],qi:-1,np:true,hmenu:null,shuffle:false,repeat:'off',autoNext:true,importTarget:null,pendingCount:null,
   cloud:null,col:null,assets:null,cloudState:'checking',upNote:'',localOK:true};
 
 /* ---------- IndexedDB (この端末の保存) ---------- */
@@ -635,7 +798,17 @@ function renderSide(){const{lib,cats,none,pls}=navItems();const cur=S.view.split
   const mm=$('#mMenu');if(mm&&!mm.innerHTML)mm.innerHTML=IC.menu}
 
 function stars(r){r=r||0;return'★'.repeat(r)+`<span class="off">${'★'.repeat(5-r)}</span>`}
-function artStyle(t){return t&&t.art?`style="background-image:url('${t.art}')"`:''}
+const SLEEVES=[['#1D2741','#40608F'],['#26352A','#6C8A5C'],['#4A1724','#AE4459'],['#2F2645','#7A68A6'],['#4A2E16','#BC8649'],['#133A3B','#46918B'],['#232529','#686D77'],['#64251A','#D0764F'],['#0F3346','#2F7FA6'],['#3B3F17','#9A9A43'],['#3A1B3A','#9C4F8E'],['#18332B','#3F8C6E']];
+function hashStr(x){let h=2166136261;for(const c of String(x||''))h=Math.imul(h^c.codePointAt(0),16777619);return h>>>0}
+function sleeveBg(seed){const pr=SLEEVES[(hashStr(seed)>>>3)%SLEEVES.length],ang=[135,160,115,200][hashStr(seed+'#')%4];return`linear-gradient(${ang}deg,${pr[0]},${pr[1]})`}
+function initial(x){const c=[...String(x||'').trim()][0]||'♪';return/[a-z]/i.test(c)?c.toUpperCase():c}
+function seedOf(t){return t?(t.album||t.title||''):''}
+function artStyle(t,seed){if(t&&t.art)return`style="background-image:url('${t.art}')"`;return`style="background-image:${sleeveBg(seed||seedOf(t)||'crate')}" data-sleeve`}
+function ini(t,seed){return`<i class="ini">${esc(initial(seed||seedOf(t)))}</i>`}
+function mosaic(list,name,cls){const seen=new Set(),tiles=[];for(const t of list){const k=t.art||('s:'+seedOf(t));if(seen.has(k))continue;seen.add(k);tiles.push(t);if(tiles.length===4)break}
+  if(tiles.length>=4)return`<div class="${cls} mosaic">${tiles.map(t=>`<span ${artStyle(t)}></span>`).join('')}</div>`;
+  const a=tiles.find(x=>x.art);return`<div class="${cls}" ${a?artStyle(a):artStyle(null,name)}>${a?'':ini(null,name)}</div>`}
+function hm(items){S.hmenu=items;return`<button class="cbtn" data-act="hmenu" aria-label="その他の操作" title="その他の操作">${IC.dots}</button>`}
 function rowHTML(t,i,ctx,dnd){const cur=S.queue[S.qi]===t.id,sel=S.sel.has(t.id);
   const avail=t.local||t.assetId||t.sample?'':'<span class="badge">この端末にファイルなし</span>';
   const lead=S.selMode?`<span class="grip off"><span class="ck${sel?' on':''}">${sel?IC.check:''}</span></span>`:`<span class="grip${dnd?'':' off'}"${dnd?' title="ドラッグで並べ替え"':''}>${dnd?IC.grip:''}</span>`;
@@ -643,7 +816,7 @@ function rowHTML(t,i,ctx,dnd){const cur=S.queue[S.qi]===t.id,sel=S.sel.has(t.id)
   const tg=t.tags||[];const chips=catChip+tg.slice(0,2).map(g=>`<span class="chip">${esc(g)}</span>`).join('')+(tg.length>2?`<span class="chip more-tags">+${tg.length-2}</span>`:'');
   return`<div class="row${cur?' playing':''}${sel?' selected':''}" data-play="${t.id}" data-sid="${t.id}" data-i="${i}">
    ${lead}<span class="idx">${cur?`<span class="eq${$('#audio').paused?' paused':''}"><i></i><i></i><i></i></span>`:i+1}</span>
-   <div class="art" ${artStyle(t)}>${t.art?'':IC.note}</div>
+   <div class="art" ${artStyle(t)}>${t.art?'':ini(t)}<span class="artplay">${cur&&!$('#audio').paused?IC.pause:IC.play}</span></div>
    <div class="t"><b data-rename="${t.id}" title="ダブルクリックで名前を変更">${esc(t.title)}${t.sample?'<span class="badge">サンプル</span>':''}${avail}</b><span>${esc(t.artist)}</span>${t.memo?`<div class="memo" data-act="memoEdit" data-id="${t.id}" title="タップでメモを編集">${IC.memo}<em>${esc(t.memo.replace(/\s*\n\s*/g,' ／ '))}</em></div>`:(t.sample?'':`<button class="addmemo" data-act="memoEdit" data-id="${t.id}">${IC.plus}メモを追加</button>`)}${chips?`<div class="chipline">${chips}</div>`:''}</div>
    <div class="alb">${esc(t.album)}${t.year?' · '+esc(t.year):''}</div>
    <div class="stars">${stars(t.rating)}</div>
@@ -651,11 +824,12 @@ function rowHTML(t,i,ctx,dnd){const cur=S.queue[S.qi]===t.id,sel=S.sel.has(t.id)
    <span class="racts"><button class="more edit" data-act="rename" data-id="${t.id}" aria-label="「${esc(t.title)}」の曲名・メモを編集" title="曲名・メモを編集">${IC.pen}</button><button class="more" data-menu="${t.id}" aria-label="「${esc(t.title)}」のメニュー">${IC.dots}</button></span></div>`}
 const EMPTY={pl:['このプレイリストはまだ空です','上の「曲を追加」から、ライブラリの曲や新しい曲を入れられます。'],cat:['このカテゴリにはまだ曲がありません','上の「曲を追加」から、ライブラリの曲や新しい曲を入れられます。'],lib:['曲が見つかりません','検索語を変えるか、曲を取り込んでください。']};
 function listBlock(list,ctx,dnd){if(!list.length){const[a,b]=EMPTY[ctx]||EMPTY.lib;return`<div class="list"><div class="empty"><b>${a}</b>${b}</div></div>`}
-  return`<div class="list"${dnd?` data-sortable="${ctx==='pl'?'pl':'order'}"`:''}><div class="row th"><span></span><span class="idx">#</span><span></span><span>タイトル</span><span>アルバム</span><span>評価</span><span class="dur">時間</span><span></span></div>${list.map((t,i)=>rowHTML(t,i,ctx,dnd)).join('')}</div>`}
-function headHTML(title,meta,acts,o={}){const cv='cover'in o?`<div class="cover" ${artStyle(o.cover)}>${o.cover&&o.cover.art?'':(o.icon||IC.note)}</div>`:'';
-  return`<div class="head"><div class="hl">${cv}<div style="min-width:0">${o.kicker?`<div class="kicker">${esc(o.kicker)}</div>`:''}<h1>${esc(title)}</h1><div class="meta">${meta}</div>${o.memo?`<div class="hmemo">${esc(o.memo)}</div>`:''}</div></div><div class="actions">${acts}</div></div>`}
+  return`<div class="list"${dnd?` data-sortable="${ctx==='pl'?'pl':'order'}"`:''}><div class="row th"><span></span><span class="idx">#</span><span></span><span>タイトル</span><span>アルバム</span><span>評価</span><span class="dur">${IC.clock}</span><span></span></div>${list.map((t,i)=>rowHTML(t,i,ctx,dnd)).join('')}</div>`}
+function headHTML(title,meta,acts,o={}){const cv=o.list?mosaic(o.list,title,'cover'):'';
+  return`<div class="head${cv?' has-cover':''}">${cv}<div class="htext">${o.kicker?`<div class="kicker">${esc(o.kicker)}</div>`:''}<h1>${esc(title)}</h1><div class="meta">${meta}</div>${o.memo?`<div class="hmemo">${esc(o.memo)}</div>`:''}${acts?`<div class="hacts">${acts}</div>`:''}</div></div>`}
 const metaOf=l=>`${l.length}曲 · ${fmtLong(l.reduce((a,t)=>a+(isFinite(t.duration)?t.duration:0),0))}`;
-const playActs=`<button class="btn primary" data-act="playAll">${IC.play}すべて再生</button><button class="btn" data-act="shufAll">${IC.shuf}シャッフル</button>`;
+const playActs=`<button class="pbtn" data-act="playAll" aria-label="すべて再生" title="すべて再生">${IC.play}</button><button class="cbtn" data-act="shufAll" aria-label="シャッフル再生" title="シャッフル再生">${IC.shuf}</button>`;
+const addPill=`<button class="btn pill" data-act="addTo">${IC.plus}曲を追加</button>`;
 const DRAG_HINT=`左端の <span class="gripmark">${IC.grip}</span> をドラッグすると順番を変えられます。右側の <span class="gripmark">${IC.pen}</span> で曲名・メモを編集できます。`;
 function toolbarHTML(o){return`<div class="toolbar">${o.search?`<input type="search" id="q" placeholder="曲名・アーティスト・メモ・タグで検索" value="${esc(S.q)}" aria-label="検索">`:'<span class="spacer"></span>'}
   ${o.sort?`<select id="sort" aria-label="並び順">${[['manual','自分の並び順'],['added','追加が新しい順'],['title','曲名順'],['artist','アーティスト順'],['rating','評価が高い順'],['plays','よく聴く順']].map(([k,l])=>`<option value="${k}"${S.sort===k?' selected':''}>${l}</option>`).join('')}</select>`:''}
@@ -663,7 +837,7 @@ function toolbarHTML(o){return`<div class="toolbar">${o.search?`<input type="sea
   <button class="btn${S.selMode?' primary':''}" data-act="selMode">${IC.check}${S.selMode?'選択を終了':'選択して整理'}</button></div>${o.hint?`<div class="hint">${o.hint}</div>`:''}`}
 
 let current=[];
-function renderView(){const v=S.view;let h='';const hasSample=all().some(t=>t.sample);
+function renderView(){const v=S.view;let h='';S.hmenu=null;const hasSample=all().some(t=>t.sample);
   const banner=protBannerHTML()+(hasSample?`<div class="banner"><span>いまは動作確認用のサンプル曲を表示しています。自分の曲を取り込むと自動で消えます。</span><span class="actions"><button class="btn primary" data-act="import">曲を取り込む</button><button class="btn" data-act="clearSamples">サンプルを消す</button></span></div>`:'');
   if(v==='all'||v.startsWith('artist|')||v.startsWith('album|')){
     let list=all(),title='すべての曲';
@@ -672,30 +846,30 @@ function renderView(){const v=S.view;let h='';const hasSample=all().some(t=>t.sa
     const dnd=v==='all'&&S.sort==='manual'&&!S.q&&!S.selMode;
     list=filtered(v==='all'?sorted(list):list);current=list;
     const isAlb=v.startsWith('album|'),isArt=v.startsWith('artist|'),grpName=isAlb?v.slice(6):isArt?v.slice(7):'';
-    const editActs=isAlb&&grpName!=='（アルバム名なし）'?`<button class="btn accent" data-act="addTo">${IC.plus}曲を追加</button><button class="btn" data-act="renameAlbum">${IC.pen}名前を変更</button>`:isArt&&grpName!=='不明'?`<button class="btn" data-act="renameArtist">${IC.pen}名前を変更</button>`:'';
-    const ho=v==='all'?{kicker:'ライブラリ'}:v.startsWith('artist|')?{kicker:'アーティスト',cover:list.find(t=>t.art)||null,icon:IC.user}:{kicker:'アルバム',cover:list.find(t=>t.art)||null,icon:IC.disc};
+    const editActs=isAlb&&grpName!=='（アルバム名なし）'?addPill+hm([['renameAlbum','アルバム名を変更',IC.pen]]):isArt&&grpName!=='不明'?hm([['renameArtist','アーティスト名を変更',IC.pen]]):'';
+    const ho=v==='all'?{kicker:'ライブラリ'}:v.startsWith('artist|')?{kicker:'アーティスト',list}:{kicker:'アルバム',list};
     const hint=v!=='all'?'':dnd?DRAG_HINT:(!S.q&&!S.selMode&&S.sort!=='manual'?'並び順を「自分の並び順」にすると、ドラッグで順番を変えられます。':'');
     h=banner+headHTML(title,metaOf(list),playActs+editActs,ho)+toolbarHTML({search:true,sort:v==='all',back:v==='all'?null:(v.startsWith('artist')?'artists':'albums'),hint})+listBlock(list,'lib',dnd);
   }else if(v==='artists'||v==='albums'){const key=v==='artists'?'artist':'album';const g=groups(key);current=[];
-    h=banner+headHTML(v==='artists'?'アーティスト':'アルバム',`${g.length}件`,v==='albums'?`<button class="btn accent" data-act="newAlbum">${IC.plus}新しいアルバム</button>`:'',{kicker:'ライブラリ'})+(g.length?`<div class="grid">${g.map(([k,l])=>{const a=l.find(t=>t.art);return`<button class="card${key==='artist'?' round':''}" data-view="${key}|${esc(k)}"><div class="cover" ${artStyle(a)}>${a?'':esc(k.slice(0,1))}</div><b>${esc(k)}</b><span>${l.length}曲${key==='album'&&l[0].artist?' · '+esc(l[0].artist):''}</span></button>`}).join('')}</div>`:'<div class="list"><div class="empty"><b>まだ曲がありません</b></div></div>');
+    h=banner+headHTML(v==='artists'?'アーティスト':'アルバム',`${g.length}件`,v==='albums'?`<button class="btn pill" data-act="newAlbum">${IC.plus}新しいアルバム</button>`:'',{kicker:'ライブラリ'})+(g.length?`<div class="grid">${g.map(([k,l])=>{const a=l.find(t=>t.art);return`<button class="card${key==='artist'?' round':''}" data-view="${key}|${esc(k)}"><div class="cover" ${a?artStyle(a):artStyle(null,key==='album'?k:'@'+k)}>${a?'':ini(null,k)}</div><b>${esc(k)}</b><span>${l.length}曲${key==='album'&&l[0].artist?' · '+esc(l[0].artist):''}</span></button>`}).join('')}</div>`:'<div class="list"><div class="empty"><b>まだ曲がありません</b></div></div>');
   }else if(v==='dupes'){const g=dupes();current=[];
     h=headHTML('重複チェック',g.length?`${g.length}組の重複候補（曲名・アーティストが同じで長さがほぼ同じ曲）`:'重複は見つかりませんでした','',{kicker:'整理'})+(g.length?g.map(grp=>`<div class="dupe"><h4>${esc(grp[0].title)} <span class="chip">${esc(grp[0].artist)}</span></h4>${grp.map(t=>`<div class="r"><span>${esc(t.fileName||'—')} · <span class="mono">${fmt(t.duration)}</span> · ${t.size?(t.size/1048576).toFixed(1)+'MB':''} · ${stars(t.rating)}</span><span class="actions"><button class="btn" data-play-one="${t.id}">${IC.play}試聴</button><button class="btn danger" data-act="askDel" data-id="${t.id}">この1曲を削除</button></span></div>`).join('')}</div>`).join(''):'<div class="list"><div class="empty"><b>重複はありません</b>PC・スマホ・ドライブから同じ曲を取り込むと、ここに表示されます。</div></div>');
   }else if(v==='cats'){current=[];const none=catTracks('none');
-    const rowC=(k,name,list,memo,ic,sid)=>`<div class="vrow" data-view="${esc(k)}"${sid?` data-sid="${esc(sid)}"`:''}>${sid?`<span class="grip" title="ドラッグで並べ替え">${IC.grip}</span>`:'<span></span>'}<div class="vcover" ${artStyle(list.find(t=>t.art))}>${list.find(t=>t.art)?'':ic}</div><div class="vt"><b>${esc(name)}</b><span>${metaOf(list)}</span>${memo?`<em>${esc(memo)}</em>`:''}</div><span class="vchev">${IC.chev}</span></div>`;
-    h=banner+headHTML('カテゴリ',`${S.cats.length}件 · 曲をジャンルや用途ごとに分けて管理します`,`<button class="btn accent" data-act="newCat">${IC.plus}新しいカテゴリ</button>`,{kicker:'整理'})
+    const rowC=(k,name,list,memo,ic,sid)=>`<div class="vrow" data-view="${esc(k)}"${sid?` data-sid="${esc(sid)}"`:''}>${sid?`<span class="grip" title="ドラッグで並べ替え">${IC.grip}</span>`:'<span></span>'}${mosaic(list,name,'vcover')}<div class="vt"><b>${esc(name)}</b><span>${metaOf(list)}</span>${memo?`<em>${esc(memo)}</em>`:''}</div><span class="vchev">${IC.chev}</span></div>`;
+    h=banner+headHTML('カテゴリ',`${S.cats.length}件 · 曲をジャンルや用途ごとに分けて管理します`,`<button class="btn pill" data-act="newCat">${IC.plus}新しいカテゴリ</button>`,{kicker:'整理'})
       +(S.cats.length?`<div class="vlist" data-sortable="cats">${S.cats.map(c=>rowC('cat:'+c.id,c.name,catTracks(c.id),c.memo,IC.folder,c.id)).join('')}</div>${S.cats.length>1?`<div class="hint">左端の <span class="gripmark">${IC.grip}</span> をドラッグすると順番を変えられます。</div>`:''}`:'<div class="list"><div class="empty"><b>カテゴリはまだありません</b>「新しいカテゴリ」から、邦楽・洋楽・作業用などのカテゴリを作れます。</div></div>')
       +(S.cats.length&&none.length?`<div class="vlist sub">${rowC('cat:none','未分類',none,'どのカテゴリにも入っていない曲',IC.inbox,'')}</div>`:'');
   }else if(v==='pls'){current=[];
-    h=banner+headHTML('プレイリスト',`${S.playlists.length}件`,`<button class="btn accent" data-act="newPl">${IC.plus}新しいプレイリスト</button><button class="btn" data-act="newSmart">${IC.gear}条件で自動作成</button>`,{kicker:'再生'})
-      +(S.playlists.length?`<div class="vlist" data-sortable="pls">${S.playlists.map(p=>{const l=playlistTracks(p);return`<div class="vrow" data-view="pl:${esc(p.id)}" data-sid="${esc(p.id)}"><span class="grip" title="ドラッグで並べ替え">${IC.grip}</span><div class="vcover" ${artStyle(l.find(t=>t.art))}>${l.find(t=>t.art)?'':(p.rule?IC.gear:IC.list)}</div><div class="vt"><b>${esc(p.name)}</b><span>${p.rule?'自動 · ':''}${metaOf(l)}</span>${p.memo?`<em>${esc(p.memo)}</em>`:''}</div><span class="vchev">${IC.chev}</span></div>`}).join('')}</div>`:'<div class="list"><div class="empty"><b>プレイリストはまだありません</b>「新しいプレイリスト」から作成できます。</div></div>');
+    h=banner+headHTML('プレイリスト',`${S.playlists.length}件`,`<button class="btn pill" data-act="newPl">${IC.plus}新しいプレイリスト</button><button class="btn" data-act="newSmart">${IC.gear}条件で自動作成</button>`,{kicker:'再生'})
+      +(S.playlists.length?`<div class="vlist" data-sortable="pls">${S.playlists.map(p=>{const l=playlistTracks(p);return`<div class="vrow" data-view="pl:${esc(p.id)}" data-sid="${esc(p.id)}"><span class="grip" title="ドラッグで並べ替え">${IC.grip}</span>${mosaic(l,p.name,'vcover')}<div class="vt"><b>${esc(p.name)}</b><span>${p.rule?'自動 · ':''}${metaOf(l)}</span>${p.memo?`<em>${esc(p.memo)}</em>`:''}</div><span class="vchev">${IC.chev}</span></div>`}).join('')}</div>`:'<div class="list"><div class="empty"><b>プレイリストはまだありません</b>「新しいプレイリスト」から作成できます。</div></div>');
   }else if(v.startsWith('cat:')){const cid=v.slice(4),c=S.cats.find(x=>x.id===cid);if(cid!=='none'&&!c){S.view='all';return renderView()}
     const dnd=!S.q&&!S.selMode;const list=filtered(catTracks(cid));current=list;
-    const acts=playActs+(c?`<button class="btn accent" data-act="addTo">${IC.plus}曲を追加</button><button class="btn" data-act="renameCat">${IC.pen}名前を変更</button><button class="btn" data-act="memoCat">${IC.memo}メモ</button><button class="btn danger" data-act="askDelCat">${IC.trash}削除</button>`:'');
-    h=banner+headHTML(c?c.name:'未分類',metaOf(list),acts,{kicker:c?'カテゴリ':'カテゴリ未設定の曲',cover:list.find(t=>t.art)||null,icon:c?IC.folder:IC.inbox,memo:c&&c.memo})+toolbarHTML({search:true,back:'cats',hint:dnd&&list.length>1?DRAG_HINT:''})+listBlock(list,'cat',dnd);
+    const acts=playActs+(c?addPill+hm([['renameCat','名前を変更',IC.pen],['memoCat',c.memo?'メモを編集':'メモを追加',IC.memo],'-',['askDelCat','カテゴリを削除',IC.trash,'danger']]):'');
+    h=banner+headHTML(c?c.name:'未分類',metaOf(list),acts,{kicker:c?'カテゴリ':'カテゴリ未設定の曲',list:catTracks(cid),memo:c&&c.memo})+toolbarHTML({search:true,back:'cats',hint:dnd&&list.length>1?DRAG_HINT:''})+listBlock(list,'cat',dnd);
   }else if(v.startsWith('pl:')){const p=S.playlists.find(x=>'pl:'+x.id===v);if(!p){S.view='all';return renderView()}
     const list=playlistTracks(p);current=list;const r=p.rule,dnd=!r&&!S.selMode;
     const ruleTxt=r?`条件：${[r.minRating?`★${r.minRating}以上`:'',r.tag?`タグ「${esc(r.tag)}」`:'',r.genre?`ジャンル「${esc(r.genre)}」`:'',r.artist?`${esc(r.artist)}`:''].filter(Boolean).join(' × ')||'すべての曲'}（曲を評価・タグ付けすると自動で増減）`:'';
-    h=banner+headHTML(p.name,metaOf(list)+(ruleTxt?'<br>'+ruleTxt:''),playActs+(r?'':`<button class="btn accent" data-act="addTo">${IC.plus}曲を追加</button>`)+`<button class="btn" data-act="renamePl">${IC.pen}名前を変更</button><button class="btn" data-act="memoPl">${IC.memo}メモ</button><button class="btn danger" data-act="askDelPl">${IC.trash}削除</button>`,{kicker:r?'自動プレイリスト':'プレイリスト',cover:list.find(t=>t.art)||null,icon:r?IC.gear:IC.list,memo:p.memo})
+    h=banner+headHTML(p.name,metaOf(list)+(ruleTxt?'<br>'+ruleTxt:''),playActs+(r?'':addPill)+hm([['renamePl','名前を変更',IC.pen],['memoPl',p.memo?'メモを編集':'メモを追加',IC.memo],'-',['askDelPl','プレイリストを削除',IC.trash,'danger']]),{kicker:r?'自動プレイリスト':'プレイリスト',list,memo:p.memo})
       +toolbarHTML({back:'pls',hint:dnd&&list.length>1?DRAG_HINT:''})+listBlock(list,r?'lib':'pl',dnd)}
   $('#view').innerHTML=h;
   const q=$('#q');if(q){q.oninput=e=>{S.q=e.target.value;const pos=e.target.selectionStart;renderView();const n=$('#q');n.focus();try{n.setSelectionRange(pos,pos)}catch(_){}}}
@@ -743,7 +917,8 @@ function mediaSession(t){if(!('mediaSession'in navigator))return;try{navigator.m
   const ms=navigator.mediaSession;ms.setActionHandler('play',()=>audio.play());ms.setActionHandler('pause',()=>audio.pause());ms.setActionHandler('previoustrack',prev);ms.setActionHandler('nexttrack',()=>next());
   ms.setActionHandler('seekto',d=>{audio.currentTime=d.seekTime})}catch(e){}}
 function renderPlayer(){const t=S.tracks.get(S.queue[S.qi]);
-  $('#pArt').innerHTML=t&&t.art?'':IC.note;$('#pArt').style.backgroundImage=t&&t.art?`url('${t.art}')`:'';
+  const pa=$('#pArt');pa.innerHTML=t?(t.art?'':ini(t)):IC.note;pa.style.backgroundImage=t?(t.art?`url('${t.art}')`:sleeveBg(seedOf(t))):'';pa.toggleAttribute('data-sleeve',!!t&&!t.art);
+  const bn=$('#bNowP');if(!bn.innerHTML)bn.innerHTML=IC.panel;bn.classList.toggle('on',S.np);renderNow(t);
   $('#pTitle').textContent=t?t.title:'曲を選ぶと再生します';$('#pArtist').textContent=t?t.artist:'—';
   $('#pStars').innerHTML=t?stars(t.rating):'';const ne=$('#bNowEdit');ne.hidden=!t||!!t.sample;if(!ne.innerHTML)ne.innerHTML=IC.memo;
   const playing=!audio.paused&&!!audio.src;$('#bPlay').innerHTML=playing?IC.pause:IC.play;$('#bPlay').setAttribute('aria-label',playing?'一時停止':'再生');
@@ -752,6 +927,17 @@ function renderPlayer(){const t=S.tracks.get(S.queue[S.qi]);
   $('#bPrev').innerHTML=IC.prev;$('#bNext').innerHTML=IC.next;
   const ba=$('#bAuto');ba.innerHTML=S.autoNext?IC.cont:IC.stop1;ba.classList.toggle('on',!S.autoNext);ba.setAttribute('aria-pressed',!S.autoNext);
   ba.title=S.autoNext?'連続再生：オン（押すと1曲ごとに停止）':'1曲ごとに停止：オン（押すと連続再生）';ba.setAttribute('aria-label',ba.title)}
+function renderNow(t){const el=$('#nowp');if(!el)return;
+  const close=`<button class="np-close" data-act="closeNow" aria-label="閉じる">${IC.down2}</button>`;
+  if(!t){el.innerHTML=`${close}<div class="np-empty"><div class="np-art" ${artStyle(null,'crate')}>${ini(null,'C')}</div><b>再生中の曲はありません</b><span>曲を選ぶと、ここにジャケットとメモ、次に再生する曲が表示されます。</span></div>`;return}
+  const up=[];for(let i=S.qi+1;i<S.queue.length&&up.length<12;i++){const u=S.tracks.get(S.queue[i]);if(u)up.push([i,u])}
+  el.innerHTML=`${close}<div class="np-label">再生中</div>
+   <div class="np-art" ${artStyle(t)}>${t.art?'':ini(t)}</div>
+   <div class="np-title"><b>${esc(t.title)}</b><span>${esc(t.artist)}${t.album?' — '+esc(t.album):''}</span></div>
+   <div class="np-meta"><span class="stars">${stars(t.rating)}</span>${hasCat(t)?`<span class="chip cat">${IC.folder}${esc(catName(t.cat))}</span>`:''}</div>
+   <div class="np-memo">${t.memo?`<p>${esc(t.memo)}</p>`:'<p class="none">この曲のメモはまだありません</p>'}${t.sample?'':`<button class="btn" data-act="memoEdit" data-id="${t.id}">${IC.memo}${t.memo?'メモを編集':'メモを追加'}</button>`}</div>
+   <div class="np-q"><h4>次に再生${S.autoNext?'':'<small>1曲ごとに停止中</small>'}</h4>${up.length?up.map(([i,u])=>`<button class="np-qi" data-qi="${i}"><span class="art" ${artStyle(u)}>${u.art?'':ini(u)}</span><span class="t"><b>${esc(u.title)}</b><span>${esc(u.artist)}</span></span><span class="dur">${fmt(u.duration)}</span></button>`).join(''):'<p class="none">この後に再生する曲はありません</p>'}</div>`}
+function setNp(v){S.np=v;try{localStorage.setItem('crate.np',v?'1':'0')}catch(_){}document.body.classList.toggle('np-open',v);renderPlayer()}
 function setAutoNext(v,quiet){S.autoNext=v;try{localStorage.setItem('crate.autoNext',v?'1':'0')}catch(_){}renderPlayer();
   if(!quiet)toast(v?'連続再生：曲が終わると次の曲を自動で再生します':'1曲ごとに停止：曲が終わったら止まります（▶で次の曲へ）')}
 $('#bAuto').onclick=()=>setAutoNext(!S.autoNext);
@@ -769,7 +955,7 @@ function editSheet(id){const t=S.tracks.get(id);if(!t)return;const tags=new Set(
   const tagBtns=list=>list.map(g=>`<button data-tag="${esc(g)}" aria-pressed="${tags.has(g)}">${esc(g)}</button>`).join('');
   const custom=[...tags].filter(g=>!MOODS.includes(g)&&!SCENES.includes(g));
   const manual=S.playlists.filter(p=>!p.rule);
-  sheet(`<div style="display:flex;gap:12px;align-items:center"><div class="art" style="width:64px;height:64px;${t.art?`background-image:url('${t.art}')`:''}">${t.art?'':IC.note}</div><div class="t"><h2>${esc(t.title)}</h2><span>${esc(t.artist)}${t.fileName?' · '+esc(t.fileName):''}</span></div></div>
+  sheet(`<div style="display:flex;gap:12px;align-items:center"><div class="art" style="width:64px;height:64px" ${artStyle(t)}>${t.art?'':ini(t)}</div><div class="t"><h2>${esc(t.title)}</h2><span>${esc(t.artist)}${t.fileName?' · '+esc(t.fileName):''}</span></div></div>
    <div class="sec"><h5>評価</h5><div class="rate" id="rate">${[1,2,3,4,5].map(n=>`<button data-r="${n}" class="${n<=rating?'on':''}" aria-label="${n}つ星">★</button>`).join('')}</div></div>
    <div class="sec"><h5>気分</h5><div class="toggles">${tagBtns(MOODS)}</div></div>
    <div class="sec"><h5>シーン</h5><div class="toggles">${tagBtns(SCENES)}</div></div>
@@ -788,7 +974,7 @@ function editSheet(id){const t=S.tracks.get(id);if(!t)return;const tags=new Set(
 function nameSheet(title,initial,cb,ph){sheet(`<h2>${esc(title)}</h2><div class="fields"><label class="full">名前<input id="plName" value="${esc(initial||'')}" placeholder="${esc(ph||'')}"></label></div><div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">キャンセル</button><button class="btn primary" id="okName">決定</button></span></div>`,
   el=>{const ok=()=>{const v=$('#plName').value.trim();if(!v){$('#plName').focus();return}cb(v);closeSheet()};$('#okName').onclick=ok;$('#plName').onkeydown=e=>{if(e.key==='Enter')ok()}})}
 function renameSheet(id,focus){const t=S.tracks.get(id);if(!t)return;
-  sheet(`<div class="ehead"><div class="art" ${artStyle(t)}>${t.art?'':IC.note}</div><div class="t"><h2>曲名・メモを編集</h2><span>${esc(t.fileName||t.title)}</span></div></div>
+  sheet(`<div class="ehead"><div class="art" ${artStyle(t)}>${t.art?'':ini(t)}</div><div class="t"><h2>曲名・メモを編集</h2><span>${esc(t.fileName||t.title)}</span></div></div>
    <div class="fields"><label class="full">曲名<input id="rnT" value="${esc(t.title)}"></label><label>アーティスト<input id="rnA" value="${esc(t.artist)}"></label><label>アルバム<input id="rnB" value="${esc(t.album)}"></label>
    <label class="full">メモ<textarea id="rnM" rows="5" placeholder="例：サビ前のギターが好き／友達の結婚式で流した／カラオケの練習中">${esc(t.memo||'')}</textarea></label></div>
    <div class="foot"><button class="btn" data-act="edit" data-id="${t.id}">${IC.star}評価・タグ・カテゴリ</button><span class="actions"><button class="btn" data-act="close">キャンセル</button><button class="btn primary" id="rnOk">保存</button></span></div>`,
@@ -835,7 +1021,7 @@ function addSheet(tg){if(!tg)return;const name=targetName(tg);const pick=new Set
    <button class="btn primary wide" id="addNew">${IC.plus}新しい曲を取り込んで追加</button>
    <div class="or"><span>またはライブラリから選ぶ</span></div>
    <input type="search" id="pkQ" placeholder="曲名・アーティストで絞り込み" aria-label="絞り込み">
-   <div class="pick tall" id="pkList">${cand.length?cand.map(t=>`<label data-q="${esc(norm(t.title+' '+t.artist+' '+t.album))}"><input type="checkbox" value="${esc(t.id)}"><div class="art sm" ${artStyle(t)}>${t.art?'':IC.note}</div><span class="pt"><b>${esc(t.title)}</b><small>${sub(t)}</small></span></label>`).join(''):'<span class="none">追加できる曲はありません（すべて追加済み）。</span>'}</div>
+   <div class="pick tall" id="pkList">${cand.length?cand.map(t=>`<label data-q="${esc(norm(t.title+' '+t.artist+' '+t.album))}"><input type="checkbox" value="${esc(t.id)}"><div class="art sm" ${artStyle(t)}>${t.art?'':ini(t)}</div><span class="pt"><b>${esc(t.title)}</b><small>${sub(t)}</small></span></label>`).join(''):'<span class="none">追加できる曲はありません（すべて追加済み）。</span>'}</div>
    ${tg.type!=='pl'&&tg.type!=='album'?'':''}${tg.type==='cat'?'<p class="muted" style="margin:0;font-size:12px">ほかのカテゴリに入っている曲は、このカテゴリへ移動します。</p>':''}
    <div class="foot"><button class="btn" id="pkAll">表示中をすべて選択</button><span class="actions"><button class="btn" data-act="close">キャンセル</button><button class="btn primary" id="pkOk" disabled>追加する</button></span></div>`,
   el=>{const upd=()=>{const b=$('#pkOk');b.disabled=!pick.size;b.textContent=pick.size?`${pick.size}曲を追加`:'追加する'};
@@ -974,6 +1160,9 @@ async function wipeAll(){closeSheet();audio.pause();audio.removeAttribute('src')
 
 /* ---------- メニュー ---------- */
 function closeMenu(){$('#menu')?.remove()}
+function openActMenu(btn,items){closeMenu();if(!items.length)return;const m=document.createElement('div');m.className='menu';m.id='menu';m.setAttribute('role','menu');
+  m.innerHTML=items.map(x=>x==='-'?'<hr>':`<button role="menuitem" data-act="${x[0]}"${x[3]?` class="${x[3]}"`:''}>${x[2]}${x[1]}</button>`).join('');
+  document.body.appendChild(m);const r=btn.getBoundingClientRect(),mw=m.offsetWidth,mh=m.offsetHeight;let x=r.left,y=r.bottom+6;if(x+mw>innerWidth-8)x=innerWidth-mw-8;if(y+mh>innerHeight-8)y=r.top-mh-6;m.style.left=Math.max(8,x)+'px';m.style.top=Math.max(8,y)+'px';m.querySelector('button')?.focus()}
 function openMenu(btn,id){closeMenu();const t=S.tracks.get(id);if(!t)return;const p=S.playlists.find(x=>'pl:'+x.id===S.view&&!x.rule);
   const items=[['play','再生',IC.play],['playNext','次に再生',IC.next],'-',['rename','曲名を変更',IC.pen],['memo',t.memo?'メモを編集':'メモを追加',IC.memo],['setCat','カテゴリを変更',IC.folder],['addPl','プレイリストに追加',IC.list],['edit','評価・タグ・曲情報',IC.star],'-',...(p?[['rmFromPl','このプレイリストから外す',IC.x]]:[]),['askDel','曲を削除',IC.trash,'danger']];
   const m=document.createElement('div');m.className='menu';m.id='menu';m.setAttribute('role','menu');
@@ -999,8 +1188,14 @@ document.addEventListener('click',e=>{
   if($('#menu')&&!e.target.closest('#menu')){closeMenu()}
   const v=e.target.closest('[data-view]');if(v&&!e.target.closest('.grip')){S.view=v.dataset.view;S.q='';S.selMode=false;S.sel.clear();closeSheet();document.body.classList.remove('drawer-open');render();$('#main').scrollTop=0;return}
   const a=e.target.closest('[data-act]');
+  if(e.target.closest('.player .now')&&!e.target.closest('button')&&innerWidth<1280&&S.queue.length){document.body.classList.add('np-full');return}
+  const qi=e.target.closest('[data-qi]');if(qi){playIdx(+qi.dataset.qi);return}
   if(a){const act=a.dataset.act,id=a.dataset.id;
     if(act==='veil'){if(e.target===a)closeSheet();return}
+    if(a.closest('#menu'))closeMenu();
+    if(act==='hmenu'){openActMenu(a,S.hmenu||[]);return}
+    if(act==='toggleNow'){if(innerWidth>=1280)setNp(!S.np);else document.body.classList.add('np-full');return}
+    if(act==='closeNow'){document.body.classList.remove('np-full');return}
     const p=S.playlists.find(x=>'pl:'+x.id===S.view),c=S.cats.find(x=>'cat:'+x.id===S.view);
     switch(act){
       case'import':$('#fileIn').click();break;case'importDir':$('#dirIn').click();break;
@@ -1075,6 +1270,7 @@ function progress(msg){let el=$('#prog');if(!msg){el&&el.remove();return}if(!el)
     const pls=await tx('kv','readonly',s=>s.get('playlists'));if(Array.isArray(pls))S.playlists=[...S.playlists.filter(p=>p.sample),...pls];
     const cts=await tx('kv','readonly',s=>s.get('cats'));if(Array.isArray(cts))S.cats=[...S.cats.filter(c=>c.sample),...cts];
     if(ts.length)removeSamples(true)}
+  try{S.np=localStorage.getItem('crate.np')!=='0'}catch(_){S.np=true}document.body.classList.toggle('np-open',S.np);
   try{const so=localStorage.getItem('otodana.sort');if(so)S.sort=so;if(localStorage.getItem('crate.autoNext')==='0')S.autoNext=false;const tb=JSON.parse(localStorage.getItem('crate.tabs')||'null');if(Array.isArray(tb)&&tb.length)S.tabs=tb}catch(_){}
   try{navigator.storage?.persist?.()}catch(_){}
   ensureOrder();render();initCloud();refreshProt(all().some(t=>!t.sample));
