@@ -619,6 +619,53 @@ button.np-art{display:block;border:0;padding:0;cursor:pointer}
 .kreset{border:0;background:none;color:var(--accent);font-size:12.5px;font-weight:700;padding:6px 8px}
 .badge.key{background:#FBEFF1;color:var(--accent)}
 @media (max-width:1100px){.keyctl{display:none}}
+/* 移調 v2 */
+.kbox .kv{border:0;background:none;padding:0 4px;cursor:pointer;border-radius:6px}
+.kbox .kv:hover{background:var(--hover)}
+.kpanel{display:flex;flex-direction:column;gap:12px}
+.kmain{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px}
+.kbig{width:64px;height:64px;border-radius:16px;border:1px solid var(--line2);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink)}
+.kbig svg{width:22px;height:22px}.kbig small{font-size:10.5px;font-weight:700;color:var(--muted)}
+.kbig:hover{border-color:var(--ink2)}.kbig:active{transform:scale(.96);background:var(--hover)}
+.kread{display:flex;flex-direction:column;align-items:center;text-align:center;gap:1px;min-width:0}
+.kread b{font-size:40px;font-weight:800;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kpanel.on .kread b{color:var(--accent)}
+.kread span{font-size:12.5px;color:var(--muted);font-weight:600}
+.kread em{font-style:normal;font-size:13px;font-weight:700;margin-top:4px;background:var(--side);border-radius:999px;padding:2px 10px}
+.kread em i{font-style:normal;font-weight:500;color:var(--muted);margin-left:6px;font-size:11.5px}
+.kstrip{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:3px;background:var(--side);border-radius:12px;padding:4px}
+.kc{height:36px;border:0;border-radius:8px;background:none;font-size:12px;font-weight:700;color:var(--ink2);font-variant-numeric:tabular-nums;padding:0;min-width:0}
+.kc:hover{background:#fff}
+.kc.z{font-size:13px;color:var(--ink);background:#fff;box-shadow:inset 0 0 0 1px var(--line2)}
+.kc[aria-checked=true]{background:var(--accent);color:#fff;box-shadow:none}
+.kends{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding:0 6px;margin-top:-6px}
+.kends .kfar{color:var(--accent);font-weight:700}
+.np-key{gap:12px}
+.nk-h{flex-direction:row!important;justify-content:space-between;align-items:center}
+.keysheet{width:min(500px,100%);gap:18px}
+.ks-head{display:flex;gap:12px;align-items:center}.ks-head .art{width:48px;height:48px;border-radius:6px;background-size:cover;flex:none}.ks-head .art .ini{font-size:18px;padding:0 0 4px 5px}
+.ks-head .t{flex:1;min-width:0}.ks-head h2{margin:0;font-size:18px}.ks-head .t>span{font-size:12.5px}
+.ks-row{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+.ks-row label{display:flex;flex-direction:column;font-size:14px;font-weight:700}.ks-row label small{font-size:11.5px;font-weight:500;color:var(--muted)}
+.ks-row select{min-width:150px}
+.ks-note{margin:-6px 0 0;font-size:12px}
+@media (max-width:760px){.pconly{display:none}}
+button.badge.key{border:0;cursor:pointer;font:inherit;font-size:10.5px;font-weight:700}
+button.badge.key:hover{background:var(--accent);color:#fff}
+.keyhud{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%) scale(.9);z-index:70;background:rgba(20,22,27,.86);color:#fff;border-radius:20px;padding:16px 28px;display:flex;flex-direction:column;align-items:center;gap:2px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;backdrop-filter:blur(8px)}
+.keyhud.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.keyhud span{font-size:12px;opacity:.75;font-weight:600}.keyhud b{font-size:44px;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums}.keyhud em{font-style:normal;font-size:14px;font-weight:700;opacity:.9}
+.mkey{display:none}
+@media (max-width:1100px){.btns .ib.mkey{display:flex;flex-direction:column;align-items:center;justify-content:center;width:auto;min-width:46px;height:40px;border-radius:10px;border:1px solid var(--line2);background:#fff;padding:2px 6px;gap:0}
+  .mkey .mk-i{font-size:11px;line-height:1;color:var(--muted);font-weight:700}.mkey .mk-v{font-size:11.5px;font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums}
+  .mkey.on{background:var(--accent);border-color:var(--accent);color:#fff}.mkey.on .mk-i{color:rgba(255,255,255,.8)}.mkey:disabled{opacity:.4}}
+@media (max-width:760px){
+  .kveil{align-items:flex-end;padding:0}
+  .keysheet{width:100%;border-radius:18px 18px 0 0;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));max-height:92%;animation:npUp .2s ease-out}
+  .kbig{width:58px;height:58px}.kread b{font-size:36px}
+  .kc{height:40px;font-size:11.5px}
+}
+@media (prefers-reduced-motion:reduce){.keyhud{transition:none}}
 @media (min-width:761px){.mob-top{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -650,6 +697,7 @@ button.np-art{display:block;border:0;padding:0;cursor:pointer}
         <button class="ib" id="bPrev" aria-label="前の曲"></button>
         <button class="ib play" id="bPlay" aria-label="再生"></button>
         <button class="ib" id="bNext" aria-label="次の曲"></button>
+        <button class="ib mkey" id="bKey" data-act="keyOpen" aria-label="キー（移調）を変える"></button>
         <button class="ib opt" id="bRep" aria-label="リピート" title="リピート"></button>
       </div>
       <div class="seek"><span id="tCur">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="再生位置"><span id="tDur">0:00</span></div>
@@ -914,7 +962,7 @@ function rowHTML(t,i,ctx,dnd){const cur=S.queue[S.qi]===t.id,sel=S.sel.has(t.id)
   return`<div class="row${cur?' playing':''}${sel?' selected':''}" data-play="${t.id}" data-sid="${t.id}" data-i="${i}">
    ${lead}<span class="idx">${cur?`<span class="eq${$('#audio').paused?' paused':''}"><i></i><i></i><i></i></span>`:i+1}</span>
    <div class="art" ${artStyle(t)}>${t.art?'':ini(t)}<span class="artplay">${cur&&!$('#audio').paused?IC.pause:IC.play}</span></div>
-   <div class="t"><b data-rename="${t.id}" title="ダブルクリックで名前を変更">${esc(t.title)}${t.sample?'<span class="badge">サンプル</span>':''}${t.key?`<span class="badge key">キー${keyTxt(t.key)}</span>`:''}${avail}</b><span>${esc(t.artist)}</span>${t.memo?`<div class="memo" data-act="memoEdit" data-id="${t.id}" title="タップでメモを編集">${IC.memo}<em>${esc(t.memo.replace(/\s*\n\s*/g,' ／ '))}</em></div>`:(t.sample?'':`<button class="addmemo" data-act="memoEdit" data-id="${t.id}">${IC.plus}メモを追加</button>`)}${chips?`<div class="chipline">${chips}</div>`:''}</div>
+   <div class="t"><b data-rename="${t.id}" title="ダブルクリックで名前を変更">${esc(t.title)}${t.sample?'<span class="badge">サンプル</span>':''}${t.key?`<button class="badge key" data-act="keyOpen" data-id="${t.id}" title="キーを変える">キー${keyTxt(t.key)}</button>`:''}${avail}</b><span>${esc(t.artist)}</span>${t.memo?`<div class="memo" data-act="memoEdit" data-id="${t.id}" title="タップでメモを編集">${IC.memo}<em>${esc(t.memo.replace(/\s*\n\s*/g,' ／ '))}</em></div>`:(t.sample?'':`<button class="addmemo" data-act="memoEdit" data-id="${t.id}">${IC.plus}メモを追加</button>`)}${chips?`<div class="chipline">${chips}</div>`:''}</div>
    <div class="alb">${esc(t.album)}${t.year?' · '+esc(t.year):''}</div>
    <div class="stars">${stars(t.rating)}</div>
    <div class="dur">${fmt(t.duration)}</div>
@@ -1054,6 +1102,7 @@ audio.addEventListener('pause',()=>{try{navigator.mediaSession.playbackState='pa
 function renderPlayer(){const t=S.tracks.get(S.queue[S.qi]);
   const pa=$('#pArt');pa.innerHTML=t?(t.art?'':ini(t)):IC.note;pa.style.backgroundImage=t?(t.art?`url('${t.art}')`:sleeveBg(seedOf(t))):'';pa.toggleAttribute('data-sleeve',!!t&&!t.art);
   const pk=$('#pKey');if(pk)pk.innerHTML=t?keyCtlHTML(t,false):'';
+  const bk=$('#bKey');if(bk){const k=(t&&t.key)||0;bk.innerHTML=`<span class="mk-i">♯♭</span><span class="mk-v">${t?(k?keyTxt(k):'キー'):'キー'}</span>`;bk.classList.toggle('on',!!k);bk.disabled=!t}
   const bn=$('#bNowP');if(!bn.innerHTML)bn.innerHTML=IC.panel;bn.classList.toggle('on',S.np);renderNow(t);
   $('#pTitle').textContent=t?t.title:'曲を選ぶと再生します';$('#pArtist').textContent=t?t.artist:'—';
   $('#pStars').innerHTML=t?stars(t.rating):'';const ne=$('#bNowEdit');ne.hidden=!t||!!t.sample;if(!ne.innerHTML)ne.innerHTML=IC.memo;
@@ -1111,8 +1160,31 @@ function stopHint(){let seen=false;try{seen=localStorage.getItem('crate.stopHint
 /* ---------- 移調（キー変更） ---------- */
 const KEY={ctx:null,src:null,st:null,ready:null,routed:false,failed:false};
 const keyTxt=k=>k>0?'+'+k:k<0?'−'+Math.abs(k):'±0';
-function keyCtlHTML(t,big){const k=(t&&t.key)||0;
-  return`<div class="kbox${big?' big':''}${k?' on':''}"><button class="kb" data-act="keyDown" aria-label="キーを半音下げる" title="半音下げる">${IC.flat}</button><span class="kv"><b>${k?keyTxt(k):'原曲'}</b>${big?`<small>${k?`半音${Math.abs(k)}つ${k>0?'上':'下'}`:'原曲キー'}</small>`:''}</span><button class="kb" data-act="keyUp" aria-label="キーを半音上げる" title="半音上げる">${IC.sharp}</button>${k&&big?`<button class="kreset" data-act="keyReset">原曲キーに戻す</button>`:''}</div>`}
+const NOTES=['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'];
+function keyName(t,k){if(!t||!t.origKey)return'';const m=/m$/.test(t.origKey),i=NOTES.indexOf(t.origKey.replace(/m$/,''));if(i<0)return'';return NOTES[((i+k)%12+12)%12]+(m?'m':'')}
+function keySub(k){return k?`半音${Math.abs(k)}つ${k>0?'上げ':'下げ'}`:'原曲キー'}
+function keyCtlHTML(t,big){const k=(t&&t.key)||0,id=t?t.id:'';const nm=keyName(t,k);
+  if(!big)return`<div class="kbox${k?' on':''}"><button class="kb" data-act="keyStep" data-d="-1" data-id="${id}" aria-label="キーを半音下げる" title="半音下げる（［キー）">${IC.flat}</button><button class="kv" data-act="keyOpen" data-id="${id}" title="キーの設定を開く"><b>${k?keyTxt(k):'原曲'}</b></button><button class="kb" data-act="keyStep" data-d="1" data-id="${id}" aria-label="キーを半音上げる" title="半音上げる（］キー）">${IC.sharp}</button></div>`;
+  return`<div class="kpanel${k?' on':''}"><div class="kmain"><button class="kbig" data-act="keyStep" data-d="-1" data-id="${id}" aria-label="キーを半音下げる">${IC.flat}<small>下げる</small></button>
+   <div class="kread"><b>${k?keyTxt(k):'±0'}</b><span>${keySub(k)}</span>${nm?`<em>${esc(nm)}<i>原曲 ${esc(t.origKey)}</i></em>`:''}</div>
+   <button class="kbig" data-act="keyStep" data-d="1" data-id="${id}" aria-label="キーを半音上げる">${IC.sharp}<small>上げる</small></button></div>
+   <div class="kstrip" role="radiogroup" aria-label="キーを選ぶ">${Array.from({length:13},(_,i)=>i-6).map(v=>`<button role="radio" aria-checked="${k===v}" class="kc${v===0?' z':''}" data-act="keySet" data-k="${v}" data-id="${id}" aria-label="${v?keyTxt(v):'原曲キー'}">${v===0?'0':(v>0?'+'+v:'−'+(-v))}</button>`).join('')}</div>
+   <div class="kends"><span>低く</span><span class="kz">0 = 原曲キー</span>${Math.abs(k)>6?`<span class="kfar">${keyTxt(k)}（目盛りの外）</span>`:''}<span>高く</span></div></div>`}
+function keySheet(id){const t=S.tracks.get(id||S.queue[S.qi]);if(!t){toast('曲を再生するか、曲を選ぶとキーを変えられます');return}S.keyTarget=t.id;renderKeySheet()}
+function renderKeySheet(){const L=$('#layer2'),t=S.tracks.get(S.keyTarget);if(!t){L.innerHTML='';return}const k=t.key||0;
+  const opts=['',...NOTES,...NOTES.map(n=>n+'m')].map(v=>`<option value="${v}"${(t.origKey||'')===v?' selected':''}>${v?v.replace(/m$/,'')+(v.endsWith('m')?' マイナー':' メジャー'):'わからない'}</option>`).join('');
+  const playing=S.queue[S.qi]===t.id;
+  L.innerHTML=`<div class="veil top kveil" data-act="keyClose"><div class="sheet keysheet" role="dialog" aria-modal="true" aria-label="キー（移調）">
+   <div class="ks-head"><div class="art" ${artStyle(t)}>${t.art?'':ini(t)}</div><div class="t"><h2>キー（移調）</h2><span>${esc(t.title)}${playing?'':'（再生していない曲）'}</span></div><button class="cbtn" data-act="keyClose" aria-label="閉じる">${IC.x}</button></div>
+   ${keyCtlHTML(t,true)}
+   <div class="ks-row"><label for="ksOrig">原曲のキー<small>わかる場合に選ぶと、移調後のキー名を表示します</small></label><select id="ksOrig">${opts}</select></div>
+   <div class="foot"><button class="btn" data-act="keySet" data-k="0" data-id="${t.id}"${k?'':' disabled'}>${IC.undo}原曲キーに戻す</button><span class="actions"><button class="btn primary" data-act="keyClose">完了</button></span></div>
+   <p class="muted ks-note">テンポは変わりません。設定は曲ごとに保存されます。<span class="pconly">PCでは ［ と ］ キーでも変えられます。</span></p></div></div>`;
+  $('#ksOrig').onchange=e=>{t.origKey=e.target.value;if(!t.sample)saveTrack(t);renderKeySheet();renderPlayer()}}
+let hudT;function keyHud(t,k){let h=$('#keyHud');if(!h){h=document.createElement('div');h.id='keyHud';h.className='keyhud';h.setAttribute('aria-live','polite');document.body.appendChild(h)}
+  const nm=keyName(t,k);h.innerHTML=`<span>キー</span><b>${k?keyTxt(k):'原曲'}</b>${nm?`<em>${esc(nm)}</em>`:''}`;h.classList.remove('show');void h.offsetWidth;h.classList.add('show');clearTimeout(hudT);hudT=setTimeout(()=>h.classList.remove('show'),900)}
+function setKeyFor(id,k){const t=S.tracks.get(id);if(!t)return;k=Math.max(-12,Math.min(12,k));if(k===(t.key||0))return;t.key=k;if(!t.sample)saveTrack(t);
+  if(S.queue[S.qi]===id)applyKey();renderPlayer();renderView();if($('#layer2 .keysheet'))renderKeySheet();else keyHud(t,k)}
 async function ensureKeyGraph(){if(KEY.st)return true;if(KEY.failed)return false;if(KEY.ready)return KEY.ready;
   KEY.ready=(async()=>{try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC||!window.AudioWorkletNode)throw new Error('unsupported');
     const ctx=new AC({latencyHint:'playback'});await ctx.audioWorklet.addModule('vendor/soundtouch-processor.js');
@@ -1125,9 +1197,7 @@ function routeKey(on){if(!KEY.st||KEY.routed===on)return;try{KEY.src.disconnect(
 async function applyKey(){const t=S.tracks.get(S.queue[S.qi]);const k=(t&&t.key)||0;
   if(k&&!KEY.st){if(!(await ensureKeyGraph()))return}
   if(!KEY.st)return;KEY.st.parameters.get('pitchSemitones').setValueAtTime(k,KEY.ctx.currentTime);routeKey(!!k);if(!audio.paused&&KEY.ctx.state!=='running')KEY.ctx.resume()}
-function changeKey(d,abs){const t=S.tracks.get(S.queue[S.qi]);if(!t){toast('曲を再生すると、キーを変えられます');return}
-  const k=abs!=null?abs:Math.max(-12,Math.min(12,(t.key||0)+d));if(k===(t.key||0))return;t.key=k;if(!t.sample)saveTrack(t);
-  applyKey();renderPlayer();renderView();if(k===0)toast('原曲キーに戻しました')}
+function changeKey(d,abs){const t=S.tracks.get(S.queue[S.qi]);if(!t){toast('曲を再生すると、キーを変えられます');return}setKeyFor(t.id,abs!=null?abs:(t.key||0)+d)}
 audio.addEventListener('play',()=>{if(KEY.ctx&&KEY.ctx.state!=='running')KEY.ctx.resume()});
 function renderNow(t){const el=$('#nowp');if(!el)return;
   const close=`<button class="np-close" data-act="closeNow" aria-label="閉じる">${IC.down2}</button>`;
@@ -1137,7 +1207,7 @@ function renderNow(t){const el=$('#nowp');if(!el)return;
    <button class="np-art" data-act="setArtNow" ${artStyle(t,'',true)} aria-label="ジャケット画像を変更" title="ジャケット画像を変更">${t.art?'':ini(t)}</button>
    <div class="np-title"><b>${esc(t.title)}</b><span>${esc(t.artist)}${t.album?' — '+esc(t.album):''}</span></div>
    <div class="np-meta"><span class="stars">${stars(t.rating)}</span>${hasCat(t)?`<span class="chip cat">${IC.folder}${esc(catName(t.cat))}</span>`:''}</div>
-   ${t.sample&&false?'':`<div class="np-key"><div class="nk-h"><b>キー（移調）</b><span>テンポはそのままで音の高さだけ変えます</span></div>${keyCtlHTML(t,true)}</div>`}
+   <div class="np-key"><div class="nk-h"><b>キー（移調）</b><button class="lnk" data-act="keyOpen" data-id="${t.id}">原曲のキーを設定</button></div>${keyCtlHTML(t,true)}</div>
    <div class="np-memo">${t.memo?`<p>${esc(t.memo)}</p>`:'<p class="none">この曲のメモはまだありません</p>'}${t.sample?'':`<button class="btn" data-act="memoEdit" data-id="${t.id}">${IC.memo}${t.memo?'メモを編集':'メモを追加'}</button>`}</div>
    <div class="np-q"><h4>次に再生<small>曲が終わると止まります</small></h4>${up.length?up.map(([i,u])=>`<button class="np-qi" data-qi="${i}"><span class="art" ${artStyle(u)}>${u.art?'':ini(u)}</span><span class="t"><b>${esc(u.title)}</b><span>${esc(u.artist)}</span></span><span class="dur">${fmt(u.duration)}</span></button>`).join(''):'<p class="none">この後に再生する曲はありません</p>'}</div>`}
 function setNp(v){S.np=v;try{localStorage.setItem('crate.np',v?'1':'0')}catch(_){}document.body.classList.toggle('np-open',v);renderPlayer()}
@@ -1432,7 +1502,7 @@ function openActMenu(btn,items){closeMenu();if(!items.length)return;const m=docu
   m.innerHTML=items.map(x=>x==='-'?'<hr>':`<button role="menuitem" data-act="${x[0]}"${x[3]?` class="${x[3]}"`:''}>${x[2]}${x[1]}</button>`).join('');
   document.body.appendChild(m);const r=btn.getBoundingClientRect(),mw=m.offsetWidth,mh=m.offsetHeight;let x=r.left,y=r.bottom+6;if(x+mw>innerWidth-8)x=innerWidth-mw-8;if(y+mh>innerHeight-8)y=r.top-mh-6;m.style.left=Math.max(8,x)+'px';m.style.top=Math.max(8,y)+'px';m.querySelector('button')?.focus()}
 function openMenu(btn,id){closeMenu();const t=S.tracks.get(id);if(!t)return;const p=S.playlists.find(x=>'pl:'+x.id===S.view&&!x.rule);
-  const items=[['play','再生',IC.play],['playNext','次に再生',IC.next],'-',['rename','曲名を変更',IC.pen],['memo',t.memo?'メモを編集':'メモを追加',IC.memo],['setCat','カテゴリを変更',IC.folder],['addPl','プレイリストに追加',IC.list],['setArt','ジャケット画像を変更',IC.image],...(t.artCustom?[['resetArt','ジャケット画像を元に戻す',IC.undo]]:[]),['edit','評価・タグ・曲情報',IC.star],'-',...(p?[['rmFromPl','このプレイリストから外す',IC.x]]:[]),['askDel','曲を削除',IC.trash,'danger']];
+  const items=[['play','再生',IC.play],['playNext','次に再生',IC.next],'-',['rename','曲名を変更',IC.pen],['memo',t.memo?'メモを編集':'メモを追加',IC.memo],['setCat','カテゴリを変更',IC.folder],['addPl','プレイリストに追加',IC.list],['keyOpen','キー（移調）を変える',IC.sharp],['setArt','ジャケット画像を変更',IC.image],...(t.artCustom?[['resetArt','ジャケット画像を元に戻す',IC.undo]]:[]),['edit','評価・タグ・曲情報',IC.star],'-',...(p?[['rmFromPl','このプレイリストから外す',IC.x]]:[]),['askDel','曲を削除',IC.trash,'danger']];
   const m=document.createElement('div');m.className='menu';m.id='menu';m.setAttribute('role','menu');
   m.innerHTML=`<div class="mh">${esc(t.title)}</div>`+items.map(x=>x==='-'?'<hr>':`<button role="menuitem" data-mact="${x[0]}" data-id="${id}"${x[3]?` class="${x[3]}"`:''}>${x[2]}${x[1]}</button>`).join('');
   document.body.appendChild(m);const r=btn.getBoundingClientRect(),mw=m.offsetWidth,mh=m.offsetHeight;
@@ -1444,6 +1514,7 @@ function menuAction(act,id){const t=S.tracks.get(id);if(!t)return;closeMenu();
     case'rename':renameSheet(id);break;
     case'memo':renameSheet(id,'memo');break;
     case'setCat':catPicker([id]);break;case'addPl':plPicker([id]);break;case'edit':editSheet(id);break;
+    case'keyOpen':keySheet(id);break;
     case'setArt':pickImage({type:'track',id});break;case'resetArt':resetImage({type:'track',id});break;
     case'rmFromPl':{const p=S.playlists.find(x=>'pl:'+x.id===S.view);if(p){p.ids=p.ids.filter(x=>x!==id);savePlaylists();render();toast('プレイリストから外しました')}break}
     case'askDel':askDel(id);break}}
@@ -1465,6 +1536,10 @@ document.addEventListener('click',e=>{
     if(act==='hmenu'){openActMenu(a,S.hmenu||[]);return}
     if(act==='stopSet'){setStop(a.dataset.v);return}
     if(act==='keyUp'){changeKey(1);return}if(act==='keyDown'){changeKey(-1);return}if(act==='keyReset'){changeKey(0,0);return}
+    if(act==='keyStep'){const t=S.tracks.get(id||S.queue[S.qi]);if(t)setKeyFor(t.id,(t.key||0)+(+a.dataset.d));else changeKey(+a.dataset.d);return}
+    if(act==='keySet'){setKeyFor(id||S.queue[S.qi],+a.dataset.k);return}
+    if(act==='keyOpen'){keySheet(id);return}
+    if(act==='keyClose'){if(a.classList.contains('veil')&&e.target!==a)return;$('#layer2').innerHTML='';return}
     if(act==='stopMenu'){e.stopPropagation();openStopMenu(a);return}
     if(act==='toggleNow'){if(innerWidth>=1280)setNp(!S.np);else document.body.classList.add('np-full');return}
     if(act==='closeNow'){document.body.classList.remove('np-full');return}
@@ -1532,7 +1607,9 @@ window.addEventListener('drop',async e=>{if(!e.dataTransfer?.files?.length)retur
   const items=[...(e.dataTransfer.items||[])].map(i=>i.webkitGetAsEntry&&i.webkitGetAsEntry()).filter(Boolean);
   if(items.some(x=>x.isDirectory)){const files=[];const walk=en=>new Promise(res=>{if(en.isFile)en.file(f=>{files.push(f);res()},res);else{const r=en.createReader(),acc=[];const rd=()=>r.readEntries(async es=>{if(!es.length){for(const x of acc)await walk(x);res()}else{acc.push(...es);rd()}},res);rd()}});
     for(const en of items)await walk(en);importFiles(files)}else importFiles(e.dataTransfer.files)});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#layer2').innerHTML){$('#layer2').innerHTML='';return}if(e.key==='Escape'){closeMenu();if($('#layer .veil'))closeSheet();if(S.selMode&&!$('#layer .veil')){S.selMode=false;S.sel.clear();renderView()}}
+document.addEventListener('keydown',e=>{const tag=(document.activeElement||{}).tagName||'';
+  if((e.key==='['||e.key===']')&&!/INPUT|TEXTAREA|SELECT/.test(tag)&&S.queue.length){e.preventDefault();const t=S.tracks.get(S.keyTarget&&$('#layer2 .keysheet')?S.keyTarget:S.queue[S.qi]);if(t)setKeyFor(t.id,(t.key||0)+(e.key===']'?1:-1));return}
+  if(e.key==='Escape'&&$('#layer2').innerHTML){$('#layer2').innerHTML='';return}if(e.key==='Escape'){closeMenu();if($('#layer .veil'))closeSheet();if(S.selMode&&!$('#layer .veil')){S.selMode=false;S.sel.clear();renderView()}}
   if(e.code==='Space'&&!/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName)&&!$('#layer .veil')){e.preventDefault();$('#bPlay').click()}});
 
 let toastT;function toast(msg){progress(msg);clearTimeout(toastT);toastT=setTimeout(()=>progress(null),3600)}
