@@ -1,5 +1,5 @@
 /* CRATE service worker: アプリ本体を端末に保存してオフラインで起動できるようにする */
-const VERSION = 'crate-v15';
+const VERSION = 'crate-v16';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'vendor/jsmediatags.min.js','vendor/soundtouch-processor.js','vendor/pdfjs/pdf.min.mjs','vendor/pdfjs/pdf.worker.min.mjs',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
