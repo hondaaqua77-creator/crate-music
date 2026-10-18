@@ -530,7 +530,21 @@ body.np-full .np-title,body.np-full .np-meta,body.np-full .np-memo,body.np-full 
   .vrow{grid-template-columns:20px 56px minmax(0,1fr) 20px;gap:12px}
   .vcover{width:56px;height:56px}
   .np-art .ini{font-size:110px}
+  .head .kicker{display:none}
+  .head:not(.has-cover){margin-bottom:14px}
+  .head:not(.has-cover) .htext{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;width:100%;align-items:center}
+  .head:not(.has-cover) .htext>*{grid-column:1}
+  .head:not(.has-cover) .hacts{grid-column:2;grid-row:1/span 4;margin-top:0;align-self:center;justify-content:flex-end;flex-wrap:wrap}
+  .head:not(.has-cover) h1{font-size:24px}
+  .head:not(.has-cover) .meta{margin-top:2px;font-size:12.5px}
+  .toolbar{gap:8px;margin-bottom:10px}.toolbar input{flex:1 1 100%}.toolbar select,.toolbar .btn{flex:1 1 0;min-width:0;height:38px;font-size:13px}
+  .toolbar+.hint{display:none}
+  .mob-nav .tabhome{flex:0 0 38px!important;min-width:38px!important;display:grid;place-items:center;padding:0}.tabhome span{display:none}.tabhome svg{width:18px;height:18px}
+  .mob-nav button{padding:8px 5px;font-size:12.5px}
 }
+@media (min-width:761px){.head:not(.has-cover){margin-bottom:20px}.head:not(.has-cover) .htext{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:20px;width:100%;align-items:end}
+  .head:not(.has-cover) .htext>*{grid-column:1}.head:not(.has-cover) .hacts{grid-column:2;grid-row:1/span 4;margin-top:0;align-self:end;justify-content:flex-end}
+  .head:not(.has-cover) h1{font-size:36px}}
 @media (min-width:761px) and (max-width:1279px){.now{cursor:pointer}}
 @media (prefers-reduced-motion:reduce){body.np-full .nowp{animation:none}}
 /* 画像の変更 */
@@ -901,6 +915,7 @@ const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).sli
 const norm=s=>String(s||'').toLowerCase().normalize('NFKC').replace(/[\s\-_・()（）\[\]［］'"!！?？.,、。]/g,'');
 
 const IC={
+ home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg>',
  dl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/></svg>',
  cursor:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 3l14 7-6 2-2 6z"/></svg>',
  select:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4" /><path d="M11 4h2M11 20h2M4 11v2M20 11v2"/></svg>',
@@ -1072,8 +1087,6 @@ function sorted(list){const by={manual:byOrder,added:(a,b)=>(b.addedAt||0)-(a.ad
   rating:(a,b)=>(b.rating||0)-(a.rating||0),plays:(a,b)=>(b.plays||0)-(a.plays||0)}[S.sort]||byOrder;return[...list].sort(by)}
 function filtered(list){const q=norm(S.q);if(!q)return list;return list.filter(t=>norm([t.title,t.artist,t.album,t.genre,t.memo,catName(t.cat),(t.tags||[]).join(' ')].join(' ')).includes(q))}
 function groups(key){const m=new Map();all().forEach(t=>{const k=t[key]||(key==='album'?'（アルバム名なし）':'不明');if(!m.has(k))m.set(k,[]);m.get(k).push(t)});return[...m.entries()].sort((a,b)=>a[0].localeCompare(b[0],'ja'))}
-function dupes(){const m=new Map();all().filter(t=>!t.sample).forEach(t=>{const k=norm(t.title)+'|'+norm(t.artist);if(!m.has(k))m.set(k,[]);m.get(k).push(t)});
-  return[...m.values()].filter(g=>g.length>1&&g.some((a,i)=>g.some((b,j)=>i!==j&&(!isFinite(a.duration)||!isFinite(b.duration)||Math.abs(a.duration-b.duration)<4))))}
 const allTags=()=>[...new Set([...MOODS,...SCENES,...all().flatMap(t=>t.tags||[])])];
 const catName=id=>(id&&S.cats.find(c=>c.id===id)?.name)||'';
 const hasCat=t=>!!(t.cat&&S.cats.some(c=>c.id===t.cat));
@@ -1112,7 +1125,7 @@ function navItems(){
   const pls=S.playlists.map(p=>({k:'pl:'+p.id,label:p.name,n:playlistTracks(p).length,ic:p.rule?IC.gear:IC.list,sid:p.id}));
   const cats=S.cats.map(c=>({k:'cat:'+c.id,label:c.name,n:catTracks(c.id).length,ic:IC.folder,sid:c.id}));
   const noneN=catTracks('none').length;
-  return{lib:[{k:'all',label:'すべての曲',n:S.tracks.size,ic:IC.note},{k:'artists',label:'アーティスト',n:groups('artist').length,ic:IC.user},{k:'albums',label:'アルバム',n:groups('album').length,ic:IC.disc},{k:'scores',label:'楽譜',n:scoreTracks().length,ic:IC.score},{k:'dupes',label:'重複チェック',n:dupes().length,ic:IC.copy}],
+  return{lib:[{k:'all',label:'すべての曲',n:S.tracks.size,ic:IC.note},{k:'artists',label:'アーティスト',n:groups('artist').length,ic:IC.user},{k:'albums',label:'アルバム',n:groups('album').length,ic:IC.disc},{k:'scores',label:'楽譜',n:scoreTracks().length,ic:IC.score}],
     cats,none:S.cats.length&&noneN?{k:'cat:none',label:'未分類',n:noneN,ic:IC.inbox}:null,pls}}
 function renderSide(){const{lib,cats,none,pls}=navItems();const cur=S.view.split('|')[0];
   const btn=i=>`<button data-view="${esc(i.k)}" aria-current="${cur===i.k}"${i.sid?` data-sid="${esc(i.sid)}"`:''}>${i.sid?`<span class="grip" title="ドラッグで並べ替え">${IC.grip}</span>`:''}${i.ic}<span>${esc(i.label)}</span><span class="n">${i.n}</span></button>`;
@@ -1126,7 +1139,7 @@ function renderSide(){const{lib,cats,none,pls}=navItems();const cur=S.view.split
    <div class="shelf"><h3><button class="hlink" data-view="pls">プレイリスト</button><span><button data-act="newPl" title="新しいプレイリスト">＋新規</button><button data-act="newSmart" title="条件で自動作成">＋自動</button></span></h3><div class="nav" data-sortable="pls">${pls.map(btn).join('')||'<span class="none">まだありません</span>'}</div></div>
    <div class="sync"><div>${cs}</div><div class="sidelinks"><button data-act="settings">${IC.gear}設定・バックアップ</button><button data-act="help">${IC.help}使い方</button></div>${S.upNote?`<div>${esc(S.upNote)}</div>`:''}<div class="mono">${S.tracks.size}曲 / ${fmtLong(all().reduce((a,t)=>a+(isFinite(t.duration)?t.duration:0),0))}</div></div>`;
   const tabs=activeTabs(),tab=currentTab(tabs);
-  $('#mobnav').innerHTML=tabs.map(k=>`<button data-view="${esc(k)}" aria-current="${tab===k}">${esc(tabLabel(k))}</button>`).join('')+`<button class="tabadd" data-act="editTabs" aria-label="タブを追加・編集" title="タブを追加・編集">${IC.plus}</button>`;
+  $('#mobnav').innerHTML=`<button class="tabhome" data-view="all" aria-current="${S.view==='all'}" aria-label="すべての曲（ホーム）">${IC.home}<span>すべて</span></button>`+tabs.map(k=>`<button data-view="${esc(k)}" aria-current="${tab===k}">${esc(tabLabel(k))}</button>`).join('')+`<button class="tabadd" data-act="editTabs" aria-label="タブを追加・編集" title="タブを追加・編集">${IC.plus}</button>`;
   $('#mobnav').classList.toggle('many',tabs.length>4);
   const mm=$('#mMenu');if(mm&&!mm.innerHTML)mm.innerHTML=IC.menu}
 
@@ -1172,7 +1185,7 @@ function toolbarHTML(o){return`<div class="toolbar">${o.search?`<input type="sea
   <button class="btn${S.selMode?' primary':''}" data-act="selMode">${IC.check}${S.selMode?'選択を終了':'選択して整理'}</button></div>${o.hint?`<div class="hint">${o.hint}</div>`:''}`}
 
 let current=[];
-function renderView(){const v=S.view;let h='';S.hmenu=null;const hasSample=all().some(t=>t.sample);
+function renderView(){if(S.view==='dupes')S.view='all';const v=S.view;let h='';S.hmenu=null;const hasSample=all().some(t=>t.sample);
   const banner=protBannerHTML()+(hasSample?`<div class="banner"><span>いまは動作確認用のサンプル曲を表示しています。自分の曲を取り込むと自動で消えます。</span><span class="actions"><button class="btn primary" data-act="import">曲を取り込む</button><button class="btn" data-act="clearSamples">サンプルを消す</button></span></div>`:'');
   if(v==='all'||v.startsWith('artist|')||v.startsWith('album|')){
     let list=all(),title='すべての曲';
@@ -1195,8 +1208,6 @@ function renderView(){const v=S.view;let h='';S.hmenu=null;const hasSample=all()
       +(list.length?`<div class="grid scgrid">${list.map(t=>{const e=t.score.edit,ed=t.score.edit&&hasEdits(t);return`<div class="sccard"><button class="sccov" data-act="scoreOpen" data-id="${t.id}" aria-label="${esc(t.title)}の楽譜を開く">${t.score.thumb?`<img src="${t.score.thumb}" alt="">`:`<span class="scph" data-thumb="${t.id}">${IC.score}</span>`}${ed?'<em>編集あり</em>':''}</button>
         <div class="scmeta"><div class="sct"><b>${esc(t.title)}</b><span>${esc(t.artist||'—')} · ${scPages(t)}ページ</span></div><button class="cbtn scplay" data-act="scorePlayOpen" data-id="${t.id}" aria-label="再生しながら楽譜を開く" title="再生しながら開く">${IC.play}</button></div></div>`}).join('')}</div>`
       :`<div class="scempty"><div class="scsteps">${[['1','曲を選ぶ','「楽譜を取り込む」を押して、楽譜を付けたい曲を選びます'],['2','PDFを選ぶ','端末やGoogleドライブにある楽譜のPDFを選びます'],['3','見る・書き込む','再生に合わせて自動でページがめくれます。「編集」で書き込みや音符の変更、「PDF保存」で保存できます']].map(([n,b,d])=>`<div><i>${n}</i><b>${b}</b><span>${d}</span></div>`).join('')}</div><button class="btn primary" data-act="scoreAdd">${IC.plus}楽譜を取り込む</button></div>`);
-  }else if(v==='dupes'){const g=dupes();current=[];
-    h=headHTML('重複チェック',g.length?`${g.length}組の重複候補（曲名・アーティストが同じで長さがほぼ同じ曲）`:'重複は見つかりませんでした','',{kicker:'整理'})+(g.length?g.map(grp=>`<div class="dupe"><h4>${esc(grp[0].title)} <span class="chip">${esc(grp[0].artist)}</span></h4>${grp.map(t=>`<div class="r"><span>${esc(t.fileName||'—')} · <span class="mono">${fmt(t.duration)}</span> · ${t.size?(t.size/1048576).toFixed(1)+'MB':''} · ${stars(t.rating)}</span><span class="actions"><button class="btn" data-play-one="${t.id}">${IC.play}試聴</button><button class="btn danger" data-act="askDel" data-id="${t.id}">この1曲を削除</button></span></div>`).join('')}</div>`).join(''):'<div class="list"><div class="empty"><b>重複はありません</b>PC・スマホ・ドライブから同じ曲を取り込むと、ここに表示されます。</div></div>');
   }else if(v==='cats'){current=[];const none=catTracks('none');
     const rowC=(k,name,list,memo,ic,sid,cov)=>`<div class="vrow" data-view="${esc(k)}"${sid?` data-sid="${esc(sid)}"`:''}>${sid?`<span class="grip" title="ドラッグで並べ替え">${IC.grip}</span>`:'<span></span>'}${mosaic(list,name,'vcover',cov)}<div class="vt"><b>${esc(name)}</b><span>${metaOf(list)}</span>${memo?`<em>${esc(memo)}</em>`:''}</div><span class="vchev">${IC.chev}</span></div>`;
     h=banner+headHTML('カテゴリ',`${S.cats.length}件 · 曲をジャンルや用途ごとに分けて管理します`,`<button class="btn pill" data-act="newCat">${IC.plus}新しいカテゴリ</button>`,{kicker:'整理'})
@@ -1575,7 +1586,7 @@ function renameGroup(key,oldName){const label=key==='album'?'アルバム':'ア�
     if(key==='artist'&&S.artistImgs[oldName]){if(!S.artistImgs[n])S.artistImgs[n]=S.artistImgs[oldName];delete S.artistImgs[oldName];saveArtistImgs()}S.view=key+'|'+n;render();toast(exists?`「${n}」にまとめました`:`${label}名を「${n}」に変更しました`)})}
 /* ---------- 上部タブ（利用者が追加・編集） ---------- */
 const DEFAULT_TABS=['albums','cats','pls','scores'];
-const FIXED_TABS=[['albums','アルバム'],['cats','カテゴリ'],['pls','プレイリスト'],['scores','楽譜'],['all','すべての曲'],['artists','アーティスト'],['dupes','重複チェック']];
+const FIXED_TABS=[['albums','アルバム'],['cats','カテゴリ'],['pls','プレイリスト'],['scores','楽譜'],['all','すべての曲'],['artists','アーティスト']];
 function tabLabel(k){const f=FIXED_TABS.find(x=>x[0]===k);if(f)return f[1];
   if(k.startsWith('cat:'))return k==='cat:none'?'未分類':catName(k.slice(4));
   if(k.startsWith('pl:'))return S.playlists.find(p=>'pl:'+p.id===k)?.name||'';return''}
