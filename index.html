@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="CRATE">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@600;700&display=swap">
 <style>
 /* Layout: pro desktop music library on white — quiet grey sidebar, tabular track list with column headers, collection header with cover, white transport bar. Single light theme by design. */
 :root{
@@ -877,6 +877,59 @@ button.badge.score{border:0;cursor:pointer;font:inherit;font-size:10.5px;font-we
 @media (max-width:760px){.keysheet .cf-row{grid-template-columns:auto 104px 1fr auto auto;gap:8px}.keysheet .cf-in{width:104px}.keysheet .cf-rs{padding:8px 14px}.keysheet .xy{max-height:none}}
 @media (min-width:761px){.mob-top{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* ===== v23 デザイン：白い壁のレコード店 =====
+   色：白 #FFFFFF／棚 #F3F4F6／インク #16171B／グラファイト #6B707C／レーベルレッド #CC2F45
+   文字：見出し＝Zen Old Mincho、本文＝Zen Kaku Gothic New（英数字は Hanken Grotesk）
+   見せ場：アルバムのジャケットの後ろからレコード盤がのぞき、再生中は盤がすべり出て回る */
+:root{--side:#F3F4F6;--hover:#EEF0F3;--ink:#16171B;--ink2:#3B3F48;--muted:#6B707C;--line:#E8EAEE;--line2:#D8DBE1;--accent:#CC2F45;--sel:#FBEEF0;
+  --f-body:"Hanken Grotesk","Zen Kaku Gothic New","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;--f-head:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",serif}
+body{letter-spacing:.01em}
+.head .kicker{display:none}
+.head h1{font-family:var(--f-head);font-weight:700;letter-spacing:.02em;line-height:1.18}
+.head:not(.has-cover) h1{font-size:40px}
+.head.has-cover h1{font-size:44px}
+.head .meta{font-size:12.5px;letter-spacing:.04em}
+.np-title b{font-family:var(--f-head);font-weight:700;letter-spacing:.02em;font-size:23px}
+.sv-title b,.sct b{font-family:var(--f-head);font-weight:700;letter-spacing:.02em}
+.main{overflow-x:hidden}
+.side{background:var(--side)}
+.nav button[aria-current="true"]{box-shadow:0 1px 2px rgba(22,23,27,.06),0 0 0 1px var(--line);position:relative}
+.nav button[aria-current="true"]::before{content:"";position:absolute;left:-10px;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:var(--accent)}
+.player{background:rgba(255,255,255,.82)!important;backdrop-filter:saturate(1.6) blur(22px);-webkit-backdrop-filter:saturate(1.6) blur(22px)}
+.row .t b,.row .tt b{font-weight:700}
+/* レコードのジャケットと盤 */
+.grid .card:not(.round){isolation:isolate;position:relative}
+.grid .card:not(.round) .cover{position:relative;border-radius:3px!important;box-shadow:0 18px 30px -18px rgba(22,23,27,.55),0 1px 2px rgba(22,23,27,.1),inset 0 0 0 1px rgba(255,255,255,.08)}
+.grid .card:not(.round) .cover::before{content:"";position:absolute;z-index:-1;top:3%;left:3%;width:94%;height:94%;border-radius:50%;
+  background:radial-gradient(circle,#ECECEA 0 2.4%,var(--accent) 2.6% 17%,#0E0F12 17.4% 19%,transparent 19.2%),
+    conic-gradient(from 20deg,rgba(255,255,255,0) 0deg,rgba(255,255,255,.13) 28deg,rgba(255,255,255,0) 60deg,rgba(255,255,255,0) 180deg,rgba(255,255,255,.09) 208deg,rgba(255,255,255,0) 240deg),
+    repeating-radial-gradient(circle,#141518 0 .9%,#1D1E22 1% 1.5%),#121316;
+  box-shadow:0 10px 22px -12px rgba(0,0,0,.6);translate:13% 0;transition:translate .45s cubic-bezier(.2,.7,.2,1),rotate .45s cubic-bezier(.2,.7,.2,1)}
+.grid .card:not(.round):hover .cover::before,.grid .card:not(.round):focus-visible .cover::before{translate:24% 0;rotate:40deg}
+.grid .card.playing .cover::before{animation:crateSpin 5s linear infinite,crateOut .6s cubic-bezier(.2,.7,.2,1) both}
+@keyframes crateOut{from{translate:13% 0}to{translate:34% 0}}
+@keyframes crateSpin{from{rotate:0deg}to{rotate:360deg}}
+.grid .card.playing .cover::before{translate:34% 0}
+.card b{font-weight:700;letter-spacing:.01em}
+.card.playing b::after{content:"再生中";margin-left:8px;font-size:10.5px;font-weight:700;color:var(--accent);vertical-align:2px}
+/* 再生中パネルの大きなジャケット */
+.nowp,.nowp :has(> .np-art),.np-empty{isolation:isolate}
+.np-art{position:relative;border-radius:4px!important}
+.np-art::before{content:"";position:absolute;z-index:-1;top:3%;left:3%;width:94%;height:94%;border-radius:50%;
+  background:radial-gradient(circle,#ECECEA 0 2.4%,var(--accent) 2.6% 17%,#0E0F12 17.4% 19%,transparent 19.2%),conic-gradient(from 20deg,rgba(255,255,255,0) 0deg,rgba(255,255,255,.13) 28deg,rgba(255,255,255,0) 60deg,rgba(255,255,255,0) 180deg,rgba(255,255,255,.09) 208deg,rgba(255,255,255,0) 240deg),repeating-radial-gradient(circle,#141518 0 .9%,#1D1E22 1% 1.5%),#121316;
+  translate:0 -9%;transition:translate .6s cubic-bezier(.2,.7,.2,1)}
+body.is-playing .np-art::before{translate:0 -24%;animation:crateSpin 5s linear infinite}
+.np-empty .np-art::before{display:none}
+.nowp > .np-art,.nowp :not(.np-empty) > .np-art{margin-top:52px}
+@media (max-width:760px){
+  .head:not(.has-cover) h1{font-size:26px}.head.has-cover h1{font-size:30px}
+  .grid .card:not(.round) .cover::before{translate:8% 0}
+  .grid .card:not(.round):hover .cover::before{translate:8% 0}
+  @keyframes crateOut{from{translate:8% 0}to{translate:16% 0}}
+  .grid .card.playing .cover::before{translate:16% 0}
+  .nav button[aria-current="true"]::before{display:none}
+}
+@media (prefers-reduced-motion:reduce){.grid .card .cover::before,.np-art::before{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -1227,8 +1280,8 @@ function renderView(){if(S.view==='dupes')S.view='all';const v=S.view;let h='';S
     const hint=v!=='all'?'':dnd?DRAG_HINT:(!S.q&&!S.selMode&&S.sort!=='manual'?'並び順を「自分の並び順」にすると、ドラッグで順番を変えられます。':'');
     const scN=scoreTracks().length,scCard=v==='all'&&!hasSample&&!S.q&&S.tracks.size?`<button class="schome" data-view="scores"><span class="schi">${IC.score}</span><span class="sctx"><b>楽譜</b><span>${scN?`${scN}曲に楽譜があります。タップして一覧を開く`:'曲に楽譜PDFをセットして、再生しながら表示・書き込み・PDF保存ができます'}</span></span><span class="scgo">${scN?'開く':'はじめる'}${IC.chev}</span></button>`:'';
     h=banner+scCard+headHTML(title,metaOf(list),playActs+editActs,ho)+toolbarHTML({search:true,sort:v==='all',back:v==='all'?null:(v.startsWith('artist')?'artists':'albums'),hint})+listBlock(list,'lib',dnd);
-  }else if(v==='artists'||v==='albums'){const key=v==='artists'?'artist':'album';const g=groups(key);current=[];
-    h=banner+headHTML(v==='artists'?'アーティスト':'アルバム',`${g.length}件`,v==='albums'?`<button class="btn pill" data-act="newAlbum">${IC.plus}新しいアルバム</button>`:'',{kicker:'ライブラリ'})+(g.length?`<div class="grid">${g.map(([k,l])=>{const a=l.find(t=>t.art),ai=key==='artist'?S.artistImgs[k]:null;return`<button class="card${key==='artist'?' round':''}" data-view="${key}|${esc(k)}">${ai?`<div class="cover" ${imgStyle(ai.hi)}></div>`:`<div class="cover" ${a?artStyle(a,'',true):artStyle(null,key==='album'?k:'@'+k)}>${a?'':ini(null,k)}</div>`}<b>${esc(k)}</b><span>${l.length}曲${key==='album'&&l[0].artist?' · '+esc(l[0].artist):''}</span></button>`}).join('')}</div>`:'<div class="list"><div class="empty"><b>まだ曲がありません</b></div></div>');
+  }else if(v==='artists'||v==='albums'){const key=v==='artists'?'artist':'album';const g=groups(key);current=[];const nt=S.tracks.get(S.queue[S.qi]),nowAlbum=nt&&!audio.paused?(nt.album||'（アルバム名なし）'):null;
+    h=banner+headHTML(v==='artists'?'アーティスト':'アルバム',`${g.length}件`,v==='albums'?`<button class="btn pill" data-act="newAlbum">${IC.plus}新しいアルバム</button>`:'',{kicker:'ライブラリ'})+(g.length?`<div class="grid">${g.map(([k,l])=>{const a=l.find(t=>t.art),ai=key==='artist'?S.artistImgs[k]:null;return`<button class="card${key==='artist'?' round':''}${key==='album'&&nowAlbum===k?' playing':''}" data-view="${key}|${esc(k)}">${ai?`<div class="cover" ${imgStyle(ai.hi)}></div>`:`<div class="cover" ${a?artStyle(a,'',true):artStyle(null,key==='album'?k:'@'+k)}>${a?'':ini(null,k)}</div>`}<b>${esc(k)}</b><span>${l.length}曲${key==='album'&&l[0].artist?' · '+esc(l[0].artist):''}</span></button>`}).join('')}</div>`:'<div class="list"><div class="empty"><b>まだ曲がありません</b></div></div>');
   }else if(v==='scores'){current=[];const list=scoreTracks();
     h=banner+headHTML('楽譜',list.length?`${list.length}曲に楽譜があります · タップで開く／▶で再生しながら開く`:'曲に楽譜PDFをセットして、再生しながら見る・書き込む・PDFで保存できます',`<button class="btn pill" data-act="scoreAdd">${IC.plus}楽譜を取り込む</button>`,{kicker:'楽譜'})
       +(list.length?`<div class="grid scgrid">${list.map(t=>{const e=t.score.edit,ed=t.score.edit&&hasEdits(t);return`<div class="sccard"><button class="sccov" data-act="scoreOpen" data-id="${t.id}" aria-label="${esc(t.title)}の楽譜を開く">${t.score.thumb?`<img src="${t.score.thumb}" alt="">`:`<span class="scph" data-thumb="${t.id}">${IC.score}</span>`}${ed?'<em>編集あり</em>':''}</button>
@@ -1304,7 +1357,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)return;
   if(S.needResume&&S.queue.length){S.needResume=false;audio.play().catch(()=>playIdx(S.qi))}
   else if(audio.ended&&S.autoNext&&S.repeat!=='one'&&nextIndex()>=0)next()});
 audio.addEventListener('play',()=>{if(S.pendingCount&&S.queue[S.qi]===S.pendingCount){const t=S.tracks.get(S.pendingCount);S.pendingCount=null;if(t){t.plays=(t.plays||0)+1;t.lastPlayed=Date.now();saveTrack(t)}}});
-audio.addEventListener('play',renderSoon);audio.addEventListener('pause',renderSoon);
+audio.addEventListener('play',()=>{document.body.classList.add('is-playing');renderSoon()});audio.addEventListener('pause',()=>{document.body.classList.remove('is-playing');renderSoon()});
 audio.addEventListener('timeupdate',()=>{checkTimer();keyTick();if(SV.doc){scoreAutoTurn();if(S.tlTick%4===0&&!SV.edit)renderTurnBar()}if(S.tlTick++%4===0){const p=$('.tl-ph'),t=S.tracks.get(S.queue[S.qi]);if(p&&t&&t.duration)document.querySelectorAll('.tl-ph').forEach(x=>x.style.left=Math.min(100,audio.currentTime/t.duration*100)+'%')}if(seeking)return;const d=audio.duration;$('#tCur').textContent=fmt(audio.currentTime);$('#tDur').textContent=fmt(d);$('#seek').value=d?audio.currentTime/d*1000:0;$('#seek').style.setProperty('--p',(d?audio.currentTime/d*100:0)+'%');
   if('mediaSession'in navigator&&d&&isFinite(d)){try{navigator.mediaSession.setPositionState({duration:d,position:Math.min(audio.currentTime,d),playbackRate:audio.playbackRate||1})}catch(e){}}});
 let seeking=false;$('#seek').addEventListener('input',e=>{seeking=true;e.target.style.setProperty('--p',e.target.value/10+'%');const d=audio.duration;if(d)$('#tCur').textContent=fmt(e.target.value/1000*d)});
