@@ -1,5 +1,5 @@
 /* CRATE service worker: アプリ本体を端末に保存してオフラインで起動できるようにする */
-const VERSION = 'crate-v23';
+const VERSION = 'crate-v24';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'vendor/jsmediatags.min.js','vendor/soundtouch-processor.js','vendor/pdfjs/pdf.min.mjs','vendor/pdfjs/pdf.worker.min.mjs','vendor/pdf-lib.min.js',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
@@ -16,7 +16,7 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
   // 画面本体：まずネットから最新版、つながらなければ保存版
   if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).then(r => { const c = r.clone(); caches.open(VERSION).then(x => x.put('index.html', c)); return r; })
+    e.respondWith(fetch(req).then(r => { if (r.ok) { const c = r.clone(); caches.open(VERSION).then(x => x.put('index.html', c)); } return r; })
       .catch(() => caches.match('index.html')));
     return;
   }
