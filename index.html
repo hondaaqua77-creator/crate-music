@@ -951,6 +951,21 @@ body.selmode .main{padding-bottom:calc(var(--player-h) + 120px)}
 .sv-stage:has(.sv-tips) .sv-edge{display:none}
 .scsteps b{word-break:keep-all}
 .keyctl:empty{display:none}
+/* 移調 */
+.sv-tpbtn .tp-ic{font-weight:800;letter-spacing:-.05em;font-size:13px}
+.sv-tpbtn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.sv-tp{background:#fff;border-top:1px solid var(--line);padding:10px max(14px,env(safe-area-inset-right,0px)) 12px max(14px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:10px}
+.tp-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.tp-h{font-size:15px}
+.tp-step{display:flex;align-items:center;gap:8px}
+.tp-btn{width:44px;height:44px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-size:22px;font-weight:800;display:grid;place-items:center;box-shadow:0 6px 14px -6px rgba(204,47,69,.7)}
+.tp-val{min-width:110px;display:flex;flex-direction:column;align-items:center;line-height:1.2}.tp-val b{font-size:22px;font-variant-numeric:tabular-nums}.tp-val span{font-size:11.5px;color:var(--muted)}
+.tp-key{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.tp-key label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700}.tp-key select{padding:7px 10px;font-size:13.5px}
+.tp-arrow{color:var(--muted)}.tp-new{display:flex;flex-direction:column;line-height:1.3}.tp-new b{font-size:15px}.tp-new span{font-size:12px;color:var(--muted)}
+.tp-map{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.tp-map span{flex:none;border:1px solid var(--line2);border-radius:9px;padding:4px 9px;font-size:12.5px;white-space:nowrap}.tp-map i{font-style:normal;color:var(--muted)}.tp-map b{color:var(--accent);margin-left:2px}
+.tp-opts{display:flex;flex-direction:column;gap:7px}.tp-note{font-size:11.5px;margin:-4px 0 2px 44px}
+.sv-tpbadge{position:absolute;left:12px;bottom:12px;z-index:4;border:0;background:var(--ink);color:#fff;border-radius:10px;padding:6px 11px;display:flex;flex-direction:column;align-items:flex-start;line-height:1.25;box-shadow:0 6px 16px -8px rgba(0,0,0,.5);cursor:pointer}
+.sv-tpbadge b{font-size:13px}.sv-tpbadge span{font-size:11px;opacity:.8}
+@media (max-width:760px){.tp-btn{width:40px;height:40px;font-size:20px}.sv-tp{gap:8px;padding-top:8px}.sv-bar .sv-pg .cbtn{display:none}.sv-tpbtn{padding-inline:9px!important}.tp-top .btn.primary span{display:inline}.tp-val{min-width:96px}.tp-note{margin-left:0}}
 </style>
 </head>
 <body>
@@ -1534,7 +1549,7 @@ function modTimelineHTML(t,full){const mods=t.mods||[],D=isFinite(t.duration)&&t
 function segD(t,sec){let d=0;for(const m of(t.mods||[])){if(m.t<=sec+0.05)d=m.d;else break}return d}
 function hasKeyFx(t){return!!(t&&((t.key||0)||(t.mods&&t.mods.length)))}
 function normMods(t){const a=(t.mods||[]).filter(m=>isFinite(m.t)).sort((x,y)=>x.t-y.t);const out=[];let prev=0;for(const m of a){m.d=Math.max(-12,Math.min(12,m.d));if(m.d!==prev){out.push(m);prev=m.d}}t.mods=out}
-function afterKeyEdit(t,label){if(!t.sample)saveTrack(t);if(S.queue[S.qi]===t.id)applyKey();renderPlayer();renderView();if($('#layer2 .keysheet'))renderKeySheet();else keyHud(t,(t.key||0)+segD(t,S.queue[S.qi]===t.id?audio.currentTime:0),label)}
+function afterKeyEdit(t,label){try{const st=curT&&SV.doc&&curT();if(st&&st.score&&scoreSongId(st)===t.id&&tpOf(st).link)syncTpFromSong(st)}catch(_){}if(!t.sample)saveTrack(t);if(S.queue[S.qi]===t.id)applyKey();renderPlayer();renderView();if($('#layer2 .keysheet'))renderKeySheet();else keyHud(t,(t.key||0)+segD(t,S.queue[S.qi]===t.id?audio.currentTime:0),label)}
 function modStep(id,d){const t=S.tracks.get(id);if(!t)return;if(S.queue[S.qi]!==id||!audio.src){toast('転調は、この曲を再生中に使えます');return}
   const now=Math.round(audio.currentTime*10)/10;t.mods=(t.mods||[]).map(m=>({...m}));const near=t.mods.find(m=>Math.abs(m.t-now)<1.5);
   if(near)near.d+=d;else t.mods.push({t:now,d:segD(t,now)+d});normMods(t);afterKeyEdit(t,`${fmt(now)}から転調`)}
@@ -1853,7 +1868,7 @@ async function renderPageCanvas(page,g,scale,C){const vp=page.getViewport({scale
 
 async function openScore(id){const t=S.tracks.get(id);if(!t)return;if(!t.score){pickScore(id);return}
   closeMenu();document.body.classList.remove('np-full');const el=$('#scoreView');el.hidden=false;document.body.classList.add('score-open');SV.id=id;SV.noFile=false;
-  if(SV.doc){try{SV.doc.destroy()}catch(_){}SV.doc=null}if(SV.task)try{SV.task.cancel()}catch(_){}SV.edit=false;SV.cropMode=false;SV.op=null;SV.sel=null;SV.staves={};SV.undo=[];SV.redo=[];SV.thumbs.clear();
+  if(SV.doc){try{SV.doc.destroy()}catch(_){}SV.doc=null}if(SV.task)try{SV.task.cancel()}catch(_){}SV.edit=false;SV.tp=false;SV.chords={};SV.cropMode=false;SV.op=null;SV.sel=null;SV.staves={};SV.undo=[];SV.redo=[];SV.thumbs.clear();
   el.innerHTML=scoreShell(t);bindScore();
   const blob=await tx('blobs','readonly',st=>st.get('pdf:'+id));
   if(!blob){SV.noFile=true;$('#svStage').innerHTML=`<div class="sv-empty"><b>この端末に楽譜PDFがありません</b><span>バックアップから移した場合など、PDFファイル自体は引き継がれません。もう一度取り込んでください。</span><button class="btn primary" data-act="scoreReplace" data-id="${id}">${IC.score}楽譜PDFを取り込む</button></div>`;return}
@@ -1868,10 +1883,11 @@ function scoreShell(t){const sc=t.score;
    <div class="sv-pg"><button class="cbtn" data-act="scorePage" data-d="-1" aria-label="前のページ">${IC.chevl}</button><span id="svPage">1 / ${scPages(t)}</span><button class="cbtn" data-act="scorePage" data-d="1" aria-label="次のページ">${IC.chev}</button></div>
    <div class="sv-zoom"><button class="cbtn" data-act="scoreZoom" data-d="-1" aria-label="縮小" title="縮小">${IC.zoomout}</button><span id="svZoom">100%</span><button class="cbtn" data-act="scoreZoom" data-d="1" aria-label="拡大" title="拡大">${IC.zoomin}</button></div>
    <button class="btn sm sv-editbtn" id="svEditBtn" data-act="svEdit" aria-pressed="false" title="ペンや音符で書き込む・ページを整える">${IC.pen}<span>書き込む</span></button>
+   <button class="btn sm sv-tpbtn" id="svTpBtn" data-act="svTp" aria-pressed="false" title="楽譜を移調する"><span class="tp-ic">♯♭</span><span>移調</span></button>
    <button class="btn sm sv-savebtn" data-act="svExport" title="書き込みごとPDFで保存">${IC.dl}<span>PDF保存</span></button>
    <button class="cbtn" data-act="scoreMenu" data-id="${t.id}" aria-label="楽譜のメニュー">${IC.dots}</button></div>
   <div class="sv-stage" id="svStage" tabindex="0" aria-label="楽譜。左右にスワイプでページ送り、ピンチやCtrl＋ホイールで拡大縮小"><canvas id="svCv"></canvas><canvas id="svAn" aria-hidden="true"></canvas><button class="sv-edge l" data-act="scorePage" data-d="-1" aria-label="前のページ"><span class="sv-arw">${IC.chevl}</span></button><button class="sv-edge r" data-act="scorePage" data-d="1" aria-label="次のページ"><span class="sv-arw">${IC.chev}</span></button></div>
-  <div class="sv-turn" id="svTurn"></div><div class="sv-tools" id="svTools" hidden></div>`}
+  <div class="sv-turn" id="svTurn"></div><div class="sv-tools" id="svTools" hidden></div><div class="sv-tp" id="svTp" hidden></div>`}
 function scoreTips(){const st=$('#svStage');if(!st||$('#svTips'))return;const d=document.createElement('div');d.className='sv-tips';d.id='svTips';
   d.innerHTML=`<div class="sv-tipcard" role="dialog" aria-label="楽譜の使い方"><b class="sv-tiph">楽譜の使い方</b><ul>
    <li><i>${IC.chev}</i><span><b>ページをめくる</b>左右の矢印をタップ、または横にスワイプ</span></li>
@@ -1879,7 +1895,7 @@ function scoreTips(){const st=$('#svStage');if(!st||$('#svTips'))return;const d=
    <li><i>${IC.pen}</i><span><b>書き込む</b>「書く・音符・ページ」から選んで編集。終わったら「完了」</span></li>
    <li><i>${IC.dl}</i><span><b>PDF保存</b>書き込みごとPDFにして保存</span></li></ul>
    <button class="btn primary" data-act="tipsClose">わかった</button></div>`;st.appendChild(d)}
-function renderTurnBar(){const t=S.tracks.get(SV.id),el=$('#svTurn');if(!t||!el||!t.score)return;if(SV.edit){el.hidden=true;el.dataset.sig='';return}el.hidden=false;const sc=t.score,live=scoreLive(t),p=SV.page,N=scPages(t);const cur=sc.turns[SV.o];
+function renderTurnBar(){const t=S.tracks.get(SV.id),el=$('#svTurn');if(!t||!el||!t.score)return;if(SV.edit||SV.tp){el.hidden=true;el.dataset.sig='';return}el.hidden=false;const sc=t.score,live=scoreLive(t),p=SV.page,N=scPages(t);const cur=sc.turns[SV.o];
   const sig=[SV.id,p,N,live,JSON.stringify(sc.turns||{}),JSON.stringify(scEd(t).order)].join('|');if(el.dataset.sig===sig){el.querySelectorAll('[data-tt]').forEach(x=>x.textContent=fmt(audio.currentTime));return}el.dataset.sig=sig;
   const set=(t.scoreOnly&&!t.score.song)?`<button class="btn sm" data-act="songPick" data-id="${t.id}">${IC.note}一緒に再生する曲を選ぶ</button><span class="muted sv-tip">選ぶと、再生に合わせて自動でページがめくれます</span>`:p===1?'':live?`<button class="btn sm sv-flag${cur!=null?'':' primary'}" data-act="scoreTurnSet" title="再生中のこの位置から、このページを表示します">${IC.flag}${cur!=null?`${p}ページ目を <span data-tt>${fmt(audio.currentTime)}</span> からに変更`:`${p}ページ目を <span data-tt>${fmt(audio.currentTime)}</span> から表示`}</button>${cur!=null?`<button class="btn sm" data-act="scoreTurnDel">解除</button>`:''}`
     :(t.scoreOnly&&!t.score.song)?`<button class="btn sm" data-act="songPick" data-id="${t.id}">${IC.note}一緒に再生する曲を選ぶ</button>`:`<span class="muted sv-tip">曲の再生中に、このページを表示する時間を登録できます</span>`;
@@ -1901,7 +1917,7 @@ async function drawPage(){if(!SV.doc||!SV.g)return;const o=SV.o,g=SV.g,C=SV.C;co
   cv.width=r.cv.width;cv.height=r.cv.height;cv.getContext('2d').drawImage(r.cv,0,0);SV.rs=rs;drawAnnLayer();applyXform()}
 let annRaf=0;function annSoon(){if(annRaf)return;annRaf=requestAnimationFrame(()=>{annRaf=0;drawAnnLayer()})}
 function drawAnnLayer(){const an=$('#svAn'),cv=$('#svCv'),t=S.tracks.get(SV.id);if(!an||!cv||!t||!SV.g)return;if(an.width!==cv.width||an.height!==cv.height){an.width=cv.width;an.height=cv.height}
-  const ctx=an.getContext('2d'),items=scEd(t).ann[SV.o]||[],s=SV.rs,C=SV.C;ctx.clearRect(0,0,an.width,an.height);drawAnn(ctx,items,SV.g,s,C,cv);
+  const ctx=an.getContext('2d'),items=scEd(t).ann[SV.o]||[],s=SV.rs,C=SV.C;ctx.clearRect(0,0,an.width,an.height);drawAnn(ctx,chordItems(t,(SV.chords||{})[SV.o]),SV.g,s,C,cv);drawAnn(ctx,items,SV.g,s,C,cv);
   const it=SV.sel!=null&&items[SV.sel];if(it&&SV.edit){const B=itemBox(it,SV.g),p=5;ctx.save();ctx.setLineDash([6,4]);ctx.strokeStyle='#E5484D';ctx.lineWidth=2;ctx.strokeRect((B.x-C.x)*s-p,(B.y-C.y)*s-p,B.w*s+2*p,B.h*s+2*p);ctx.restore()}
   const op=SV.op;if(!op)return;if(op.k==='pen'||op.k==='mk')drawAnn(ctx,[op],SV.g,s,C);
   else if((op.k==='wh'||op.k==='rg')&&op.e){const R=bbox(op.s,op.e),D=rotRect(SV.g.r,SV.g.W,SV.g.H,R);ctx.save();if(op.k==='wh'){ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillRect((D.x-C.x)*s,(D.y-C.y)*s,D.w*s,D.h*s)}else{ctx.fillStyle='rgba(47,111,235,.08)';ctx.fillRect((D.x-C.x)*s,(D.y-C.y)*s,D.w*s,D.h*s)}
@@ -1911,7 +1927,7 @@ async function gotoPage(n){if(!SV.doc)return;const t=S.tracks.get(SV.id);if(!t)r
   const page=await SV.doc.getPage(o);if(SV.o!==o)return;const g=pageGeo(t,o,page);SV.g=g;SV.C=SV.cropMode?fullRect(g):g.C;SV.pw=SV.C.w;SV.ph=SV.C.h;
   const v=!SV.cropMode&&t.score.view&&t.score.view[o];SV.z=v&&v.z?v.z:1;placeFromView(v);if(SV.cropMode){fitMode('p',true)}applyXform();
   $('#svPage').textContent=`${n} / ${N}`;{const st=$('#svStage');if(st){st.classList.toggle('first',n===1);st.classList.toggle('last',n===N)}}if(t.score.page!==n){t.score.page=n;clearTimeout(SV.pgT);SV.pgT=setTimeout(()=>{if(S.tracks.get(t.id)===t)saveTrack(t)},600)}renderTurnBar();if(SV.edit)renderTools();
-  const an=$('#svAn');if(an){an.getContext('2d').clearRect(0,0,an.width,an.height)}await drawPage()}
+  const an=$('#svAn');if(an){an.getContext('2d').clearRect(0,0,an.width,an.height)}await drawPage();renderTpBadge();{const tp=tpOf(t);if((tp.semi&&tp.chords)||SV.tp)loadChords(o).then(()=>{if(SV.o===o){drawAnnLayer();renderTp()}})}}
 let svSaveT;function saveViewSoon(){if(SV.cropMode)return;clearTimeout(svSaveT);svSaveT=setTimeout(()=>{const t=S.tracks.get(SV.id);if(!t||!t.score)return;const{w,h}=stageSize(),cs=baseScale()*SV.z;
   t.score.view=t.score.view||{};t.score.view[SV.o]={z:+SV.z.toFixed(3),cx:+((w/2-SV.x)/(SV.pw*cs)).toFixed(4),cy:+((h/2-SV.y)/(SV.ph*cs)).toFixed(4)};saveTrack(t)},400)}
 function zoomAt(nz,px,py){nz=Math.max(.25,Math.min(6,nz));const cs0=baseScale()*SV.z,cs1=baseScale()*nz;const ux=(px-SV.x)/cs0,uy=(py-SV.y)/cs0;SV.z=nz;SV.x=px-ux*cs1;SV.y=py-uy*cs1;clampPos();applyXform();redrawSoon();saveViewSoon();SV.lastUser=Date.now()}
@@ -2008,6 +2024,68 @@ function cleanPatch(src,B,it,map,unit){const key=`${src.width}x${src.height}|${u
 function drawMv(ctx,it,src,map,unit){const S=pxBox(map,it.sx,it.sy,it.sw,it.sh),D=pxBox(map,it.sx+it.dx,it.sy+it.dy,it.sw,it.sh);
   ctx.save();ctx.fillStyle='#fff';fillSnap(ctx,S);drawStaffSegs(ctx,it,map,unit);
   if(src&&S.w>=1&&S.h>=1){const pc=cleanPatch(src,S,it,map,unit);ctx.globalCompositeOperation='multiply';ctx.drawImage(pc,D.x,D.y,D.w,D.h)}ctx.restore()}
+/* ---------- 楽譜の移調 ---------- */
+const TP_SHARP=['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'],TP_FLAT=['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
+const SOL_SHARP=['ド','ド♯','レ','レ♯','ミ','ファ','ファ♯','ソ','ソ♯','ラ','ラ♯','シ'],SOL_FLAT=['ド','レ♭','レ','ミ♭','ミ','ファ','ソ♭','ソ','ラ♭','ラ','シ♭','シ'];
+const KEY_MAJ_JA=['ハ','変ニ','ニ','変ホ','ホ','ヘ','嬰ヘ','ト','変イ','イ','変ロ','ロ'],KEY_MIN_JA=['ハ','嬰ハ','ニ','変ホ','ホ','ヘ','嬰ヘ','ト','嬰ト','イ','変ロ','ロ'];
+const KEY_MAJ_EN=['C','D♭','D','E♭','E','F','F♯','G','A♭','A','B♭','B'],KEY_MIN_EN=['Cm','C♯m','Dm','E♭m','Em','Fm','F♯m','Gm','G♯m','Am','B♭m','Bm'];
+const KEY_SIG=[0,-5,2,-3,4,-1,6,1,-4,3,-2,5];
+const md12=n=>((n%12)+12)%12;
+function tpKey(code){if(!code)return null;const m=/m$/.test(code);const L=m?KEY_MIN_EN:KEY_MAJ_EN;const i=L.indexOf(code);return i<0?null:{i,m}}
+function keyInfo(k){if(!k)return null;const sig=KEY_SIG[k.m?md12(k.i+3):k.i];return{ja:(k.m?KEY_MIN_JA:KEY_MAJ_JA)[k.i]+(k.m?'短調':'長調'),en:(k.m?KEY_MIN_EN:KEY_MAJ_EN)[k.i],sig,sigTxt:sig===0?'調号なし':sig>0?`♯${sig}つ`:`♭${-sig}つ`}}
+function semiTxt(n){return n===0?'元のキー':n>0?`${n}半音上げる`:`${-n}半音下げる`}
+function tpOf(t){const sc=t&&t.score;if(!sc)return{semi:0,key:'',chords:true,notes:true,link:true};const tp=sc.tp||(sc.tp={});for(const[k,v]of Object.entries({semi:0,key:'',chords:true,notes:true,link:true}))if(tp[k]===undefined)tp[k]=v;return tp}
+function tpFlats(tp){const k=tpKey(tp.key);if(k){const nk={i:md12(k.i+tp.semi),m:k.m};const s=keyInfo(nk).sig;if(s<0)return true;if(s>0)return false}return null}
+const NOTE_BASE={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+function noteIdx(l,acc){let n=NOTE_BASE[l];if(acc==='#'||acc==='♯')n++;else if(acc==='b'||acc==='♭')n--;return md12(n)}
+const CHORD_RE=/^([A-G])([#♯b♭]?)((?:maj|min|dim|aug|sus|add|omit|no|alt|m|M|°|ø|Δ|\+|-|\d+|\(|\)|#|♯|b|♭|,)*)(?:\/([A-G])([#♯b♭]?))?$/;
+function isChord(s){return CHORD_RE.test(s)}
+function transposeChord(s,semi,flats){const m=CHORD_RE.exec(s);if(!m)return s;const ascii=/[#b]/.test((m[2]||'')+(m[5]||''));
+  const useFlat=flats!=null?flats:(/[b♭]/.test((m[2]||'')+(m[5]||''))?true:/[#♯]/.test((m[2]||'')+(m[5]||''))?false:null);
+  const sp=i=>{let n=useFlat===true?TP_FLAT[i]:useFlat===false?TP_SHARP[i]:NOTES[i];if(ascii)n=n.replace('♯','#').replace('♭','b');return n};
+  let out=sp(md12(noteIdx(m[1],m[2])+semi))+(m[3]||'');if(m[4])out+='/'+sp(md12(noteIdx(m[4],m[5])+semi));return out}
+/* PDF内のコード記号を探す（パソコンで作ったPDFのみ。写真・スキャンには文字情報がない） */
+async function findChords(page){const vp=page.getViewport({scale:1});let tc;try{tc=await page.getTextContent()}catch(_){return[]}const out=[];
+  for(const it of tc.items){const str=it.str;if(!str||!str.trim())continue;const tr=it.transform;if(Math.abs(tr[1])>.01||Math.abs(tr[2])>.01)continue;
+    const fh=Math.hypot(tr[2],tr[3])||it.height||10,cw=(it.width||fh*.6*str.length)/str.length;const toks=[...str.matchAll(/\S+/g)];if(!toks.length||!toks.every(t=>isChord(t[0])))continue;
+    for(const t of toks){const p=vp.convertToViewportPoint(tr[4]+t.index*cw,tr[5]);out.push({x:p[0],y:p[1],h:fh,w:cw*t[0].length,s:t[0]})}}
+  return out}
+function chordItems(t,list){const tp=tpOf(t);if(!list||!list.length||!tp.chords||!tp.semi)return[];const fl=tpFlats(tp),out=[];
+  for(const c of list){const v=transposeChord(c.s,tp.semi,fl),fs=c.h*.95;mctx=mctx||document.createElement('canvas').getContext('2d');mctx.font=`700 ${fs}px ${TXF}`;const w=Math.max(c.w,mctx.measureText(v).width);
+    out.push({k:'wh',x:c.x-1,y:c.y-c.h*.92,w:w+2,h:c.h*1.18},{k:'tx',x:c.x,y:c.y-c.h*.86,s:fs,c:'#C0283C',v})}
+  return out}
+async function loadChords(o){SV.chords=SV.chords||{};if(SV.chords[o])return SV.chords[o];if(!SV.doc)return[];const page=await SV.doc.getPage(o);return SV.chords[o]=await findChords(page)}
+/* 移調の幅（半音）から、置いた音符を動かす段数 */
+function diatonicSteps(d){const a=Math.abs(d),st=[0,1,1,2,2,3,3,4,5,5,6,6][a%12]+7*Math.floor(a/12);return d<0?-st:st}
+function shiftNotes(t,d){if(!d)return;const e=scEd(t),steps=diatonicSteps(d);if(!steps)return;
+  for(const[o,items]of Object.entries(e.ann||{})){const r=(((e.rot[o]||0)%360)+360)%360;for(const it of items||[]){if(it.k!=='nt'||/^r|sh|fl|na/.test(it.t))continue;
+    const dy=-steps*it.sp/2,v=r===90?[dy,0]:r===180?[0,-dy]:r===270?[-dy,0]:[0,dy];it.x=+(it.x+v[0]).toFixed(1);it.y=+(it.y+v[1]).toFixed(1);if(it.ps!=null)it.ps-=steps}}}
+function setTpSemi(t,n,opt){opt=opt||{};const tp=tpOf(t);n=Math.max(-12,Math.min(12,Math.round(n)));const d=n-tp.semi;if(!d&&!opt.force)return;
+  if(tp.notes)shiftNotes(t,d);tp.semi=n;saveTrack(t);SV.thumbs&&SV.thumbs.clear();
+  const sid=scoreSongId(t);if(tp.link&&sid&&!opt.fromSong&&S.tracks.get(sid)){setKeyFor(sid,n)}
+  drawAnnLayer();renderTp();renderTpBadge()}
+function syncTpFromSong(t){const tp=tpOf(t),sid=scoreSongId(t),s=sid&&S.tracks.get(sid);if(!tp.link||!s)return;const k=Math.round(s.key||0);if(k!==tp.semi)setTpSemi(t,k,{fromSong:true})}
+function renderTpBadge(){const st=$('#svStage'),t=curT();if(!st||!t)return;let b=$('#svTpBadge');const tp=tpOf(t);
+  if(!tp.semi){if(b)b.remove();return}if(!b){b=document.createElement('button');b.id='svTpBadge';b.className='sv-tpbadge';b.dataset.act='svTp';st.appendChild(b)}
+  const k=tpKey(tp.key),nk=k&&keyInfo({i:md12(k.i+tp.semi),m:k.m});b.innerHTML=`<b>移調 ${tp.semi>0?'+':'−'}${Math.abs(tp.semi)}</b>${nk?`<span>${nk.ja}（${nk.en}）</span>`:''}`}
+function setTpOpen(on){SV.tp=on;if(on&&SV.edit)setEdit(false);const el=$('#svTp');if(!el)return;el.hidden=!on;const b=$('#svTpBtn');if(b){b.classList.toggle('primary',on);b.setAttribute('aria-pressed',on)}
+  if(on){const t=curT();syncTpFromSong(t);renderTp();loadChords(SV.o).then(()=>{renderTp();drawAnnLayer()})}renderTurnBar();requestAnimationFrame(onScoreResize)}
+function renderTp(){const el=$('#svTp'),t=curT();if(!el||!t||!SV.tp)return;const tp=tpOf(t),k=tpKey(tp.key),ok=k&&keyInfo(k),nk=k&&keyInfo({i:md12(k.i+tp.semi),m:k.m});
+  const fl=tpFlats(tp),useFlat=fl===true||(fl==null&&tp.semi<0),sol=useFlat?SOL_FLAT:SOL_SHARP,sid=scoreSongId(t),song=sid&&S.tracks.get(sid);
+  const ch=(SV.chords||{})[SV.o];const opts=['',...KEY_MAJ_EN,...KEY_MIN_EN].map(v=>{const kk=tpKey(v),ki=kk&&keyInfo(kk);return`<option value="${v}"${tp.key===v?' selected':''}>${ki?`${ki.ja}（${ki.en}）`:'わからない'}</option>`}).join('');
+  el.innerHTML=`<div class="tp-top"><b class="tp-h">移調</b>
+     <div class="tp-step"><button class="tp-btn" data-act="tpStep" data-d="-1" aria-label="半音下げる">♭</button><div class="tp-val"><b>${tp.semi>0?'+':tp.semi<0?'−':'±'}${Math.abs(tp.semi)}</b><span>${semiTxt(tp.semi)}</span></div><button class="tp-btn" data-act="tpStep" data-d="1" aria-label="半音上げる">♯</button></div>
+     <button class="btn sm" data-act="tpReset"${tp.semi?'':' disabled'}>元のキーに戻す</button><span class="sv-sp"></span><button class="btn sm primary" data-act="svTp">${IC.check}<span>完了</span></button></div>
+   <div class="tp-key"><label>元のキー<select id="tpKey">${opts}</select></label><span class="tp-arrow">→</span><div class="tp-new">${nk?`<b>${nk.ja}（${nk.en}）</b><span>${nk.sigTxt}${ok&&ok.sig!==nk.sig?`（元は${ok.sigTxt}）`:''}</span>`:'<span class="muted">元のキーを選ぶと、移調後のキーと調号を表示します</span>'}</div></div>
+   <div class="tp-map" aria-label="音の読み替え表">${[0,2,4,5,7,9,11].map(i=>`<span><i>${SOL_FLAT[i]}</i>→<b>${sol[md12(i+tp.semi)]}</b></span>`).join('')}</div>
+   <div class="tp-opts">
+     <label class="sv-switch"><input type="checkbox" id="tpChords"${tp.chords?' checked':''}><i></i><span>コード記号を書き換える</span></label><span class="muted tp-note">${ch==null?'このページを確認中…':ch.length?`このページに${ch.length}個あります`:'このページには文字のコード記号がありません（写真・スキャンの楽譜は書き換えできません）'}</span>
+     <label class="sv-switch"><input type="checkbox" id="tpNotes"${tp.notes?' checked':''}><i></i><span>自分で置いた音符も動かす</span></label>
+     ${song?`<label class="sv-switch"><input type="checkbox" id="tpLink"${tp.link?' checked':''}><i></i><span>曲の音程も一緒に変える（${esc(song.title)}）</span></label>`:''}</div>`;
+  $('#tpKey').onchange=e=>{tp.key=e.target.value;saveTrack(t);renderTp();renderTpBadge();drawAnnLayer()};
+  $('#tpChords').onchange=e=>{tp.chords=e.target.checked;saveTrack(t);drawAnnLayer()};
+  $('#tpNotes').onchange=e=>{tp.notes=e.target.checked;saveTrack(t)};
+  const l=$('#tpLink');if(l)l.onchange=e=>{tp.link=e.target.checked;saveTrack(t);if(tp.link&&sid)setKeyFor(sid,tp.semi)}}
 /* ---------- 楽譜の編集（書き込み・回転・トリミング・ページ整理） ---------- */
 function curT(){return S.tracks.get(SV.id)}
 function snapEd(){const t=curT();return t?JSON.stringify(scEd(t)):null}
@@ -2065,7 +2143,7 @@ function textSheet(it,at){const k='tx';sheet(`<h2>${it?'文字を修正':'文字
 function restoreEd(s){const t=curT();if(!t||!s)return;SV.sel=null;t.score.edit=JSON.parse(s);SV.thumbs.clear();saveEdSoon();const N=scPages(t);gotoPage(Math.min(SV.page,N))}
 function svUndo(){if(!SV.undo.length)return;SV.redo.push(snapEd());restoreEd(SV.undo.pop());toast('元に戻しました')}
 function svRedo(){if(!SV.redo.length)return;SV.undo.push(snapEd());restoreEd(SV.redo.pop());toast('やり直しました')}
-function setEdit(on){SV.edit=on;SV.op=null;SV.sel=null;if(on&&SV.tool==='hand')SV.tool='pen';const st=$('#svStage');if(!st)return;st.classList.toggle('editing',on);const b=$('#svEditBtn');if(b){b.classList.toggle('primary',on);b.setAttribute('aria-pressed',on);b.innerHTML=on?`${IC.check}<span>完了</span>`:`${IC.pen}<span>書き込む</span>`}
+function setEdit(on){if(on&&SV.tp){SV.tp=false;const x=$('#svTp');if(x)x.hidden=true;const b=$('#svTpBtn');if(b){b.classList.remove('primary');b.setAttribute('aria-pressed','false')}}SV.edit=on;SV.op=null;SV.sel=null;if(on&&SV.tool==='hand')SV.tool='pen';const st=$('#svStage');if(!st)return;st.classList.toggle('editing',on);const b=$('#svEditBtn');if(b){b.classList.toggle('primary',on);b.setAttribute('aria-pressed',on);b.innerHTML=on?`${IC.check}<span>完了</span>`:`${IC.pen}<span>書き込む</span>`}
   $('#svTools').hidden=!on;if(on){renderTools()}else{if(SV.cropMode)cropExit()}renderTurnBar();setStageTool();requestAnimationFrame(onScoreResize)}
 function setStageTool(){const st=$('#svStage');if(st)st.dataset.tool=SV.edit&&!SV.cropMode?SV.tool:''}
 const MODES=[['draw','書く',IC.pen],['note','音符',IC.note],['page','ページ',IC.pages]];
@@ -2140,12 +2218,12 @@ function pgChange(fn){const t=curT();if(!t)return;pushUndo(snapEd());const e=scE
   const sc=$('#layer .sheet');const top=sc?sc.scrollTop:0;pagesSheet();const s2=$('#layer .sheet');if(s2)s2.scrollTop=top;gotoPage(SV.page)}
 /* PDF書き出し */
 let PDFLib=null;function loadPdfLib(){if(PDFLib)return Promise.resolve(PDFLib);return new Promise((res,rej)=>{const s=document.createElement('script');s.src='vendor/pdf-lib.min.js';s.onload=()=>{PDFLib=window.PDFLib;res(PDFLib)};s.onerror=rej;document.head.appendChild(s)})}
-async function overlayPng(jp,items,T){const S0=2.5,vp0=jp.getViewport({scale:S0,rotation:0}),vpI=jp.getViewport({scale:1});const cv=document.createElement('canvas');cv.width=Math.ceil(vp0.width);cv.height=Math.ceil(vp0.height);const ctx=cv.getContext('2d');
+async function overlayPng(jp,items,T,opt){opt=opt||{};const S0=2.5,vp0=jp.getViewport({scale:S0,rotation:0}),vpI=jp.getViewport({scale:1});const cv=document.createElement('canvas');cv.width=Math.ceil(vp0.width);cv.height=Math.ceil(vp0.height);const ctx=cv.getContext('2d');
   const M=(x,y)=>{const p=vpI.convertToPdfPoint(x,y);return vp0.convertToViewportPoint(p[0],p[1])};
   let src=null;if(items.some(i=>i.k==='mv')){src=document.createElement('canvas');src.width=cv.width;src.height=cv.height;const sg=src.getContext('2d');sg.fillStyle='#fff';sg.fillRect(0,0,src.width,src.height);await jp.render({canvasContext:sg,viewport:vp0}).promise}
   const box=(x,y,w,h)=>{const a=M(x,y),b=M(x+w,y+h);return{x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),w:Math.abs(a[0]-b[0]),h:Math.abs(a[1]-b[1])}};
   for(const it of items){ctx.save();
-    if(it.k==='wh'){ctx.fillStyle='#fff';fillSnap(ctx,pxBox(M,it.x,it.y,it.w,it.h));drawStaffSegs(ctx,it,M,S0)}
+    if(it.k==='wh'){if(!opt.noWh){ctx.fillStyle='#fff';fillSnap(ctx,pxBox(M,it.x,it.y,it.w,it.h))}drawStaffSegs(ctx,it,M,S0)}
     else if(it.k==='mv'){drawMv(ctx,it,src,M,S0)}
     else if(it.k==='nt'){const a=M(it.x,it.y);ctx.translate(a[0],a[1]);ctx.rotate(-T*Math.PI/180);drawGlyph(ctx,it,it.sp*S0)}
     else if(it.k==='pen'||it.k==='mk'){ctx.strokeStyle=it.c;ctx.lineWidth=it.w*S0;ctx.lineCap='round';ctx.lineJoin='round';if(it.k==='mk')ctx.globalAlpha=.4;const p=it.p;ctx.beginPath();let a=M(p[0],p[1]);ctx.moveTo(a[0],a[1]);if(p.length<=2)ctx.lineTo(a[0]+.01,a[1]);
@@ -2158,7 +2236,7 @@ async function buildEditedPdf(t,opt){opt=opt||{};const L=await loadPdfLib();cons
   for(let i=0;i<e.order.length;i++){const o=e.order[i],pg=pages[i];out.addPage(pg);const jp=await SV.doc.getPage(o),vpI=jp.getViewport({scale:1}),r=(((e.rot[o]||0)%360)+360)%360,T=((jp.rotate||0)+r)%360;
     pg.setRotation(L.degrees(T));const n=e.crop[o];
     if(n){const W=vpI.width,H=vpI.height,a=vpI.convertToPdfPoint(n.x*W,n.y*H),b=vpI.convertToPdfPoint((n.x+n.w)*W,(n.y+n.h)*H);pg.setCropBox(Math.min(a[0],b[0]),Math.min(a[1],b[1]),Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1]))}
-    const items=opt.ann===false?null:e.ann[o];if(items&&items.length){const img=await out.embedPng(await overlayPng(jp,items,T));const v=jp.view;pg.drawImage(img,{x:v[0],y:v[1],width:v[2]-v[0],height:v[3]-v[1]})}}
+    let items=opt.ann===false?null:e.ann[o];{const tp=tpOf(t);if(tp.semi&&tp.chords){const ci=chordItems(t,await findChords(jp));if(ci.length)items=[...ci,...(items||[])]}}if(items&&items.length){for(const w of items){if(w.k!=='wh')continue;const a=vpI.convertToPdfPoint(w.x,w.y),b=vpI.convertToPdfPoint(w.x+w.w,w.y+w.h);pg.drawRectangle({x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),width:Math.abs(a[0]-b[0]),height:Math.abs(a[1]-b[1]),color:L.rgb(1,1,1)})}const img=await out.embedPng(await overlayPng(jp,items,T,{noWh:true}));const v=jp.view;pg.drawImage(img,{x:v[0],y:v[1],width:v[2]-v[0],height:v[3]-v[1]})}}
   return out.save()}
 const isMobile=()=>/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 function safeName(n){n=String(n||'').replace(/[\\/:*?"<>|\n\r]+/g,' ').trim()||'楽譜';return /\.pdf$/i.test(n)?n:n+'.pdf'}
@@ -2181,7 +2259,7 @@ function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropE
       try{const bytes=await buildEditedPdf(t,{ann:$('#pdfAnn').checked});file=new File([bytes],safeName($('#pdfName').value),{type:'application/pdf'});
         go.disabled=false;go.innerHTML=`${IC.check}保存する`;msg.textContent=`PDFができました（${Math.max(1,Math.round(bytes.length/1024))}KB）。「保存する」を押してください。`;if(!isMobile())save()}
       catch(err){console.error(err);go.disabled=false;go.innerHTML=`${IC.dl}PDFを作成`;msg.textContent='PDFを作成できませんでした。このPDFは保護されている可能性があります。'}}})}
-function scoreMenu(btn,id){openActMenu(btn,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['scoreHelp','使い方を見る',IC.help],...(curT()&&curT().scoreOnly?[['scoreRename','楽譜の名前を変更',IC.pen],['songPick',curT().score&&curT().score.song?'一緒に再生する曲を変更':'一緒に再生する曲を選ぶ',IC.note]]:[]),['svEdit',SV.edit?'書き込みを終える':'書き込む',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','PDFで保存',IC.dl],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']])}
+function scoreMenu(btn,id){openActMenu(btn,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['scoreHelp','使い方を見る',IC.help],['svTp','移調',IC.note],...(curT()&&curT().scoreOnly?[['scoreRename','楽譜の名前を変更',IC.pen],['songPick',curT().score&&curT().score.song?'一緒に再生する曲を変更':'一緒に再生する曲を選ぶ',IC.note]]:[]),['svEdit',SV.edit?'書き込みを終える':'書き込む',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','PDFで保存',IC.dl],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']])}
 function smartSheet(){const tagsUsed=[...new Set(all().flatMap(t=>t.tags||[]))],genres=[...new Set(all().map(t=>t.genre).filter(Boolean))],artists=[...new Set(all().map(t=>t.artist).filter(Boolean))];
   const opt=(l,ph)=>`<option value="">${ph}</option>`+l.sort((a,b)=>a.localeCompare(b,'ja')).map(x=>`<option>${esc(x)}</option>`).join('');
   sheet(`<h2>条件で自動プレイリスト</h2><p style="margin:0;color:var(--muted);font-size:13px">条件に合う曲が自動で集まります。曲の評価やタグを変えると中身も変わります。</p>
@@ -2333,11 +2411,14 @@ document.addEventListener('click',e=>{
     if(act==='scorePick'){closeSheet();pickScore(id);return}
     if(act==='songPick'){songPickSheet(id||SV.id);return}
     if(act==='scoreRename'){const t=S.tracks.get(id||SV.id);if(t)nameSheet('楽譜の名前',t.title,v=>{t.title=v;saveTrack(t);render();const b=$('.sv-title b');if(b)b.textContent=v});return}
-    if(act==='songLink'){const t=S.tracks.get(id);if(t&&t.score){if(a.dataset.song)t.score.song=a.dataset.song;else delete t.score.song;saveTrack(t);closeSheet();const el=$('#svTurn');if(el)el.dataset.sig='';renderTurnBar();render();toast(a.dataset.song?`「${(S.tracks.get(a.dataset.song)||{}).title||''}」と組み合わせました`:'曲との組み合わせを外しました')}return}
+    if(act==='songLink'){const t=S.tracks.get(id);if(t&&t.score){if(a.dataset.song)t.score.song=a.dataset.song;else delete t.score.song;saveTrack(t);{const tp=tpOf(t);if(a.dataset.song&&tp.link&&tp.semi&&S.tracks.get(a.dataset.song))setKeyFor(a.dataset.song,tp.semi)}closeSheet();const el=$('#svTurn');if(el)el.dataset.sig='';renderTurnBar();render();toast(a.dataset.song?`「${(S.tracks.get(a.dataset.song)||{}).title||''}」と組み合わせました`:'曲との組み合わせを外しました')}return}
     if(act==='scorePlayOpen'){const t=S.tracks.get(id);if(t){const sid=scoreSongId(t);if(sid&&S.tracks.get(sid)){S.queue=[sid];S.queueOrig=[sid];playIdx(0)}else if(t.scoreOnly){openScore(id);toast('一緒に再生する曲が選ばれていません。下の「一緒に再生する曲を選ぶ」から選べます');return}openScore(id)}return}
     if(act==='scoreOpen'){openScore(id||S.queue[S.qi]);return}
     if(act==='scoreClose'){closeScore();return}
     if(act==='svEdit'){if(!SV.doc){toast('楽譜PDFを取り込んでから使えます');return}setEdit(!SV.edit);return}
+    if(act==='svTp'){if(!SV.doc){toast('楽譜を開いてから使えます');return}setTpOpen(!SV.tp);return}
+    if(act==='tpStep'){const t=curT();if(t)setTpSemi(t,tpOf(t).semi+(+a.dataset.d));return}
+    if(act==='tpReset'){const t=curT();if(t)setTpSemi(t,0);return}
     if(act==='svMode'){const m=a.dataset.m;SV.lastTool=SV.lastTool||{};SV.lastTool[toolMode(SV.tool)]=SV.tool;SV.tool=m==='page'?'hand':(SV.lastTool[m]||(m==='note'?'nt':'pen'));SV.sel=null;setStageTool();renderTools();drawAnnLayer();return}
     if(act==='tipsClose'){const x=$('#svTips');if(x)x.remove();try{localStorage.setItem('crate.scoreTips','1')}catch(_){}return}
     if(act==='scoreHelp'){scoreTips();return}
@@ -2379,7 +2460,7 @@ document.addEventListener('click',e=>{
     if(act==='scoreZoom'){const{w,h}=stageSize();zoomAt(SV.z*(+a.dataset.d>0?1.2:1/1.2),w/2,h/2);return}
     if(act==='scoreFit'){fitMode(a.dataset.m);return}
     if(act==='scoreFitW'){fitMode('w');return}if(act==='scoreFitP'){fitMode('p');return}
-    if(act==='scoreMenu'){openActMenu(a,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['scoreHelp','使い方を見る',IC.help],['svEdit',SV.edit?'書き込みを終える':'書き込む',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','PDFで保存',IC.dl],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']]);return}
+    if(act==='scoreMenu'){openActMenu(a,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['scoreHelp','使い方を見る',IC.help],['svTp','移調',IC.note],...(curT()&&curT().scoreOnly?[['scoreRename','楽譜の名前を変更',IC.pen],['songPick',curT().score&&curT().score.song?'一緒に再生する曲を変更':'一緒に再生する曲を選ぶ',IC.note]]:[]),['svEdit',SV.edit?'書き込みを終える':'書き込む',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','PDFで保存',IC.dl],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']]);return}
     if(act==='scoreReplace'){pickScore(SV.id||id);return}
     if(act==='scoreDelete'){const sid=SV.id;sheet(`<h2>楽譜を削除しますか？</h2><p style="margin:0;color:var(--muted)">この曲に取り込んだ楽譜PDFと、表示位置・ページめくり位置の設定が消えます。元のPDFファイルは消えません。</p><div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">キャンセル</button><button class="btn danger" data-act="scoreDelGo" data-id="${sid}">削除する</button></span></div>`);return}
     if(act==='scoreDelGo'){closeSheet();removeScore(id);return}
