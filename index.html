@@ -745,6 +745,7 @@ button.badge.key:hover{background:var(--accent);color:#fff}
 .sv-nt.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);background:#FFF5F5}
 .sv-tools .btn.sm.on{background:var(--ink);border-color:var(--ink);color:#fff}
 .sv-selt{font-size:12.5px;white-space:nowrap;margin-right:2px}.sv-hint2{font-size:12px;white-space:nowrap}.sv-dot{width:14px;height:14px;border-radius:50%;display:inline-block}
+.pdfsum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pdfsum div{background:#F4F5F7;border-radius:10px;padding:10px;display:flex;flex-direction:column;align-items:center}.pdfsum b{font-size:18px}.pdfsum span{font-size:11.5px;color:var(--muted)}
 .sv-ink{width:26px;height:26px;border-radius:50%;border:2px solid #fff;background:var(--ink);box-shadow:0 0 0 1px var(--line2);cursor:pointer;padding:0;flex:none}
 .sv-ink.on{box-shadow:0 0 0 2px var(--ink2,#14161B)}
 .sv-sz{width:30px;height:30px;border-radius:8px;border:1px solid var(--line2);background:#fff;display:grid;place-items:center;cursor:pointer;padding:0}.sv-sz i{width:var(--d);height:var(--d);border-radius:50%;background:currentColor;display:block}
@@ -773,7 +774,8 @@ button.badge.key:hover{background:var(--accent);color:#fff}
 button.badge.score{border:0;cursor:pointer;font:inherit;font-size:10.5px;font-weight:700;background:var(--ink);color:#fff}
 @media (max-width:760px){
   .sv-bar{gap:4px;padding-block:8px;flex-wrap:nowrap}.sv-title{display:none}
-  .sv-tools .sv-trow:first-child:has(.sv-seg){flex-wrap:wrap;row-gap:8px}.sv-tools .sv-opts{max-width:100%;overflow-x:auto;scrollbar-width:none}.sv-hint2{display:none}.sv-seg button{padding:7px 8px!important}.sv-tools .sv-hint{display:none}.sv-tools .sv-trow .sv-auto span{font-size:12px}  .sv-editbtn span{display:none}.sv-editbtn{padding-inline:9px}.sv-seg button span{display:none}.sv-seg button{padding:7px 9px}.sv-trow .btn.sm span{display:none}.sv-tools .sv-trow .btn.primary span{display:inline}.pg-grid{grid-template-columns:repeat(2,1fr)}.pg-th{height:150px}
+  .sv-tools .sv-trow:first-child:has(.sv-seg){flex-wrap:wrap;row-gap:8px}.sv-tools .sv-opts{max-width:100%;overflow-x:auto;scrollbar-width:none}.sv-hint2{display:none}.sv-seg button{padding:7px 8px!important}.sv-tools .sv-hint{display:none}.sv-tools .sv-trow .sv-auto span{font-size:12px}  .sv-savebtn span{display:none}.sv-savebtn{padding-inline:9px}#svZoom{display:none}.sv-tools .sv-trow:last-child .cbtn{width:34px;height:34px}.sv-tools .sv-trow:last-child{gap:3px}.sv-tools .sv-trow:last-child .sv-div{margin:0 1px}
+  .sv-editbtn span{display:none}.sv-editbtn{padding-inline:9px}.sv-seg button span{display:none}.sv-seg button{padding:7px 9px}.sv-trow .btn.sm span{display:none}.sv-tools .sv-trow .btn.primary span{display:inline}.pg-grid{grid-template-columns:repeat(2,1fr)}.pg-th{height:150px}
   .sv-bar .cbtn{width:36px;height:36px}.sv-pg,.sv-zoom{gap:2px}.sv-zoom .btn{display:none}.sv-pg{margin-right:auto}
   #svPage{min-width:44px}#svZoom{min-width:42px;font-size:12px}
 }
@@ -874,6 +876,7 @@ const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).sli
 const norm=s=>String(s||'').toLowerCase().normalize('NFKC').replace(/[\s\-_・()（）\[\]［］'"!！?？.,、。]/g,'');
 
 const IC={
+ dl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/></svg>',
  cursor:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 3l14 7-6 2-2 6z"/></svg>',
  select:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4" /><path d="M11 4h2M11 20h2M4 11v2M20 11v2"/></svg>',
  hand:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>',
@@ -1684,6 +1687,7 @@ function scoreShell(t){const sc=t.score;
    <div class="sv-zoom"><button class="cbtn" data-act="scoreZoom" data-d="-1" aria-label="縮小">${IC.zoomout}</button><span id="svZoom">100%</span><button class="cbtn" data-act="scoreZoom" data-d="1" aria-label="拡大">${IC.zoomin}</button>
     <button class="btn sm" data-act="scoreFit" data-m="w" title="横幅に合わせる">${IC.fitw}<span>幅に合わせる</span></button><button class="btn sm" data-act="scoreFit" data-m="p" title="ページ全体を表示">${IC.fitp}<span>全体</span></button></div>
    <button class="btn sm sv-editbtn" id="svEditBtn" data-act="svEdit" aria-pressed="false" title="楽譜に書き込む・回転・トリミング・ページ整理">${IC.pen}<span>編集</span></button>
+   <button class="btn sm sv-savebtn" data-act="svExport" title="書き込みを含めた楽譜をPDFで保存">${IC.dl}<span>PDF保存</span></button>
    <button class="cbtn" data-act="scoreMenu" data-id="${t.id}" aria-label="楽譜のメニュー">${IC.dots}</button></div>
   <div class="sv-stage" id="svStage" tabindex="0" aria-label="楽譜。ドラッグで移動、ピンチやCtrl＋ホイールで拡大縮小"><canvas id="svCv"></canvas><canvas id="svAn" aria-hidden="true"></canvas><button class="sv-edge l" data-act="scorePage" data-d="-1" aria-label="前のページ"></button><button class="sv-edge r" data-act="scorePage" data-d="1" aria-label="次のページ"></button></div>
   <div class="sv-turn" id="svTurn"></div><div class="sv-tools" id="svTools" hidden></div>`}
@@ -1900,7 +1904,7 @@ function renderTools(){const el=$('#svTools');if(!el||!SV.edit)return;const t=cu
    <div class="sv-trow"><button class="cbtn" data-act="svUndo"${SV.undo.length?'':' disabled'} aria-label="元に戻す" title="元に戻す（Ctrl+Z）">${IC.undo}</button><button class="cbtn sv-redo" data-act="svRedo"${SV.redo.length?'':' disabled'} aria-label="やり直す" title="やり直す（Ctrl+Shift+Z）">${IC.undo}</button>
     <button class="btn sm" data-act="svClearPage"${n?'':' disabled'}>${IC.trash}<span>このページの書き込みを消す</span></button><span class="sv-div"></span>
     <button class="btn sm" data-act="svRotate">${IC.rotate}<span>回転</span></button><button class="btn sm" data-act="svCrop">${IC.crop}<span>トリミング</span></button><button class="btn sm" data-act="svPages">${IC.pages}<span>ページ整理</span></button>
-    <span class="sv-sp"></span><button class="btn sm primary" data-act="svEdit">${IC.check}<span>完了</span></button></div>`}
+    <span class="sv-sp"></span><button class="btn sm" data-act="svExport" title="PDFで保存">${IC.dl}<span>PDF保存</span></button><button class="btn sm primary" data-act="svEdit">${IC.check}<span>完了</span></button></div>`}
 function svRotate(dir){const t=curT();if(!t)return;pushUndo(snapEd());const e=scEd(t),o=SV.o;e.rot[o]=((((e.rot[o]||0)+(dir||90))%360)+360)%360;if(!e.rot[o])delete e.rot[o];if(t.score.view)delete t.score.view[o];saveEdSoon();gotoPage(SV.page)}
 /* トリミング */
 function cropEnter(){const t=curT();if(!t||!SV.g)return;SV.cropMode=true;SV.cropAll=false;const g=SV.g;SV.cropR={...g.C};setStageTool();
@@ -1953,19 +1957,35 @@ async function overlayPng(jp,items,T){const S0=2.5,vp0=jp.getViewport({scale:S0,
     else if(it.k==='tx'){const a=M(it.x,it.y);ctx.translate(a[0],a[1]);ctx.rotate(-T*Math.PI/180);ctx.fillStyle=it.c;ctx.font=`700 ${it.s*S0}px ${TXF}`;ctx.textBaseline='top';String(it.v).split('\n').forEach((l,i)=>ctx.fillText(l,0,i*it.s*1.25*S0))}
     ctx.restore()}
   const b=await new Promise(r=>cv.toBlob(r,'image/png'));return new Uint8Array(await b.arrayBuffer())}
-async function buildEditedPdf(t){const L=await loadPdfLib();const blob=await tx('blobs','readonly',s=>s.get('pdf:'+t.id));const src=await L.PDFDocument.load(await blob.arrayBuffer(),{ignoreEncryption:true});
+async function buildEditedPdf(t,opt){opt=opt||{};const L=await loadPdfLib();const blob=await tx('blobs','readonly',s=>s.get('pdf:'+t.id));const src=await L.PDFDocument.load(await blob.arrayBuffer(),{ignoreEncryption:true});
   const out=await L.PDFDocument.create();const e=scEd(t);const pages=await out.copyPages(src,e.order.map(o=>o-1));
   for(let i=0;i<e.order.length;i++){const o=e.order[i],pg=pages[i];out.addPage(pg);const jp=await SV.doc.getPage(o),vpI=jp.getViewport({scale:1}),r=(((e.rot[o]||0)%360)+360)%360,T=((jp.rotate||0)+r)%360;
     pg.setRotation(L.degrees(T));const n=e.crop[o];
     if(n){const W=vpI.width,H=vpI.height,a=vpI.convertToPdfPoint(n.x*W,n.y*H),b=vpI.convertToPdfPoint((n.x+n.w)*W,(n.y+n.h)*H);pg.setCropBox(Math.min(a[0],b[0]),Math.min(a[1],b[1]),Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1]))}
-    const items=e.ann[o];if(items&&items.length){const img=await out.embedPng(await overlayPng(jp,items,T));const v=jp.view;pg.drawImage(img,{x:v[0],y:v[1],width:v[2]-v[0],height:v[3]-v[1]})}}
+    const items=opt.ann===false?null:e.ann[o];if(items&&items.length){const img=await out.embedPng(await overlayPng(jp,items,T));const v=jp.view;pg.drawImage(img,{x:v[0],y:v[1],width:v[2]-v[0],height:v[3]-v[1]})}}
   return out.save()}
-async function exportScore(){const t=curT();if(!t||!SV.doc)return;progress('編集したPDFを作成中…');
-  try{const bytes=await buildEditedPdf(t);const base=(t.score.name||'score.pdf').replace(/\.pdf$/i,''),name=`${base}_編集済み.pdf`;const file=new File([bytes],name,{type:'application/pdf'});progress(null);
-    if(navigator.canShare&&/iPhone|iPad|Android/i.test(navigator.userAgent)&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:name});return}catch(err){if(err&&err.name==='AbortError')return}}
-    const u=URL.createObjectURL(file);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast(`「${name}」を書き出しました`)}
-  catch(err){console.error(err);progress(null);toast('PDFを書き出せませんでした。このPDFは保護されている可能性があります')}}
-function scoreMenu(btn,id){openActMenu(btn,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['svEdit',SV.edit?'編集を終える':'書き込み・編集',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','編集したPDFを書き出す',IC.down2],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']])}
+const isMobile=()=>/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function safeName(n){n=String(n||'').replace(/[\\/:*?"<>|\n\r]+/g,' ').trim()||'楽譜';return /\.pdf$/i.test(n)?n:n+'.pdf'}
+/* PDF保存：①名前と内容を決めて作成 → ②「保存する」で端末に保存（スマホは共有画面から「ファイルに保存」） */
+function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropExit();
+  const e=scEd(t),nAnn=Object.values(e.ann||{}).reduce((a,v)=>a+(v?v.length:0),0),def=`${t.title||(t.score.name||'楽譜').replace(/\.pdf$/i,'')}_楽譜`;
+  sheet(`<h2>楽譜をPDFで保存</h2>
+   <div class="fields"><label class="full">ファイル名<input id="pdfName" value="${esc(def)}" autocomplete="off"></label></div>
+   <div class="pdfsum"><div><b>${scPages(t)}</b><span>ページ</span></div><div><b>${nAnn}</b><span>書き込み・音符</span></div><div><b>${Object.values(e.rot).filter(Boolean).length+Object.keys(e.crop).length}</b><span>回転・トリミング</span></div></div>
+   <label class="sv-auto"><input type="checkbox" id="pdfAnn" checked><span>書き込み・音符・白塗りを含める</span></label>
+   <p class="muted" id="pdfMsg" style="margin:0;font-size:12.5px">${isMobile()?'作成後に「保存する」を押すと共有画面が開きます。「\"ファイル\"に保存」を選ぶと端末に保存されます。':'作成後に「保存する」を押すと、ダウンロードフォルダに保存されます。'}元のPDFは変わりません。</p>
+   <div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">閉じる</button><button class="btn primary" id="pdfGo">${IC.dl}PDFを作成</button></span></div>`,root=>{
+    let file=null;const go=$('#pdfGo'),msg=$('#pdfMsg');
+    const save=async()=>{if(!file)return;
+      if(isMobile()&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:file.name});msg.textContent=`「${file.name}」を保存しました。`;return}catch(err){if(err&&err.name==='AbortError')return}}
+      const u=URL.createObjectURL(file);const a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);
+      msg.innerHTML=`「${esc(file.name)}」を保存しました。${isMobile()?'':'ダウンロードフォルダを確認してください。'} <a href="${u}" target="_blank" rel="noopener">開いて確認</a>`;toast('PDFを保存しました')};
+    root.querySelectorAll('#pdfName,#pdfAnn').forEach(x=>x.addEventListener('input',()=>{file=null;go.innerHTML=`${IC.dl}PDFを作成`;go.classList.add('primary')}));
+    go.onclick=async()=>{if(file){save();return}go.disabled=true;go.textContent='作成中…';
+      try{const bytes=await buildEditedPdf(t,{ann:$('#pdfAnn').checked});file=new File([bytes],safeName($('#pdfName').value),{type:'application/pdf'});
+        go.disabled=false;go.innerHTML=`${IC.check}保存する`;msg.textContent=`PDFができました（${Math.max(1,Math.round(bytes.length/1024))}KB）。「保存する」を押してください。`;if(!isMobile())save()}
+      catch(err){console.error(err);go.disabled=false;go.innerHTML=`${IC.dl}PDFを作成`;msg.textContent='PDFを作成できませんでした。このPDFは保護されている可能性があります。'}}})}
+function scoreMenu(btn,id){openActMenu(btn,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['svEdit',SV.edit?'編集を終える':'書き込み・編集',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','PDFで保存',IC.dl],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']])}
 function smartSheet(){const tagsUsed=[...new Set(all().flatMap(t=>t.tags||[]))],genres=[...new Set(all().map(t=>t.genre).filter(Boolean))],artists=[...new Set(all().map(t=>t.artist).filter(Boolean))];
   const opt=(l,ph)=>`<option value="">${ph}</option>`+l.sort((a,b)=>a.localeCompare(b,'ja')).map(x=>`<option>${esc(x)}</option>`).join('');
   sheet(`<h2>条件で自動プレイリスト</h2><p style="margin:0;color:var(--muted);font-size:13px">条件に合う曲が自動で集まります。曲の評価やタグを変えると中身も変わります。</p>
@@ -2154,7 +2174,7 @@ document.addEventListener('click',e=>{
     if(act==='scoreZoom'){const{w,h}=stageSize();zoomAt(SV.z*(+a.dataset.d>0?1.2:1/1.2),w/2,h/2);return}
     if(act==='scoreFit'){fitMode(a.dataset.m);return}
     if(act==='scoreFitW'){fitMode('w');return}if(act==='scoreFitP'){fitMode('p');return}
-    if(act==='scoreMenu'){openActMenu(a,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['svEdit',SV.edit?'編集を終える':'書き込み・編集',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','編集したPDFを書き出す',IC.down2],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']]);return}
+    if(act==='scoreMenu'){openActMenu(a,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['svEdit',SV.edit?'編集を終える':'書き込み・編集',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','PDFで保存',IC.dl],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']]);return}
     if(act==='scoreReplace'){pickScore(SV.id||id);return}
     if(act==='scoreDelete'){const sid=SV.id;sheet(`<h2>楽譜を削除しますか？</h2><p style="margin:0;color:var(--muted)">この曲に取り込んだ楽譜PDFと、表示位置・ページめくり位置の設定が消えます。元のPDFファイルは消えません。</p><div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">キャンセル</button><button class="btn danger" data-act="scoreDelGo" data-id="${sid}">削除する</button></span></div>`);return}
     if(act==='scoreDelGo'){closeSheet();removeScore(id);return}
