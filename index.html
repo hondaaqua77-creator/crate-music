@@ -655,8 +655,10 @@ button.badge.key:hover{background:var(--accent);color:#fff}
 .keyhud{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%) scale(.9);z-index:70;background:rgba(20,22,27,.86);color:#fff;border-radius:20px;padding:16px 28px;display:flex;flex-direction:column;align-items:center;gap:2px;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;backdrop-filter:blur(8px)}
 .keyhud.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
 .keyhud span{font-size:12px;opacity:.75;font-weight:600}.keyhud b{font-size:44px;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums}.keyhud em{font-style:normal;font-size:14px;font-weight:700;opacity:.9}
-.mkey{display:none}
-@media (max-width:1100px){.btns .ib.mkey{display:flex;flex-direction:column;align-items:center;justify-content:center;width:auto;min-width:46px;height:40px;border-radius:10px;border:1px solid var(--line2);background:#fff;padding:2px 6px;gap:0}
+.mkey,.mscore{display:none}.pscore{margin-right:8px}.pscore svg{width:15px;height:15px}.pscore[hidden]{display:none}
+@media (max-width:760px){body:has(#bScore:not([hidden])) .now .nowedit{display:none!important}}
+@media (max-width:1100px){.btns .ib.mscore:not([hidden]){display:flex;flex-direction:column;align-items:center;justify-content:center;width:auto;min-width:42px;height:40px;border-radius:10px;border:1px solid var(--line2);background:#fff;padding:2px 6px;gap:1px;color:var(--accent)}.mscore .mk-i svg{width:15px;height:15px}.mscore .mk-v{font-size:11px;font-weight:800;line-height:1.1;color:var(--ink)}.pscore{display:none!important}
+  .btns .ib.mkey{display:flex;flex-direction:column;align-items:center;justify-content:center;width:auto;min-width:46px;height:40px;border-radius:10px;border:1px solid var(--line2);background:#fff;padding:2px 6px;gap:0}
   .mkey .mk-i{font-size:11px;line-height:1;color:var(--muted);font-weight:700}.mkey .mk-v{font-size:11.5px;font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums}
   .mkey.on{background:var(--accent);border-color:var(--accent);color:#fff}.mkey.on .mk-i{color:rgba(255,255,255,.8)}.mkey:disabled{opacity:.4}}
 @media (max-width:760px){
@@ -764,6 +766,28 @@ button.badge.key:hover{background:var(--accent);color:#fff}
 .pg-th b{position:absolute;left:6px;top:6px;background:var(--ink);color:#fff;font-size:12px;border-radius:6px;padding:1px 7px}.pg-th em{position:absolute;right:6px;top:6px;font-style:normal;font-size:11px;background:#fff;border-radius:6px;padding:1px 6px;color:var(--muted)}
 .pg-btns{display:flex;justify-content:space-between}.pg-btns .cbtn{width:32px;height:32px}
 .pg-h{font-size:13px;margin:4px 0 0}.pg-hid{display:flex;gap:6px;flex-wrap:wrap}
+.schome{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:1px solid var(--line);background:linear-gradient(100deg,#FFF6F4,#fff 60%);border-radius:14px;padding:12px 14px;margin:0 0 18px;cursor:pointer;font:inherit;color:inherit}
+.schome:hover{border-color:var(--line2);box-shadow:0 6px 18px -12px rgba(20,22,27,.35)}
+.schi{width:42px;height:42px;border-radius:11px;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none}.schi svg{width:22px;height:22px}
+.sctx{flex:1;min-width:0;display:flex;flex-direction:column}.sctx b{font-size:15px}.sctx span{font-size:12.5px;color:var(--muted);line-height:1.45}
+.scgo{display:flex;align-items:center;gap:2px;font-weight:700;font-size:13px;color:var(--accent);flex:none}.scgo svg{width:16px;height:16px}
+.scgrid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))!important}
+.sccard{display:flex;flex-direction:column;gap:8px;min-width:0}
+.sccov{position:relative;border:0;padding:0;background:#fff;aspect-ratio:1/1.32;border-radius:8px;overflow:hidden;cursor:pointer;box-shadow:0 14px 28px -16px rgba(20,22,27,.45),0 0 0 1px rgba(20,22,27,.08);transition:transform .15s}
+.sccov:hover{transform:translateY(-2px)}.sccov img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.sccov em{position:absolute;left:8px;top:8px;font-style:normal;font-size:11px;font-weight:700;background:var(--ink);color:#fff;border-radius:6px;padding:2px 7px}
+.scph{position:absolute;inset:0;display:grid;place-items:center;color:#C5C9D2;background:#F4F5F7}.scph svg{width:40px;height:40px}
+.scmeta{display:flex;align-items:center;gap:8px}.sct{flex:1;min-width:0;display:flex;flex-direction:column}.sct b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sct span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scplay{flex:none;background:var(--ink)!important;color:#fff!important;width:34px;height:34px}.scplay svg{width:15px;height:15px}
+.scempty{display:flex;flex-direction:column;align-items:center;gap:22px;padding:24px 0 40px}
+.scsteps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;max-width:820px}.scsteps div{border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:6px;background:#fff}
+.scsteps i{font-style:normal;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}.scsteps b{font-size:15px}.scsteps span{font-size:12.5px;color:var(--muted);line-height:1.55}
+.scq{width:100%;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font:inherit;font-size:14px}
+.scpicks{max-height:52vh;overflow:auto;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px}
+.scpick{display:flex;align-items:center;gap:10px;border:0;border-bottom:1px solid var(--line);background:#fff;padding:11px 14px;text-align:left;font:inherit;cursor:pointer}.scpick:last-child{border-bottom:0}.scpick:hover{background:#F7F8FA}
+.scpick .t{flex:1;min-width:0;display:flex;flex-direction:column}.scpick .t b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scpick .t span{font-size:12px;color:var(--muted)}
+.scadd{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none}.scadd svg{width:16px;height:16px}
+@media (max-width:760px){.scsteps{grid-template-columns:1fr}.scgrid{grid-template-columns:repeat(2,1fr)!important;gap:18px 14px!important}.schome{margin-bottom:14px}}
 .sv-empty{position:absolute;inset:0;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--muted)}.sv-empty b{color:var(--ink);font-size:16px}
 .scorerow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#fff;border:1px solid var(--line2);border-radius:12px;padding:11px 14px;margin-top:16px;cursor:pointer}
 .scorerow:hover{border-color:var(--ink2)}.scorerow>svg{width:20px;height:20px;color:var(--ink);flex:none}
@@ -842,12 +866,13 @@ button.badge.score{border:0;cursor:pointer;font:inherit;font-size:10.5px;font-we
         <button class="ib" id="bPrev" aria-label="前の曲"></button>
         <button class="ib play" id="bPlay" aria-label="再生"></button>
         <button class="ib" id="bNext" aria-label="次の曲"></button>
+        <button class="ib mscore" id="bScore" data-act="scoreOpen" aria-label="この曲の楽譜を開く" hidden><span class="mk-i"></span><span class="mk-v">楽譜</span></button>
         <button class="ib mkey" id="bKey" data-act="keyOpen" aria-label="キー（移調）を変える"></button>
         <button class="ib opt" id="bRep" aria-label="リピート" title="リピート"></button>
       </div>
       <div class="seek"><span id="tCur">0:00</span><span class="seekwrap"><input type="range" id="seek" min="0" max="1000" value="0" aria-label="再生位置"><span id="seekMarks" aria-hidden="true"></span></span><span id="tDur">0:00</span></div>
     </div>
-    <div class="vol"><div class="keyctl" id="pKey" role="group" aria-label="キー（移調）"></div><span class="stars" id="pStars"></span><button class="ib" id="bNowP" data-act="toggleNow" aria-label="再生中の曲を表示" title="再生中の曲を表示"></button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg><input type="range" id="vol" min="0" max="100" value="85" aria-label="音量"></div>
+    <div class="vol"><button class="btn sm pscore" id="pScore" data-act="scoreOpen" hidden title="この曲の楽譜を開く"></button><div class="keyctl" id="pKey" role="group" aria-label="キー（移調）"></div><span class="stars" id="pStars"></span><button class="ib" id="bNowP" data-act="toggleNow" aria-label="再生中の曲を表示" title="再生中の曲を表示"></button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg><input type="range" id="vol" min="0" max="100" value="85" aria-label="音量"></div>
   </div>
 </div>
 
@@ -1087,7 +1112,7 @@ function navItems(){
   const pls=S.playlists.map(p=>({k:'pl:'+p.id,label:p.name,n:playlistTracks(p).length,ic:p.rule?IC.gear:IC.list,sid:p.id}));
   const cats=S.cats.map(c=>({k:'cat:'+c.id,label:c.name,n:catTracks(c.id).length,ic:IC.folder,sid:c.id}));
   const noneN=catTracks('none').length;
-  return{lib:[{k:'all',label:'すべての曲',n:S.tracks.size,ic:IC.note},{k:'artists',label:'アーティスト',n:groups('artist').length,ic:IC.user},{k:'albums',label:'アルバム',n:groups('album').length,ic:IC.disc},{k:'dupes',label:'重複チェック',n:dupes().length,ic:IC.copy}],
+  return{lib:[{k:'all',label:'すべての曲',n:S.tracks.size,ic:IC.note},{k:'artists',label:'アーティスト',n:groups('artist').length,ic:IC.user},{k:'albums',label:'アルバム',n:groups('album').length,ic:IC.disc},{k:'scores',label:'楽譜',n:scoreTracks().length,ic:IC.score},{k:'dupes',label:'重複チェック',n:dupes().length,ic:IC.copy}],
     cats,none:S.cats.length&&noneN?{k:'cat:none',label:'未分類',n:noneN,ic:IC.inbox}:null,pls}}
 function renderSide(){const{lib,cats,none,pls}=navItems();const cur=S.view.split('|')[0];
   const btn=i=>`<button data-view="${esc(i.k)}" aria-current="${cur===i.k}"${i.sid?` data-sid="${esc(i.sid)}"`:''}>${i.sid?`<span class="grip" title="ドラッグで並べ替え">${IC.grip}</span>`:''}${i.ic}<span>${esc(i.label)}</span><span class="n">${i.n}</span></button>`;
@@ -1161,9 +1186,15 @@ function renderView(){const v=S.view;let h='';S.hmenu=null;const hasSample=all()
       :isArt&&grpName!=='不明'?hm([['setArtArtist','アーティスト画像を変更',IC.image],...(artImg?[['resetArtArtist','アーティスト画像を外す',IC.undo]]:[]),'-',['renameArtist','アーティスト名を変更',IC.pen]]):'';
     const ho=v==='all'?{kicker:'ライブラリ'}:isArt?{kicker:'アーティスト',list,custom:artImg,coverAct:grpName!=='不明'?'setArtArtist':''}:{kicker:'アルバム',list,coverAct:grpName!=='（アルバム名なし）'?'setArtAlbum':''};
     const hint=v!=='all'?'':dnd?DRAG_HINT:(!S.q&&!S.selMode&&S.sort!=='manual'?'並び順を「自分の並び順」にすると、ドラッグで順番を変えられます。':'');
-    h=banner+headHTML(title,metaOf(list),playActs+editActs,ho)+toolbarHTML({search:true,sort:v==='all',back:v==='all'?null:(v.startsWith('artist')?'artists':'albums'),hint})+listBlock(list,'lib',dnd);
+    const scN=scoreTracks().length,scCard=v==='all'&&!hasSample&&!S.q&&S.tracks.size?`<button class="schome" data-view="scores"><span class="schi">${IC.score}</span><span class="sctx"><b>楽譜</b><span>${scN?`${scN}曲に楽譜があります。タップして一覧を開く`:'曲に楽譜PDFをセットして、再生しながら表示・書き込み・PDF保存ができます'}</span></span><span class="scgo">${scN?'開く':'はじめる'}${IC.chev}</span></button>`:'';
+    h=banner+scCard+headHTML(title,metaOf(list),playActs+editActs,ho)+toolbarHTML({search:true,sort:v==='all',back:v==='all'?null:(v.startsWith('artist')?'artists':'albums'),hint})+listBlock(list,'lib',dnd);
   }else if(v==='artists'||v==='albums'){const key=v==='artists'?'artist':'album';const g=groups(key);current=[];
     h=banner+headHTML(v==='artists'?'アーティスト':'アルバム',`${g.length}件`,v==='albums'?`<button class="btn pill" data-act="newAlbum">${IC.plus}新しいアルバム</button>`:'',{kicker:'ライブラリ'})+(g.length?`<div class="grid">${g.map(([k,l])=>{const a=l.find(t=>t.art),ai=key==='artist'?S.artistImgs[k]:null;return`<button class="card${key==='artist'?' round':''}" data-view="${key}|${esc(k)}">${ai?`<div class="cover" ${imgStyle(ai.hi)}></div>`:`<div class="cover" ${a?artStyle(a,'',true):artStyle(null,key==='album'?k:'@'+k)}>${a?'':ini(null,k)}</div>`}<b>${esc(k)}</b><span>${l.length}曲${key==='album'&&l[0].artist?' · '+esc(l[0].artist):''}</span></button>`}).join('')}</div>`:'<div class="list"><div class="empty"><b>まだ曲がありません</b></div></div>');
+  }else if(v==='scores'){current=[];const list=scoreTracks();
+    h=banner+headHTML('楽譜',list.length?`${list.length}曲に楽譜があります · タップで開く／▶で再生しながら開く`:'曲に楽譜PDFをセットして、再生しながら見る・書き込む・PDFで保存できます',`<button class="btn pill" data-act="scoreAdd">${IC.plus}楽譜を取り込む</button>`,{kicker:'楽譜'})
+      +(list.length?`<div class="grid scgrid">${list.map(t=>{const e=t.score.edit,ed=t.score.edit&&hasEdits(t);return`<div class="sccard"><button class="sccov" data-act="scoreOpen" data-id="${t.id}" aria-label="${esc(t.title)}の楽譜を開く">${t.score.thumb?`<img src="${t.score.thumb}" alt="">`:`<span class="scph" data-thumb="${t.id}">${IC.score}</span>`}${ed?'<em>編集あり</em>':''}</button>
+        <div class="scmeta"><div class="sct"><b>${esc(t.title)}</b><span>${esc(t.artist||'—')} · ${scPages(t)}ページ</span></div><button class="cbtn scplay" data-act="scorePlayOpen" data-id="${t.id}" aria-label="再生しながら楽譜を開く" title="再生しながら開く">${IC.play}</button></div></div>`}).join('')}</div>`
+      :`<div class="scempty"><div class="scsteps">${[['1','曲を選ぶ','「楽譜を取り込む」を押して、楽譜を付けたい曲を選びます'],['2','PDFを選ぶ','端末やGoogleドライブにある楽譜のPDFを選びます'],['3','見る・書き込む','再生に合わせて自動でページがめくれます。「編集」で書き込みや音符の変更、「PDF保存」で保存できます']].map(([n,b,d])=>`<div><i>${n}</i><b>${b}</b><span>${d}</span></div>`).join('')}</div><button class="btn primary" data-act="scoreAdd">${IC.plus}楽譜を取り込む</button></div>`);
   }else if(v==='dupes'){const g=dupes();current=[];
     h=headHTML('重複チェック',g.length?`${g.length}組の重複候補（曲名・アーティストが同じで長さがほぼ同じ曲）`:'重複は見つかりませんでした','',{kicker:'整理'})+(g.length?g.map(grp=>`<div class="dupe"><h4>${esc(grp[0].title)} <span class="chip">${esc(grp[0].artist)}</span></h4>${grp.map(t=>`<div class="r"><span>${esc(t.fileName||'—')} · <span class="mono">${fmt(t.duration)}</span> · ${t.size?(t.size/1048576).toFixed(1)+'MB':''} · ${stars(t.rating)}</span><span class="actions"><button class="btn" data-play-one="${t.id}">${IC.play}試聴</button><button class="btn danger" data-act="askDel" data-id="${t.id}">この1曲を削除</button></span></div>`).join('')}</div>`).join(''):'<div class="list"><div class="empty"><b>重複はありません</b>PC・スマホ・ドライブから同じ曲を取り込むと、ここに表示されます。</div></div>');
   }else if(v==='cats'){current=[];const none=catTracks('none');
@@ -1186,7 +1217,7 @@ function renderView(){const v=S.view;let h='';S.hmenu=null;const hasSample=all()
   $('#view').innerHTML=h;
   const q=$('#q');if(q){q.oninput=e=>{S.q=e.target.value;const pos=e.target.selectionStart;renderView();const n=$('#q');n.focus();try{n.setSelectionRange(pos,pos)}catch(_){}}}
   const so=$('#sort');if(so)so.onchange=e=>{S.sort=e.target.value;try{localStorage.setItem('otodana.sort',S.sort)}catch(_){}renderView()};
-  renderBulk()}
+  renderBulk();if(v==='scores')fillThumbs()}
 function renderBulk(){const b=$('#bulk');if(!S.selMode){b.hidden=true;return}b.hidden=false;const n=S.sel.size,dis=n?'':' disabled';
   b.innerHTML=`<span class="cnt"><b>${n}</b>曲を選択中</span><span class="actions"><button class="btn" data-act="selAll">${current.length&&current.every(t=>S.sel.has(t.id))?'選択を解除':'すべて選択'}</button><button class="btn" data-act="bulkCat"${dis}>${IC.folder}カテゴリへ移動</button><button class="btn" data-act="bulkPl"${dis}>${IC.list}プレイリストに追加</button><button class="btn primary" data-act="selMode">完了</button></span>`}
 function render(){renderSide();renderView();renderPlayer()}
@@ -1267,6 +1298,7 @@ function renderPlayer(){const t=S.tracks.get(S.queue[S.qi]);
   const pa=$('#pArt');pa.innerHTML=t?(t.art?'':ini(t)):IC.note;pa.style.backgroundImage=t?(t.art?`url('${t.art}')`:sleeveBg(seedOf(t))):'';pa.toggleAttribute('data-sleeve',!!t&&!t.art);
   const sm=$('#seekMarks');if(sm)sm.innerHTML=t&&t.mods&&t.mods.length&&t.duration?t.mods.map(m=>`<i style="left:${m.t/t.duration*100}%" title="${fmt(m.t)}から転調 ${keyTxt(m.d)}"></i>`).join(''):'';
   const pk=$('#pKey');if(pk)pk.innerHTML=t?keyCtlHTML(t,false):'';
+  {const hs=!!(t&&t.score&&!t.sample),b1=$('#bScore'),b2=$('#pScore');if(b1){b1.hidden=!hs;b1.dataset.id=t?t.id:'';b1.firstElementChild.innerHTML=IC.score}if(b2){b2.hidden=!hs;b2.dataset.id=t?t.id:'';b2.innerHTML=IC.score+'<span>楽譜</span>'}}
   const bk=$('#bKey');if(bk){const k=t?(t.key||0)+segD(t,audio.currentTime):0,sp=t&&t.speed?t.speed:1,on=!!k||sp!==1;bk.innerHTML=on?`<span class="mk-i">${k?keyTxt(k):'±0'}</span><span class="mk-v">${Math.round(sp*100)}%</span>`:`<span class="mk-i">♯♭</span><span class="mk-v">調整</span>`;bk.classList.toggle('on',on);bk.disabled=!t;bk.setAttribute('aria-label','速度・音程の調整')}
   const bn=$('#bNowP');if(!bn.innerHTML)bn.innerHTML=IC.panel;bn.classList.toggle('on',S.np);renderNow(t);
   $('#pTitle').textContent=t?t.title:'曲を選ぶと再生します';$('#pArtist').textContent=t?t.artist:'—';
@@ -1542,8 +1574,8 @@ function renameGroup(key,oldName){const label=key==='album'?'アルバム':'ア�
     all().filter(t=>t[key]===oldName).forEach(t=>{t[key]=n;saveTrack(t)});
     if(key==='artist'&&S.artistImgs[oldName]){if(!S.artistImgs[n])S.artistImgs[n]=S.artistImgs[oldName];delete S.artistImgs[oldName];saveArtistImgs()}S.view=key+'|'+n;render();toast(exists?`「${n}」にまとめました`:`${label}名を「${n}」に変更しました`)})}
 /* ---------- 上部タブ（利用者が追加・編集） ---------- */
-const DEFAULT_TABS=['albums','cats','pls'];
-const FIXED_TABS=[['albums','アルバム'],['cats','カテゴリ'],['pls','プレイリスト'],['all','すべての曲'],['artists','アーティスト'],['dupes','重複チェック']];
+const DEFAULT_TABS=['albums','cats','pls','scores'];
+const FIXED_TABS=[['albums','アルバム'],['cats','カテゴリ'],['pls','プレイリスト'],['scores','楽譜'],['all','すべての曲'],['artists','アーティスト'],['dupes','重複チェック']];
 function tabLabel(k){const f=FIXED_TABS.find(x=>x[0]===k);if(f)return f[1];
   if(k.startsWith('cat:'))return k==='cat:none'?'未分類':catName(k.slice(4));
   if(k.startsWith('pl:'))return S.playlists.find(p=>'pl:'+p.id===k)?.name||'';return''}
@@ -1626,15 +1658,28 @@ function resetImage(tg){
 function viewTarget(){const v=S.view;if(v.startsWith('cat:')&&v!=='cat:none')return{type:'cat',id:v.slice(4)};if(v.startsWith('pl:'))return{type:'pl',id:v.slice(3)};
   if(v.startsWith('album|'))return{type:'album',id:v.slice(6)};if(v.startsWith('artist|'))return{type:'artist',id:v.slice(7)};return null}
 /* ---------- 楽譜（PDF） ---------- */
+function scoreTracks(){return all().filter(t=>t.score&&!t.sample).sort((a,b)=>(b.score.at||0)-(a.score.at||0))}
+async function makeThumb(doc,t){const e=scEd(t),o=e.order[0],page=await doc.getPage(o),g=pageGeo(t,o,page),sc=260/g.C.w;const r=await renderPageCanvas(page,g,sc,g.C);await r.task.promise;
+  const src=document.createElement('canvas');src.width=r.cv.width;src.height=r.cv.height;src.getContext('2d').drawImage(r.cv,0,0);drawAnn(r.cv.getContext('2d'),e.ann[o],g,sc,g.C,src);return r.cv.toDataURL('image/jpeg',.72)}
+let thumbBusy=false;async function fillThumbs(){if(thumbBusy)return;thumbBusy=true;try{for(const el of [...document.querySelectorAll('[data-thumb]')]){const t=S.tracks.get(el.dataset.thumb);if(!t||!t.score||t.score.thumb)continue;
+    const blob=await tx('blobs','readonly',st=>st.get('pdf:'+t.id));if(!blob)continue;try{const doc=await openPdfDoc(await blob.arrayBuffer());t.score.thumb=await makeThumb(doc,t);doc.destroy();saveTrack(t);const im=document.createElement('img');im.src=t.score.thumb;el.replaceWith(im)}catch(_){}}}finally{thumbBusy=false}}
+function scoreAddSheet(){const list=all().filter(t=>!t.sample);if(!list.length){toast('先に曲を取り込んでください');return}
+  const row=t=>`<button class="scpick" data-act="scorePick" data-id="${t.id}"><span class="t"><b>${esc(t.title)}</b><span>${esc(t.artist||'—')}</span></span>${t.score?`<span class="chip">楽譜あり・差し替え</span>`:`<span class="scadd">${IC.plus}</span>`}</button>`;
+  sheet(`<h2>どの曲に楽譜を付けますか？</h2><p class="muted" style="margin:0;font-size:13px">曲を選ぶと、楽譜のPDFを選ぶ画面が開きます。</p>
+   <input id="scQ" class="scq" placeholder="曲名・アーティストで探す" autocomplete="off"><div class="scpicks" id="scPicks">${list.map(row).join('')}</div>
+   <div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">閉じる</button></span></div>`,root=>{
+    const q=$('#scQ');q.oninput=()=>{const k=q.value.trim().toLowerCase();$('#scPicks').innerHTML=list.filter(t=>!k||(t.title+' '+(t.artist||'')+' '+(t.album||'')).toLowerCase().includes(k)).map(row).join('')||'<div class="muted" style="padding:16px;text-align:center">見つかりません</div>'};
+    if(!isMobile())setTimeout(()=>q.focus(),60)})}
+
 let pdfjsLib=null;
 async function loadPdfjs(){if(pdfjsLib)return pdfjsLib;const m=await import('./vendor/pdfjs/pdf.min.mjs');m.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.mjs';pdfjsLib=m;return m}
 async function openPdfDoc(buf){const lib=await loadPdfjs();return lib.getDocument({data:new Uint8Array(buf),cMapUrl:'vendor/pdfjs/cmaps/',cMapPacked:true,standardFontDataUrl:'vendor/pdfjs/standard_fonts/',wasmUrl:'vendor/pdfjs/wasm/'}).promise}
 function pickScore(id){const t=S.tracks.get(id);if(!t)return;if(t.sample){toast('サンプル曲には楽譜を取り込めません。自分の曲で試してください');return}S.pdfTarget=id;const i=$('#pdfIn');i.value='';i.click()}
 async function importScore(file){const id=S.pdfTarget;S.pdfTarget=null;const t=S.tracks.get(id);if(!t||!file)return;
   if(!/pdf/i.test(file.type)&&!/\.pdf$/i.test(file.name)){toast('PDFファイルを選んでください');return}
-  progress('楽譜を読み込み中…');let pages=0;try{const buf=await file.arrayBuffer();const doc=await openPdfDoc(buf.slice(0));pages=doc.numPages;doc.destroy()}catch(e){progress(null);toast('このPDFは読み込めませんでした。別のPDFでお試しください');return}
+  progress('楽譜を読み込み中…');let pages=0,thumb=null;try{const buf=await file.arrayBuffer();const doc=await openPdfDoc(buf.slice(0));pages=doc.numPages;try{thumb=await makeThumb(doc,{score:{pages}})}catch(_){}doc.destroy()}catch(e){progress(null);toast('このPDFは読み込めませんでした。別のPDFでお試しください');return}
   await tx('blobs','readwrite',st=>st.put(new Blob([file],{type:'application/pdf'}),'pdf:'+id));progress(null);
-  t.score={name:file.name,size:file.size,pages,at:Date.now(),view:{},turns:{},page:1,auto:true};saveTrack(t);render();toast(`楽譜（${pages}ページ）を取り込みました`);openScore(id)}
+  t.score={name:file.name,size:file.size,pages,at:Date.now(),view:{},turns:{},page:1,auto:true,thumb};saveTrack(t);render();toast(`楽譜（${pages}ページ）を取り込みました`);openScore(id)}
 async function removeScore(id){const t=S.tracks.get(id);if(!t)return;await tx('blobs','readwrite',st=>st.delete('pdf:'+id));delete t.score;saveTrack(t);closeScore();render();toast('楽譜を削除しました')}
 const SV={id:null,doc:null,page:1,o:1,z:1,x:0,y:0,pw:0,ph:0,task:null,rz:null,lastUser:0,noFile:false,
   edit:false,tool:'pen',color:{pen:'#14161B',mk:'#FFD60A',tx:'#E5484D',nt:'#14161B'},size:{pen:1,mk:1,tx:1},g:null,C:{x:0,y:0,w:0,h:0},rs:1,op:null,undo:[],redo:[],cropMode:false,cropR:null,cropAll:false,thumbs:new Map(),sel:null,ntType:'q',ntDot:false,staves:{},lastSp:7};
@@ -1677,7 +1722,7 @@ async function openScore(id){const t=S.tracks.get(id);if(!t)return;if(!t.score){
   if(!blob){SV.noFile=true;$('#svStage').innerHTML=`<div class="sv-empty"><b>この端末に楽譜PDFがありません</b><span>バックアップから移した場合など、PDFファイル自体は引き継がれません。もう一度取り込んでください。</span><button class="btn primary" data-act="scoreReplace" data-id="${id}">${IC.score}楽譜PDFを取り込む</button></div>`;return}
   try{progress('楽譜を表示中…');if(SV.doc){SV.doc.destroy();SV.doc=null}SV.doc=await openPdfDoc(await blob.arrayBuffer());progress(null)}catch(e){progress(null);toast('楽譜を開けませんでした');return}
   if(SV.id!==id)return;if(t.score.pages!==SV.doc.numPages){t.score.pages=SV.doc.numPages;saveTrack(t)}scEd(t);await gotoPage(Math.min(t.score.page||1,scPages(t)),true)}
-function closeScore(){const el=$('#scoreView');if(el.hidden)return;el.hidden=true;el.innerHTML='';document.body.classList.remove('score-open');if(SV.task)try{SV.task.cancel()}catch(_){}if(SV.doc){SV.doc.destroy();SV.doc=null}SV.id=null;SV.edit=false;SV.cropMode=false;SV.op=null}
+function closeScore(){const el=$('#scoreView');if(el.hidden)return;el.hidden=true;el.innerHTML='';document.body.classList.remove('score-open');if(SV.task)try{SV.task.cancel()}catch(_){}if(SV.doc){const doc=SV.doc,t=S.tracks.get(SV.id);SV.doc=null;if(t&&t.score&&(SV.undo.length||!t.score.thumb)){makeThumb(doc,t).then(u=>{t.score.thumb=u;saveTrack(t);if(S.view==='scores')renderView()}).catch(()=>{}).finally(()=>doc.destroy())}else doc.destroy()}SV.id=null;SV.edit=false;SV.cropMode=false;SV.op=null}
 function fmtTurn(t,n){const o=scEd(t).order[n-1],v=t.score.turns&&t.score.turns[o];return v!=null?fmt(v):(n===1?'0:00':'—')}
 function scoreShell(t){const sc=t.score;
   return`<div class="sv-bar">
@@ -2133,6 +2178,9 @@ document.addEventListener('click',e=>{
     if(act==='keyStep'){const t=S.tracks.get(id||S.queue[S.qi]);if(t)setKeyFor(t.id,(t.key||0)+(+a.dataset.d));else changeKey(+a.dataset.d);return}
     if(act==='keySet'){setKeyFor(id||S.queue[S.qi],+a.dataset.k);return}
     if(act==='keyOpen'){keySheet(id);return}
+    if(act==='scoreAdd'){scoreAddSheet();return}
+    if(act==='scorePick'){closeSheet();pickScore(id);return}
+    if(act==='scorePlayOpen'){const t=S.tracks.get(id);if(t){S.queue=scoreTracks().map(x=>x.id);const i=S.queue.indexOf(id);playIdx(i<0?0:i);openScore(id)}return}
     if(act==='scoreOpen'){openScore(id||S.queue[S.qi]);return}
     if(act==='scoreClose'){closeScore();return}
     if(act==='svEdit'){if(!SV.doc){toast('楽譜PDFを取り込んでから使えます');return}setEdit(!SV.edit);return}
@@ -2286,7 +2334,7 @@ function progress(msg){let el=$('#prog');if(!msg){el&&el.remove();return}if(!el)
     const cts=await tx('kv','readonly',s=>s.get('cats'));if(Array.isArray(cts))S.cats=[...S.cats.filter(c=>c.sample),...cts];
     if(ts.length)removeSamples(true)}
   try{S.np=localStorage.getItem('crate.np')!=='0';S.kLink=localStorage.getItem('crate.kLink')==='1';const kl=JSON.parse(localStorage.getItem('crate.kLock')||'null');if(kl)S.kLock=kl}catch(_){S.np=true}document.body.classList.toggle('np-open',S.np);
-  try{const so=localStorage.getItem('otodana.sort');if(so)S.sort=so;const tb=JSON.parse(localStorage.getItem('crate.tabs')||'null');if(Array.isArray(tb)&&tb.length)S.tabs=tb}catch(_){}
+  try{const so=localStorage.getItem('otodana.sort');if(so)S.sort=so;const tb=JSON.parse(localStorage.getItem('crate.tabs')||'null');if(Array.isArray(tb)&&tb.length){S.tabs=tb;if(!tb.includes('scores')&&!localStorage.getItem('crate.tabsScore')){S.tabs=[...tb,'scores'];localStorage.setItem('crate.tabs',JSON.stringify(S.tabs))}}localStorage.setItem('crate.tabsScore','1')}catch(_){}
   try{navigator.storage?.persist?.()}catch(_){}
   ensureOrder();render();initCloud();refreshProt(all().some(t=>!t.sample));
   let welcomed=false;try{welcomed=localStorage.getItem('crate.welcomed')==='1'}catch(_){welcomed=true}
