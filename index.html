@@ -994,7 +994,7 @@ body.selmode .main{padding-bottom:calc(var(--player-h) + 120px)}
 <input type="file" id="dirIn" webkitdirectory multiple hidden>
 <input type="file" id="jsonIn" accept=".json,application/json" hidden>
 <input type="file" id="imgIn" accept="image/*" hidden>
-<input type="file" id="pdfIn" accept="application/pdf,.pdf" hidden>
+<input type="file" id="pdfIn" accept="application/pdf,.pdf,image/*" multiple hidden>
 <div id="scoreView" class="scorev" hidden></div>
 <audio id="audio" preload="auto"></audio>
 <div id="bulk" class="bulk" hidden></div>
@@ -1173,13 +1173,14 @@ async function pump(){if(upBusy)return;upBusy=true;
     const e=ext(t.fileName||''),types=[...new Set([b.type,MIME[e],e==='m4a'?'video/mp4':null].filter(Boolean))];
     for(const ty of types){try{const r=await S.assets.upload(b,{type:ty});t.assetId=r.id;t.cloud='ok';saveTrack(t);break}
       catch(err){t.cloud=(err&&err.code==='unsupported_type')?'unsupported':'error';if(t.cloud!=='unsupported')break}}}
-  upBusy=false;const all=[...S.tracks.values()].filter(t=>t.local&&!t.sample);
+  upBusy=false;const all=[...S.tracks.values()].filter(t=>t.local&&!t.sample&&!t.scoreOnly);
   const ok=all.filter(t=>t.assetId).length;S.upNote=all.length?`クラウド保存 ${ok} / ${all.length}曲`+(ok<all.length?'（未対応形式・20MB超はこの端末のみ）':''):'';render()}
 
 async function initCloud(){S.cloud=null;S.assets=null;S.cloudState='off';renderSide()}
 
 /* ---------- 一覧の集計 ---------- */
-const all=()=>[...S.tracks.values()];
+const all=()=>[...S.tracks.values()].filter(t=>!t.scoreOnly);
+const songN=()=>all().length;
 function playlistTracks(p){if(p.rule){const r=p.rule;return all().filter(t=>(t.rating||0)>=(r.minRating||0)&&(!r.tag||(t.tags||[]).includes(r.tag))&&(!r.genre||t.genre===r.genre)&&(!r.artist||t.artist===r.artist)).sort((a,b)=>(b.rating||0)-(a.rating||0))}
   return p.ids.map(id=>S.tracks.get(id)).filter(Boolean)}
 const byOrder=(a,b)=>(a.order||0)-(b.order||0)||(a.addedAt||0)-(b.addedAt||0);
@@ -1225,7 +1226,7 @@ function navItems(){
   const pls=S.playlists.map(p=>({k:'pl:'+p.id,label:p.name,n:playlistTracks(p).length,ic:p.rule?IC.gear:IC.list,sid:p.id}));
   const cats=S.cats.map(c=>({k:'cat:'+c.id,label:c.name,n:catTracks(c.id).length,ic:IC.folder,sid:c.id}));
   const noneN=catTracks('none').length;
-  return{lib:[{k:'all',label:'すべての曲',n:S.tracks.size,ic:IC.note},{k:'artists',label:'アーティスト',n:groups('artist').length,ic:IC.user},{k:'albums',label:'アルバム',n:groups('album').length,ic:IC.disc},{k:'scores',label:'楽譜',n:scoreTracks().length,ic:IC.score}],
+  return{lib:[{k:'all',label:'すべての曲',n:songN(),ic:IC.note},{k:'artists',label:'アーティスト',n:groups('artist').length,ic:IC.user},{k:'albums',label:'アルバム',n:groups('album').length,ic:IC.disc},{k:'scores',label:'楽譜',n:scoreTracks().length,ic:IC.score}],
     cats,none:S.cats.length&&noneN?{k:'cat:none',label:'未分類',n:noneN,ic:IC.inbox}:null,pls}}
 function renderSide(){const{lib,cats,none,pls}=navItems();const cur=S.view.split('|')[0];
   const btn=i=>`<button data-view="${esc(i.k)}" aria-current="${cur===i.k}"${i.sid?` data-sid="${esc(i.sid)}"`:''}>${i.sid?`<span class="grip" title="ドラッグで並べ替え">${IC.grip}</span>`:''}${i.ic}<span>${esc(i.label)}</span><span class="n">${i.n}</span></button>`;
@@ -1237,7 +1238,7 @@ function renderSide(){const{lib,cats,none,pls}=navItems();const cur=S.view.split
    <div class="shelf"><h3>ライブラリ</h3><div class="nav">${lib.map(btn).join('')}</div></div>
    <div class="shelf"><h3><button class="hlink" data-view="cats">カテゴリ</button><span><button data-act="newCat" title="新しいカテゴリ">＋新規</button></span></h3><div class="nav" data-sortable="cats">${cats.map(btn).join('')||'<span class="none">曲をジャンル・用途ごとに分けられます</span>'}</div>${none?`<div class="nav">${btn(none)}</div>`:''}</div>
    <div class="shelf"><h3><button class="hlink" data-view="pls">プレイリスト</button><span><button data-act="newPl" title="新しいプレイリスト">＋新規</button><button data-act="newSmart" title="条件で自動作成">＋自動</button></span></h3><div class="nav" data-sortable="pls">${pls.map(btn).join('')||'<span class="none">まだありません</span>'}</div></div>
-   <div class="sync"><div>${cs}</div><div class="sidelinks"><button data-act="settings">${IC.gear}設定・バックアップ</button><button data-act="help">${IC.help}使い方</button></div>${S.upNote?`<div>${esc(S.upNote)}</div>`:''}<div class="mono">${S.tracks.size}曲 / ${fmtLong(all().reduce((a,t)=>a+(isFinite(t.duration)?t.duration:0),0))}</div></div>`;
+   <div class="sync"><div>${cs}</div><div class="sidelinks"><button data-act="settings">${IC.gear}設定・バックアップ</button><button data-act="help">${IC.help}使い方</button></div>${S.upNote?`<div>${esc(S.upNote)}</div>`:''}<div class="mono">${songN()}曲 / ${fmtLong(all().reduce((a,t)=>a+(isFinite(t.duration)?t.duration:0),0))}</div></div>`;
   const tabs=activeTabs(),tab=currentTab(tabs);
   $('#mobnav').innerHTML=`<button class="tabhome" data-view="all" aria-current="${S.view==='all'}" aria-label="すべての曲（ホーム）">${IC.home}<span>すべて</span></button>`+tabs.map(k=>`<button data-view="${esc(k)}" aria-current="${tab===k}">${esc(tabLabel(k))}</button>`).join('')+`<button class="tabadd" data-act="editTabs" aria-label="タブを追加・編集" title="タブを追加・編集">${IC.plus}</button>`;
   $('#mobnav').classList.toggle('many',tabs.length>4);
@@ -1270,7 +1271,7 @@ function rowHTML(t,i,ctx,dnd){const cur=S.queue[S.qi]===t.id,sel=S.sel.has(t.id)
    <div class="dur">${fmt(t.duration)}</div>
    <span class="racts"><button class="more edit" data-act="rename" data-id="${t.id}" aria-label="「${esc(t.title)}」の曲名・メモを編集" title="曲名・メモを編集">${IC.pen}</button><button class="more" data-menu="${t.id}" aria-label="「${esc(t.title)}」のメニュー">${IC.dots}</button></span></div>`}
 const EMPTY={none:['まだ曲がありません','右上の「曲を取り込む」から、端末やGoogleドライブの音楽ファイルを選んでください。'],pl:['このプレイリストはまだ空です','上の「曲を追加」から、ライブラリの曲や新しい曲を入れられます。'],cat:['このカテゴリにはまだ曲がありません','上の「曲を追加」から、ライブラリの曲や新しい曲を入れられます。'],lib:['曲が見つかりません','検索語を変えるか、曲を取り込んでください。']};
-function listBlock(list,ctx,dnd){if(!list.length){const[a,b]=(ctx==='lib'&&!S.q&&!S.tracks.size)?EMPTY.none:EMPTY[ctx]||EMPTY.lib;return`<div class="list"><div class="empty"><b>${a}</b>${b}</div></div>`}
+function listBlock(list,ctx,dnd){if(!list.length){const[a,b]=(ctx==='lib'&&!S.q&&!songN())?EMPTY.none:EMPTY[ctx]||EMPTY.lib;return`<div class="list"><div class="empty"><b>${a}</b>${b}</div></div>`}
   return`<div class="list"${dnd?` data-sortable="${ctx==='pl'?'pl':'order'}"`:''}><div class="row th"><span></span><span class="idx">#</span><span></span><span>タイトル</span><span>アルバム</span><span>評価</span><span class="dur">${IC.clock}</span><span></span></div>${list.map((t,i)=>rowHTML(t,i,ctx,dnd)).join('')}</div>`}
 function headHTML(title,meta,acts,o={}){let cv=o.list?mosaic(o.list,title,'cover',o.custom,true):'';
   if(cv&&o.coverAct)cv=`<button class="coverbtn" data-act="${o.coverAct}" aria-label="画像を変更" title="画像を変更">${cv}<span class="coverhint">${IC.image}画像を変更</span></button>`;
@@ -1299,16 +1300,16 @@ function renderView(){if(S.view==='dupes')S.view='all';const v=S.view;let h='';S
       :isArt&&grpName!=='不明'?hm([['setArtArtist','アーティスト画像を変更',IC.image],...(artImg?[['resetArtArtist','アーティスト画像を外す',IC.undo]]:[]),'-',['renameArtist','アーティスト名を変更',IC.pen]]):'';
     const ho=v==='all'?{kicker:'ライブラリ'}:isArt?{kicker:'アーティスト',list,custom:artImg,coverAct:grpName!=='不明'?'setArtArtist':''}:{kicker:'アルバム',list,coverAct:grpName!=='（アルバム名なし）'?'setArtAlbum':''};
     const hint=v!=='all'?'':dnd?DRAG_HINT:(!S.q&&!S.selMode&&S.sort!=='manual'?'並び順を「自分の並び順」にすると、ドラッグで順番を変えられます。':'');
-    const scN=scoreTracks().length,scCard=v==='all'&&!hasSample&&!S.q&&S.tracks.size?`<button class="schome" data-view="scores"><span class="schi">${IC.score}</span><span class="sctx"><b>楽譜</b><span>${scN?`${scN}曲に楽譜があります。タップして一覧を開く`:'曲に楽譜PDFをセットして、再生しながら表示・書き込み・PDF保存ができます'}</span></span><span class="scgo">${scN?'開く':'はじめる'}${IC.chev}</span></button>`:'';
-    if(v==='all'&&!S.tracks.size){h=banner+headHTML(title,'0曲','',ho)+listBlock([],'lib',false);$('#view').innerHTML=h;renderBulk();return}
+    const scN=scoreTracks().length,scCard=v==='all'&&!hasSample&&!S.q&&songN()?`<button class="schome" data-view="scores"><span class="schi">${IC.score}</span><span class="sctx"><b>楽譜</b><span>${scN?`楽譜が${scN}件あります。タップして一覧を開く`:'楽譜のPDFや写真を取り込んで、表示・書き込み・PDF保存ができます'}</span></span><span class="scgo">${scN?'開く':'はじめる'}${IC.chev}</span></button>`:'';
+    if(v==='all'&&!songN()){h=banner+headHTML(title,'0曲','',ho)+listBlock([],'lib',false);$('#view').innerHTML=h;renderBulk();return}
     h=banner+scCard+headHTML(title,metaOf(list),playActs+editActs,ho)+toolbarHTML({search:true,sort:v==='all',back:v==='all'?null:(v.startsWith('artist')?'artists':'albums'),hint})+listBlock(list,'lib',dnd);
   }else if(v==='artists'||v==='albums'){const key=v==='artists'?'artist':'album';const g=groups(key);current=[];const nt=S.tracks.get(S.queue[S.qi]),nowAlbum=nt&&!audio.paused?(nt.album||'（アルバム名なし）'):null;
     h=banner+headHTML(v==='artists'?'アーティスト':'アルバム',`${g.length}件`,v==='albums'?`<button class="btn pill" data-act="newAlbum">${IC.plus}新しいアルバム</button>`:'',{kicker:'ライブラリ'})+(g.length?`<div class="grid">${g.map(([k,l])=>{const a=l.find(t=>t.art),ai=key==='artist'?S.artistImgs[k]:null;return`<button class="card${key==='artist'?' round':''}${key==='album'&&nowAlbum===k?' playing':''}" data-view="${key}|${esc(k)}">${ai?`<div class="cover" ${imgStyle(ai.hi)}></div>`:`<div class="cover" ${a?artStyle(a,'',true):artStyle(null,key==='album'?k:'@'+k)}>${a?'':ini(null,k)}</div>`}<b>${esc(k)}</b><span>${l.length}曲${key==='album'&&l[0].artist?' · '+esc(l[0].artist):''}</span></button>`}).join('')}</div>`:'<div class="list"><div class="empty"><b>まだ曲がありません</b></div></div>');
   }else if(v==='scores'){current=[];const list=scoreTracks();
-    h=banner+headHTML('楽譜',list.length?`${list.length}曲に楽譜があります · タップで開く／▶で再生しながら開く`:'曲に楽譜PDFをセットして、再生しながら見る・書き込む・PDFで保存できます',`<button class="btn pill" data-act="scoreAdd">${IC.plus}楽譜を取り込む</button>`,{kicker:'楽譜'})
+    h=banner+headHTML('楽譜',list.length?`${list.length}件 · タップで開く／▶で曲を再生しながら開く`:'楽譜のPDFや写真を取り込んで、見る・書き込む・PDFで保存できます',`<button class="btn pill" data-act="scoreAdd">${IC.plus}楽譜を取り込む</button>`,{kicker:'楽譜'})
       +(list.length?`<div class="grid scgrid">${list.map(t=>{const e=t.score.edit,ed=t.score.edit&&hasEdits(t);return`<div class="sccard"><button class="sccov" data-act="scoreOpen" data-id="${t.id}" aria-label="${esc(t.title)}の楽譜を開く">${t.score.thumb?`<img src="${t.score.thumb}" alt="">`:`<span class="scph" data-thumb="${t.id}">${IC.score}</span>`}${ed?'<em>編集あり</em>':''}</button>
-        <div class="scmeta"><div class="sct"><b>${esc(t.title)}</b><span>${esc(t.artist||'—')} · ${scPages(t)}ページ</span></div><button class="cbtn scplay" data-act="scorePlayOpen" data-id="${t.id}" aria-label="再生しながら楽譜を開く" title="再生しながら開く">${IC.play}</button></div></div>`}).join('')}</div>`
-      :`<div class="scempty"><div class="scsteps">${[['1','曲を選ぶ','「楽譜を取り込む」を押して、楽譜を付けたい曲を選びます'],['2','PDFを選ぶ','端末やGoogleドライブにある楽譜のPDFを選びます'],['3','見る・書き込む','再生に合わせて自動でページがめくれます。「編集」で書き込みや音符の変更、「PDF保存」で保存できます']].map(([n,b,d])=>`<div><i>${n}</i><b>${b}</b><span>${d}</span></div>`).join('')}</div><button class="btn primary" data-act="scoreAdd">${IC.plus}楽譜を取り込む</button></div>`);
+        <div class="scmeta"><div class="sct"><b>${esc(t.title)}</b><span>${t.scoreOnly?(t.score.song&&S.tracks.get(t.score.song)?'♪ '+esc(S.tracks.get(t.score.song).title):'曲なし'):esc(t.artist||'—')} · ${scPages(t)}ページ</span></div>${scoreSongId(t)?'':'<!--'}<button class="cbtn scplay" data-act="scorePlayOpen" data-id="${t.id}" aria-label="再生しながら楽譜を開く" title="再生しながら開く">${IC.play}</button>${scoreSongId(t)?'':'-->'}</div></div>`}).join('')}</div>`
+      :`<div class="scempty"><div class="scsteps">${[['1','楽譜を取り込む','PDF、写真ライブラリの画像、その場でカメラで撮った楽譜のどれでも取り込めます。写真は複数枚まとめて1つの楽譜になります'],['2','曲と組み合わせる（任意）','一緒に再生する曲を選ぶと、再生に合わせて自動でページがめくれます'],['3','見る・書き込む','再生に合わせて自動でページがめくれます。「編集」で書き込みや音符の変更、「PDF保存」で保存できます']].map(([n,b,d])=>`<div><i>${n}</i><b>${b}</b><span>${d}</span></div>`).join('')}</div><button class="btn primary" data-act="scoreAdd">${IC.plus}楽譜を取り込む</button></div>`);
   }else if(v==='cats'){current=[];const none=catTracks('none');
     const rowC=(k,name,list,memo,ic,sid,cov)=>`<div class="vrow" data-view="${esc(k)}"${sid?` data-sid="${esc(sid)}"`:''}>${sid?`<span class="grip" title="ドラッグで並べ替え">${IC.grip}</span>`:'<span></span>'}${mosaic(list,name,'vcover',cov)}<div class="vt"><b>${esc(name)}</b><span>${metaOf(list)}</span>${memo?`<em>${esc(memo)}</em>`:''}</div><span class="vchev">${IC.chev}</span></div>`;
     h=banner+headHTML('カテゴリ',`${S.cats.length}件 · 曲をジャンルや用途ごとに分けて管理します`,`<button class="btn pill" data-act="newCat">${IC.plus}新しいカテゴリ</button>`,{kicker:'整理'})
@@ -1772,29 +1773,51 @@ function resetImage(tg){
 function viewTarget(){const v=S.view;if(v.startsWith('cat:')&&v!=='cat:none')return{type:'cat',id:v.slice(4)};if(v.startsWith('pl:'))return{type:'pl',id:v.slice(3)};
   if(v.startsWith('album|'))return{type:'album',id:v.slice(6)};if(v.startsWith('artist|'))return{type:'artist',id:v.slice(7)};return null}
 /* ---------- 楽譜（PDF） ---------- */
-function scoreTracks(){return all().filter(t=>t.score&&!t.sample).sort((a,b)=>(b.score.at||0)-(a.score.at||0))}
+function scoreTracks(){return [...S.tracks.values()].filter(t=>t.score&&!t.sample).sort((a,b)=>(b.score.at||0)-(a.score.at||0))}
 async function makeThumb(doc,t){const e=scEd(t),o=e.order[0],page=await doc.getPage(o),g=pageGeo(t,o,page),sc=260/g.C.w;const r=await renderPageCanvas(page,g,sc,g.C);await r.task.promise;
   const src=document.createElement('canvas');src.width=r.cv.width;src.height=r.cv.height;src.getContext('2d').drawImage(r.cv,0,0);drawAnn(r.cv.getContext('2d'),e.ann[o],g,sc,g.C,src);return r.cv.toDataURL('image/jpeg',.72)}
 let thumbBusy=false;async function fillThumbs(){if(thumbBusy)return;thumbBusy=true;try{for(const el of [...document.querySelectorAll('[data-thumb]')]){const t=S.tracks.get(el.dataset.thumb);if(!t||!t.score||t.score.thumb)continue;
     const blob=await tx('blobs','readonly',st=>st.get('pdf:'+t.id));if(!blob)continue;try{const doc=await openPdfDoc(await blob.arrayBuffer());t.score.thumb=await makeThumb(doc,t);doc.destroy();saveTrack(t);const im=document.createElement('img');im.src=t.score.thumb;el.replaceWith(im)}catch(_){}}}finally{thumbBusy=false}}
-function scoreAddSheet(){const list=all().filter(t=>!t.sample);if(!list.length){toast('先に曲を取り込んでください');return}
-  const row=t=>`<button class="scpick" data-act="scorePick" data-id="${t.id}"><span class="t"><b>${esc(t.title)}</b><span>${esc(t.artist||'—')}</span></span>${t.score?`<span class="chip">楽譜あり・差し替え</span>`:`<span class="scadd">${IC.plus}</span>`}</button>`;
-  sheet(`<h2>どの曲に楽譜を付けますか？</h2><p class="muted" style="margin:0;font-size:13px">曲を選ぶと、楽譜のPDFを選ぶ画面が開きます。</p>
+function scoreAdd(){S.pdfTarget=null;S.pdfNew=true;const i=$('#pdfIn');i.value='';i.click()}
+/* 合わせて再生する曲を選ぶ（楽譜単独で取り込んだもの用） */
+function songPickSheet(scoreId){const t=S.tracks.get(scoreId);if(!t)return;const list=all().filter(x=>!x.sample);if(!list.length){toast('先に曲を取り込んでください');return}
+  const cur=t.score&&t.score.song;
+  const row=x=>`<button class="scpick" data-act="songLink" data-id="${scoreId}" data-song="${x.id}"><span class="t"><b>${esc(x.title)}</b><span>${esc(x.artist||'—')}</span></span>${cur===x.id?'<span class="chip">選択中</span>':`<span class="scadd">${IC.plus}</span>`}</button>`;
+  sheet(`<h2>この楽譜と一緒に再生する曲</h2><p class="muted" style="margin:0;font-size:13px">選んだ曲を再生すると、この楽譜のページが自動でめくれるようになります。</p>
    <input id="scQ" class="scq" placeholder="曲名・アーティストで探す" autocomplete="off"><div class="scpicks" id="scPicks">${list.map(row).join('')}</div>
-   <div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">閉じる</button></span></div>`,root=>{
-    const q=$('#scQ');q.oninput=()=>{const k=q.value.trim().toLowerCase();$('#scPicks').innerHTML=list.filter(t=>!k||(t.title+' '+(t.artist||'')+' '+(t.album||'')).toLowerCase().includes(k)).map(row).join('')||'<div class="muted" style="padding:16px;text-align:center">見つかりません</div>'};
+   <div class="foot"><span>${cur?`<button class="btn" data-act="songLink" data-id="${scoreId}" data-song="">曲との組み合わせを外す</button>`:''}</span><span class="actions"><button class="btn" data-act="close">閉じる</button></span></div>`,root=>{
+    const q=$('#scQ');q.oninput=()=>{const k=q.value.trim().toLowerCase();$('#scPicks').innerHTML=list.filter(x=>!k||(x.title+' '+(x.artist||'')+' '+(x.album||'')).toLowerCase().includes(k)).map(row).join('')||'<div class="muted" style="padding:16px;text-align:center">見つかりません</div>'};
     if(!isMobile())setTimeout(()=>q.focus(),60)})}
-
+/* 楽譜と再生中の曲が対応しているか */
+function scoreSongId(t){return t?(t.scoreOnly?(t.score&&t.score.song)||null:t.id):null}
+function scoreLive(t){const sid=scoreSongId(t);return !!sid&&S.queue[S.qi]===sid&&!!audio.src}
+/* 写真（画像）をPDFにまとめる。1枚＝1ページ */
+async function imagesToPdf(files){const L=await loadPdfLib();const out=await L.PDFDocument.create();
+  for(const f of files){let bmp;try{bmp=await createImageBitmap(f,{imageOrientation:'from-image'})}catch(_){try{bmp=await createImageBitmap(f)}catch(e){continue}}
+    const mx=2600,sc=Math.min(1,mx/Math.max(bmp.width,bmp.height)),w=Math.round(bmp.width*sc),h=Math.round(bmp.height*sc);
+    const cv=document.createElement('canvas');cv.width=w;cv.height=h;const g=cv.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,w,h);g.drawImage(bmp,0,0,w,h);
+    const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',.88));const img=await out.embedJpg(new Uint8Array(await blob.arrayBuffer()));
+    const pw=595.28,ph=pw*h/w;const pg=out.addPage([pw,ph]);pg.drawImage(img,{x:0,y:0,width:pw,height:ph})}
+  if(!out.getPageCount())throw new Error('no image');return new Blob([await out.save()],{type:'application/pdf'})}
+async function importScoreFiles(files){files=[...files];if(!files.length)return;const isPdf=f=>/pdf/i.test(f.type)||/\.pdf$/i.test(f.name),isImg=f=>/^image\//.test(f.type)||/\.(jpe?g|png|heic|heif|webp|gif)$/i.test(f.name);
+  const pdfs=files.filter(isPdf),imgs=files.filter(f=>!isPdf(f)&&isImg(f)),other=files.length-pdfs.length-imgs.length;
+  if(!pdfs.length&&!imgs.length){toast('楽譜のPDFか、楽譜を写した写真を選んでください'+(other?'（動画は楽譜にできません）':''));return}
+  const jobs=pdfs.map(f=>({blob:f,name:f.name.replace(/\.pdf$/i,'')}));
+  if(imgs.length){progress(`写真を楽譜にしています（${imgs.length}枚）…`);try{const d=new Date();jobs.push({blob:await imagesToPdf(imgs),name:imgs.length===1?imgs[0].name.replace(/\.[^.]+$/,''):`楽譜 ${d.getMonth()+1}月${d.getDate()}日 ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`})}catch(e){progress(null);toast('写真を読み込めませんでした。別の写真でお試しください');if(!jobs.length)return}}
+  const target=S.pdfTarget;S.pdfTarget=null;S.pdfNew=false;let lastId=null,n=0;
+  for(const j of jobs){let id=target;if(!id||n>0){id='sc_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);S.tracks.set(id,{id,scoreOnly:true,title:j.name||'楽譜',artist:'',addedAt:Date.now()})}
+    const ok=await saveScorePdf(id,j.blob,j.name);if(ok){lastId=id;n++}else if(S.tracks.get(id)&&S.tracks.get(id).scoreOnly&&!S.tracks.get(id).score)S.tracks.delete(id)}
+  progress(null);render();if(!n)return;toast(n>1?`楽譜を${n}件取り込みました`:'楽譜を取り込みました'+(other?'（動画は楽譜にできないため外しました）':''));openScore(lastId)}
+async function saveScorePdf(id,blob,name){const t=S.tracks.get(id);if(!t)return false;progress('楽譜を読み込み中…');let pages=0,thumb=null;
+  try{const buf=await blob.arrayBuffer();const doc=await openPdfDoc(buf.slice(0));pages=doc.numPages;try{thumb=await makeThumb(doc,{score:{pages}})}catch(_){}doc.destroy()}catch(e){progress(null);toast('このPDFは読み込めませんでした。別のPDFでお試しください');return false}
+  await tx('blobs','readwrite',st=>st.put(new Blob([blob],{type:'application/pdf'}),'pdf:'+id));
+  const song=t.score&&t.score.song;t.score={name:(name||'楽譜')+'.pdf',size:blob.size,pages,at:Date.now(),view:{},turns:{},page:1,auto:true,thumb,...(song?{song}:{})};saveTrack(t);return true}
 let pdfjsLib=null;
 async function loadPdfjs(){if(pdfjsLib)return pdfjsLib;const m=await import('./vendor/pdfjs/pdf.min.mjs');m.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.mjs';pdfjsLib=m;return m}
 async function openPdfDoc(buf){const lib=await loadPdfjs();return lib.getDocument({data:new Uint8Array(buf),cMapUrl:'vendor/pdfjs/cmaps/',cMapPacked:true,standardFontDataUrl:'vendor/pdfjs/standard_fonts/',wasmUrl:'vendor/pdfjs/wasm/'}).promise}
 function pickScore(id){const t=S.tracks.get(id);if(!t)return;if(t.sample){toast('サンプル曲には楽譜を取り込めません。自分の曲で試してください');return}S.pdfTarget=id;const i=$('#pdfIn');i.value='';i.click()}
-async function importScore(file){const id=S.pdfTarget;S.pdfTarget=null;const t=S.tracks.get(id);if(!t||!file)return;
-  if(!/pdf/i.test(file.type)&&!/\.pdf$/i.test(file.name)){toast('PDFファイルを選んでください');return}
-  progress('楽譜を読み込み中…');let pages=0,thumb=null;try{const buf=await file.arrayBuffer();const doc=await openPdfDoc(buf.slice(0));pages=doc.numPages;try{thumb=await makeThumb(doc,{score:{pages}})}catch(_){}doc.destroy()}catch(e){progress(null);toast('このPDFは読み込めませんでした。別のPDFでお試しください');return}
-  await tx('blobs','readwrite',st=>st.put(new Blob([file],{type:'application/pdf'}),'pdf:'+id));progress(null);
-  t.score={name:file.name,size:file.size,pages,at:Date.now(),view:{},turns:{},page:1,auto:true,thumb};saveTrack(t);render();toast(`楽譜（${pages}ページ）を取り込みました`);openScore(id)}
-async function removeScore(id){const t=S.tracks.get(id);if(!t)return;await tx('blobs','readwrite',st=>st.delete('pdf:'+id));delete t.score;saveTrack(t);closeScore();render();toast('楽譜を削除しました')}
+async function importScore(file){return importScoreFiles(file?[file]:[])}
+async function removeScore(id){const t=S.tracks.get(id);if(!t)return;await tx('blobs','readwrite',st=>st.delete('pdf:'+id));if(t.scoreOnly){S.tracks.delete(id);await tx('tracks','readwrite',st=>st.delete(id))}else{delete t.score;saveTrack(t)}closeScore();render();toast('楽譜を削除しました')}
 const SV={id:null,doc:null,page:1,o:1,z:1,x:0,y:0,pw:0,ph:0,task:null,rz:null,lastUser:0,noFile:false,
   edit:false,tool:'pen',color:{pen:'#14161B',mk:'#FFD60A',tx:'#E5484D',nt:'#14161B'},size:{pen:1,mk:1,tx:1},g:null,C:{x:0,y:0,w:0,h:0},rs:1,op:null,undo:[],redo:[],cropMode:false,cropR:null,cropAll:false,thumbs:new Map(),sel:null,ntType:'q',ntDot:false,staves:{},lastSp:7};
 const PEN_W=[0.9,1.8,3.6],MK_W=[7,12,20],TX_S=[11,16,26],TXF='"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif';
@@ -1856,10 +1879,10 @@ function scoreTips(){const st=$('#svStage');if(!st||$('#svTips'))return;const d=
    <li><i>${IC.pen}</i><span><b>書き込む</b>「書く・音符・ページ」から選んで編集。終わったら「完了」</span></li>
    <li><i>${IC.dl}</i><span><b>PDF保存</b>書き込みごとPDFにして保存</span></li></ul>
    <button class="btn primary" data-act="tipsClose">わかった</button></div>`;st.appendChild(d)}
-function renderTurnBar(){const t=S.tracks.get(SV.id),el=$('#svTurn');if(!t||!el||!t.score)return;if(SV.edit){el.hidden=true;el.dataset.sig='';return}el.hidden=false;const sc=t.score,live=S.queue[S.qi]===t.id&&!!audio.src,p=SV.page,N=scPages(t);const cur=sc.turns[SV.o];
+function renderTurnBar(){const t=S.tracks.get(SV.id),el=$('#svTurn');if(!t||!el||!t.score)return;if(SV.edit){el.hidden=true;el.dataset.sig='';return}el.hidden=false;const sc=t.score,live=scoreLive(t),p=SV.page,N=scPages(t);const cur=sc.turns[SV.o];
   const sig=[SV.id,p,N,live,JSON.stringify(sc.turns||{}),JSON.stringify(scEd(t).order)].join('|');if(el.dataset.sig===sig){el.querySelectorAll('[data-tt]').forEach(x=>x.textContent=fmt(audio.currentTime));return}el.dataset.sig=sig;
-  const set=p===1?'':live?`<button class="btn sm sv-flag${cur!=null?'':' primary'}" data-act="scoreTurnSet" title="再生中のこの位置から、このページを表示します">${IC.flag}${cur!=null?`${p}ページ目を <span data-tt>${fmt(audio.currentTime)}</span> からに変更`:`${p}ページ目を <span data-tt>${fmt(audio.currentTime)}</span> から表示`}</button>${cur!=null?`<button class="btn sm" data-act="scoreTurnDel">解除</button>`:''}`
-    :`<span class="muted sv-tip">曲の再生中に、このページを表示する時間を登録できます</span>`;
+  const set=(t.scoreOnly&&!t.score.song)?`<button class="btn sm" data-act="songPick" data-id="${t.id}">${IC.note}一緒に再生する曲を選ぶ</button><span class="muted sv-tip">選ぶと、再生に合わせて自動でページがめくれます</span>`:p===1?'':live?`<button class="btn sm sv-flag${cur!=null?'':' primary'}" data-act="scoreTurnSet" title="再生中のこの位置から、このページを表示します">${IC.flag}${cur!=null?`${p}ページ目を <span data-tt>${fmt(audio.currentTime)}</span> からに変更`:`${p}ページ目を <span data-tt>${fmt(audio.currentTime)}</span> から表示`}</button>${cur!=null?`<button class="btn sm" data-act="scoreTurnDel">解除</button>`:''}`
+    :(t.scoreOnly&&!t.score.song)?`<button class="btn sm" data-act="songPick" data-id="${t.id}">${IC.note}一緒に再生する曲を選ぶ</button>`:`<span class="muted sv-tip">曲の再生中に、このページを表示する時間を登録できます</span>`;
   el.innerHTML=`<div class="sv-trow1"><label class="sv-switch" title="登録した時間になると自動でページをめくります"><input type="checkbox" id="svAuto"${sc.auto?' checked':''}><i></i><span>自動でめくる</span></label>
    <div class="sv-chips" role="tablist" aria-label="ページ">${Array.from({length:N},(_,i)=>i+1).map(n=>`<button class="sv-chip${n===p?' on':''}" data-act="scoreGo" data-p="${n}" title="${n}ページ目へ"><b>${n}</b><span>${fmtTurn(t,n)}</span></button>`).join('')}</div></div>
    ${set?`<div class="sv-set">${set}</div>`:''}`;
@@ -1912,7 +1935,7 @@ function bindScore(){const st=$('#svStage');const pts=new Map();let last=null,pi
   st.addEventListener('dblclick',e=>{if(SV.edit&&SV.tool!=='hand')return;const r=st.getBoundingClientRect();zoomAt(SV.z>1.4?1:2,e.clientX-r.left,e.clientY-r.top)});
   window.addEventListener('resize',onScoreResize)}
 function onScoreResize(){if(!SV.doc||$('#scoreView').hidden)return;const t=S.tracks.get(SV.id);if(SV.cropMode)fitMode('p',true);else placeFromView(t&&t.score.view[SV.o]);applyXform();redrawSoon()}
-function scoreAutoTurn(){if(!SV.doc||!SV.id||SV.edit||S.queue[S.qi]!==SV.id)return;const t=S.tracks.get(SV.id);if(!t||!t.score||!t.score.auto)return;if(Date.now()-SV.lastUser<2500)return;
+function scoreAutoTurn(){if(!SV.doc||!SV.id||SV.edit)return;const t=S.tracks.get(SV.id);if(!scoreLive(t))return;if(!t||!t.score||!t.score.auto)return;if(Date.now()-SV.lastUser<2500)return;
   const ord=scEd(t).order,now=audio.currentTime;let best=1,bt=-1;for(const[o,v]of Object.entries(t.score.turns||{})){const n=ord.indexOf(+o)+1;if(n<1)continue;if(v<=now+0.1&&v>bt){bt=v;best=n}}if(bt<0)best=1;if(best!==SV.page)gotoPage(best)}
 
 /* ---------- 音符（描画・五線検出・移動） ---------- */
@@ -2158,7 +2181,7 @@ function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropE
       try{const bytes=await buildEditedPdf(t,{ann:$('#pdfAnn').checked});file=new File([bytes],safeName($('#pdfName').value),{type:'application/pdf'});
         go.disabled=false;go.innerHTML=`${IC.check}保存する`;msg.textContent=`PDFができました（${Math.max(1,Math.round(bytes.length/1024))}KB）。「保存する」を押してください。`;if(!isMobile())save()}
       catch(err){console.error(err);go.disabled=false;go.innerHTML=`${IC.dl}PDFを作成`;msg.textContent='PDFを作成できませんでした。このPDFは保護されている可能性があります。'}}})}
-function scoreMenu(btn,id){openActMenu(btn,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['scoreHelp','使い方を見る',IC.help],['svEdit',SV.edit?'書き込みを終える':'書き込む',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','PDFで保存',IC.dl],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']])}
+function scoreMenu(btn,id){openActMenu(btn,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['scoreHelp','使い方を見る',IC.help],...(curT()&&curT().scoreOnly?[['scoreRename','楽譜の名前を変更',IC.pen],['songPick',curT().score&&curT().score.song?'一緒に再生する曲を変更':'一緒に再生する曲を選ぶ',IC.note]]:[]),['svEdit',SV.edit?'書き込みを終える':'書き込む',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','PDFで保存',IC.dl],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']])}
 function smartSheet(){const tagsUsed=[...new Set(all().flatMap(t=>t.tags||[]))],genres=[...new Set(all().map(t=>t.genre).filter(Boolean))],artists=[...new Set(all().map(t=>t.artist).filter(Boolean))];
   const opt=(l,ph)=>`<option value="">${ph}</option>`+l.sort((a,b)=>a.localeCompare(b,'ja')).map(x=>`<option>${esc(x)}</option>`).join('');
   sheet(`<h2>条件で自動プレイリスト</h2><p style="margin:0;color:var(--muted);font-size:13px">条件に合う曲が自動で集まります。曲の評価やタグを変えると中身も変わります。</p>
@@ -2256,7 +2279,7 @@ async function importBackup(file){let j;try{j=JSON.parse(await file.text())}catc
   if(j.artistImgs&&typeof j.artistImgs==='object'){Object.assign(S.artistImgs,j.artistImgs);saveArtistImgs()}
   if(n)removeSamples(true);closeSheet();render();toast(`${n}曲分の整理内容を読み込みました。この端末で同じ曲ファイルを取り込むと再生できます。`)}
 async function wipeAll(){closeSheet();audio.pause();audio.removeAttribute('src');S.queue=[];S.qi=-1;
-  const ids=all().filter(t=>!t.sample);
+  const ids=all().filter(t=>!t.sample);for(const t of [...S.tracks.values()])if(t.scoreOnly)S.tracks.delete(t.id);
   await tx('blobs','readwrite',s=>s.clear());await tx('tracks','readwrite',s=>s.clear());await tx('kv','readwrite',s=>s.clear());
   if(S.cloud){for(const t of ids)S.cloud.collection(S.col).doc('t_'+t.id).delete().catch(()=>{});S.cloud.collection(S.col).doc('playlists').delete().catch(()=>{})}
   if(S.assets)for(const t of ids)if(t.assetId)S.assets.delete(t.assetId).catch(()=>{});
@@ -2306,9 +2329,12 @@ document.addEventListener('click',e=>{
     if(act==='keyStep'){const t=S.tracks.get(id||S.queue[S.qi]);if(t)setKeyFor(t.id,(t.key||0)+(+a.dataset.d));else changeKey(+a.dataset.d);return}
     if(act==='keySet'){setKeyFor(id||S.queue[S.qi],+a.dataset.k);return}
     if(act==='keyOpen'){keySheet(id);return}
-    if(act==='scoreAdd'){scoreAddSheet();return}
+    if(act==='scoreAdd'){scoreAdd();return}
     if(act==='scorePick'){closeSheet();pickScore(id);return}
-    if(act==='scorePlayOpen'){const t=S.tracks.get(id);if(t){S.queue=scoreTracks().map(x=>x.id);const i=S.queue.indexOf(id);playIdx(i<0?0:i);openScore(id)}return}
+    if(act==='songPick'){songPickSheet(id||SV.id);return}
+    if(act==='scoreRename'){const t=S.tracks.get(id||SV.id);if(t)nameSheet('楽譜の名前',t.title,v=>{t.title=v;saveTrack(t);render();const b=$('.sv-title b');if(b)b.textContent=v});return}
+    if(act==='songLink'){const t=S.tracks.get(id);if(t&&t.score){if(a.dataset.song)t.score.song=a.dataset.song;else delete t.score.song;saveTrack(t);closeSheet();const el=$('#svTurn');if(el)el.dataset.sig='';renderTurnBar();render();toast(a.dataset.song?`「${(S.tracks.get(a.dataset.song)||{}).title||''}」と組み合わせました`:'曲との組み合わせを外しました')}return}
+    if(act==='scorePlayOpen'){const t=S.tracks.get(id);if(t){const sid=scoreSongId(t);if(sid&&S.tracks.get(sid)){S.queue=[sid];S.queueOrig=[sid];playIdx(0)}else if(t.scoreOnly){openScore(id);toast('一緒に再生する曲が選ばれていません。下の「一緒に再生する曲を選ぶ」から選べます');return}openScore(id)}return}
     if(act==='scoreOpen'){openScore(id||S.queue[S.qi]);return}
     if(act==='scoreClose'){closeScore();return}
     if(act==='svEdit'){if(!SV.doc){toast('楽譜PDFを取り込んでから使えます');return}setEdit(!SV.edit);return}
@@ -2359,7 +2385,7 @@ document.addEventListener('click',e=>{
     if(act==='scoreDelGo'){closeSheet();removeScore(id);return}
     if(act==='scoreResetView'){const t=S.tracks.get(SV.id);if(t){delete t.score.view[SV.o];saveTrack(t);gotoPage(SV.page,true)}return}
     if(act==='scoreTurnClear'){const t=S.tracks.get(SV.id);if(t){t.score.turns={};saveTrack(t);renderTurnBar();toast('ページめくり位置を解除しました')}return}
-    if(act==='scoreTurnSet'){const t=S.tracks.get(SV.id);if(t&&S.queue[S.qi]===t.id){t.score.turns[SV.o]=Math.round(audio.currentTime*10)/10;saveTrack(t);renderTurnBar();toast(`${SV.page}ページ目を ${fmt(audio.currentTime)} から表示します`)}return}
+    if(act==='scoreTurnSet'){const t=S.tracks.get(SV.id);if(t&&scoreLive(t)){t.score.turns[SV.o]=Math.round(audio.currentTime*10)/10;saveTrack(t);renderTurnBar();toast(`${SV.page}ページ目を ${fmt(audio.currentTime)} から表示します`)}return}
     if(act==='scoreTurnDel'){const t=S.tracks.get(SV.id);if(t){delete t.score.turns[SV.o];saveTrack(t);renderTurnBar()}return}
     if(act==='modStep'){modStep(id,+a.dataset.d);return}
     if(act==='ctlStep'){const t=S.tracks.get(id);if(!t)return;if(a.dataset.f==='speed')setCtl(id,{speed:(t.speed||1)+(+a.dataset.d)*0.05},{label:'速度'});else setCtl(id,{key:Math.round(+(t.key||0))+(+a.dataset.d)},{label:'音程'});return}
@@ -2431,7 +2457,7 @@ document.addEventListener('dblclick',e=>{const b=e.target.closest('[data-rename]
 window.addEventListener('resize',closeMenu);document.addEventListener('scroll',closeMenu,true);
 $('#fileIn').onchange=e=>{importFiles(e.target.files);e.target.value=''};
 $('#dirIn').onchange=e=>{importFiles(e.target.files);e.target.value=''};
-$('#pdfIn').onchange=e=>{const f=e.target.files[0];importScore(f);e.target.value=''};
+$('#pdfIn').onchange=e=>{const fs=[...e.target.files];e.target.value='';if(fs.length)importScoreFiles(fs);else{S.pdfTarget=null;S.pdfNew=false}};
 $('#imgIn').onchange=e=>{const f=e.target.files[0];applyImageFile(f);e.target.value=''};
 $('#jsonIn').onchange=e=>{const f=e.target.files[0];if(f)importBackup(f);e.target.value=''};
 let dragN=0;
