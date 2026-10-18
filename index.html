@@ -532,7 +532,9 @@ body.np-full .np-title,body.np-full .np-meta,body.np-full .np-memo,body.np-full 
   .np-art .ini{font-size:110px}
   .head .kicker{display:none}
   .head:not(.has-cover){margin-bottom:14px}
-  .head:not(.has-cover) .htext{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;width:100%;align-items:center}
+  .head:not(.has-cover) .htext{display:grid;grid-template-columns:minmax(min(9em,55%),1fr) auto;column-gap:12px;width:100%;align-items:center}
+  .head:not(.has-cover) .hacts:has(.btn ~ .btn),.head:not(.has-cover) .hacts:has(.btn.pill ~ *){grid-column:1/-1!important;grid-row:auto!important;justify-content:flex-start!important;margin-top:12px!important}
+  .head h1{word-break:keep-all;overflow-wrap:anywhere}
   .head:not(.has-cover) .htext>*{grid-column:1}
   .head:not(.has-cover) .hacts{grid-column:2;grid-row:1/span 4;margin-top:0;align-self:center;justify-content:flex-end;flex-wrap:wrap}
   .head:not(.has-cover) h1{font-size:24px}
