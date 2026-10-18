@@ -802,6 +802,26 @@ button.badge.key:hover{background:var(--accent);color:#fff}
 .scpick .t{flex:1;min-width:0;display:flex;flex-direction:column}.scpick .t b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scpick .t span{font-size:12px;color:var(--muted)}
 .scadd{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none}.scadd svg{width:16px;height:16px}
 @media (max-width:760px){.scsteps{grid-template-columns:1fr}.scgrid{grid-template-columns:repeat(2,1fr)!important;gap:18px 14px!important}.schome{margin-bottom:14px}}
+.sv-arw{position:absolute;top:50%;width:40px;height:40px;margin-top:-20px;border-radius:50%;background:rgba(255,255,255,.92);box-shadow:0 4px 14px -4px rgba(20,22,27,.35),0 0 0 1px rgba(20,22,27,.06);display:grid;place-items:center;color:var(--ink);opacity:.85;transition:opacity .15s}
+.sv-arw svg{width:20px;height:20px}.sv-edge.l .sv-arw{left:10px}.sv-edge.r .sv-arw{right:10px}.sv-edge:hover .sv-arw{opacity:1}
+.sv-stage.first .sv-edge.l,.sv-stage.last .sv-edge.r{display:none}
+.sv-trow1{display:flex;align-items:center;gap:12px;min-width:0}
+.sv-switch{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;flex:none;cursor:pointer}.sv-switch input{position:absolute;opacity:0;width:0;height:0}
+.sv-switch i{width:36px;height:21px;border-radius:999px;background:#CDD1D9;position:relative;transition:background .15s;flex:none}.sv-switch i::after{content:"";position:absolute;left:2px;top:2px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .15s}
+.sv-switch input:checked+i{background:var(--accent)}.sv-switch input:checked+i::after{transform:translateX(15px)}.sv-switch input:focus-visible+i{outline:2px solid var(--accent);outline-offset:2px}
+.sv-trow1 .sv-chips{flex:1;min-width:0}.sv-tip{font-size:12px}
+.sv-modes{display:flex;background:#F1F2F5;border-radius:12px;padding:3px;gap:2px}
+.sv-modes button{display:flex;align-items:center;gap:6px;border:0;background:transparent;border-radius:9px;padding:7px 14px;font:inherit;font-size:13.5px;font-weight:700;color:var(--muted);cursor:pointer}
+.sv-modes button svg{width:17px;height:17px}.sv-modes button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(20,22,27,.14)}.sv-modes button.on svg{color:var(--accent)}
+.sv-tl2{display:flex;gap:6px}
+.sv-tl2 button{display:flex;align-items:center;gap:6px;border:1px solid var(--line2);background:#fff;border-radius:10px;padding:7px 12px;font:inherit;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;white-space:nowrap}
+.sv-tl2 button svg{width:17px;height:17px}.sv-tl2 button.on{border-color:var(--ink);background:var(--ink);color:#fff}.sv-tl2 button:disabled{opacity:.4;cursor:default}
+.sv-hintline{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);min-width:0}.sv-hintline svg{width:14px;height:14px;flex:none}.sv-hintline span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sv-tips{position:absolute;inset:0;z-index:5;user-select:none;-webkit-user-select:none;background:rgba(20,22,27,.42);display:grid;place-items:center;padding:16px}
+.sv-tipcard{background:#fff;border-radius:16px;padding:20px;max-width:380px;width:100%;display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 60px -20px rgba(0,0,0,.5)}
+.sv-tiph{font-size:17px}.sv-tipcard ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.sv-tipcard li{display:flex;gap:12px;align-items:flex-start}.sv-tipcard li i{width:32px;height:32px;border-radius:9px;background:#FFF0EE;color:var(--accent);display:grid;place-items:center;flex:none}.sv-tipcard li i svg{width:17px;height:17px}
+.sv-tipcard li span{display:flex;flex-direction:column;font-size:12.5px;color:var(--muted);line-height:1.5}.sv-tipcard li b{font-size:14px;color:var(--ink)}
 .sv-empty{position:absolute;inset:0;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--muted)}.sv-empty b{color:var(--ink);font-size:16px}
 .scorerow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#fff;border:1px solid var(--line2);border-radius:12px;padding:11px 14px;margin-top:16px;cursor:pointer}
 .scorerow:hover{border-color:var(--ink2)}.scorerow>svg{width:20px;height:20px;color:var(--ink);flex:none}
@@ -812,7 +832,13 @@ button.badge.key:hover{background:var(--accent);color:#fff}
 button.badge.score{border:0;cursor:pointer;font:inherit;font-size:10.5px;font-weight:700;background:var(--ink);color:#fff}
 @media (max-width:760px){
   .sv-bar{gap:4px;padding-block:8px;flex-wrap:nowrap}.sv-title{display:none}
-  .sv-tools .sv-trow:first-child:has(.sv-seg){flex-wrap:wrap;row-gap:8px}.sv-tools .sv-opts{max-width:100%;overflow-x:auto;scrollbar-width:none}.sv-hint2{display:none}.sv-seg button{padding:7px 8px!important}.sv-tools .sv-hint{display:none}.sv-tools .sv-trow .sv-auto span{font-size:12px}  .sv-savebtn span{display:none}.sv-savebtn{padding-inline:9px}#svZoom{display:none}.sv-tools .sv-trow:last-child .cbtn{width:34px;height:34px}.sv-tools .sv-trow:last-child{gap:3px}.sv-tools .sv-trow:last-child .sv-div{margin:0 1px}
+  .sv-tools .sv-trow:first-child:has(.sv-seg){flex-wrap:wrap;row-gap:8px}.sv-tools .sv-opts{max-width:100%;overflow-x:auto;scrollbar-width:none}.sv-hint2{display:none}.sv-seg button{padding:7px 8px!important}.sv-tools .sv-hint{display:none}.sv-tools .sv-trow .sv-auto span{font-size:12px}.sv-zoom{display:none!important}.sv-bar .sv-editbtn span{display:inline!important}.sv-editbtn{padding-inline:11px!important}
+  .sv-arw{width:34px;height:34px;margin-top:-17px}.sv-edge.l .sv-arw{left:4px}.sv-edge.r .sv-arw{right:4px}
+  .sv-tip{display:none}.sv-flag{flex:1}
+  .sv-modes button{padding:7px 10px;font-size:13px}.sv-tools .sv-trow .sv-done span{display:inline!important}
+  .sv-tl2{width:100%}.sv-tl2 button{flex:1 1 0;min-width:0;flex-direction:column;gap:2px;padding:6px 2px;font-size:10.5px;border-radius:9px}.sv-tl2 button span{display:block!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .sv-hintline{font-size:11.5px}
+    .sv-savebtn span{display:none}.sv-savebtn{padding-inline:9px}#svZoom{display:none}.sv-tools .sv-trow:last-child .cbtn{width:34px;height:34px}.sv-tools .sv-trow:last-child{gap:3px}.sv-tools .sv-trow:last-child .sv-div{margin:0 1px}
   .sv-editbtn span{display:none}.sv-editbtn{padding-inline:9px}.sv-seg button span{display:none}.sv-seg button{padding:7px 9px}.sv-trow .btn.sm span{display:none}.sv-tools .sv-trow .btn.primary span{display:inline}.pg-grid{grid-template-columns:repeat(2,1fr)}.pg-th{height:150px}
   .sv-bar .cbtn{width:36px;height:36px}.sv-pg,.sv-zoom{gap:2px}.sv-zoom .btn{display:none}.sv-pg{margin-right:auto}
   #svPage{min-width:44px}#svZoom{min-width:42px;font-size:12px}
@@ -1279,7 +1305,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)return;
   else if(audio.ended&&S.autoNext&&S.repeat!=='one'&&nextIndex()>=0)next()});
 audio.addEventListener('play',()=>{if(S.pendingCount&&S.queue[S.qi]===S.pendingCount){const t=S.tracks.get(S.pendingCount);S.pendingCount=null;if(t){t.plays=(t.plays||0)+1;t.lastPlayed=Date.now();saveTrack(t)}}});
 audio.addEventListener('play',renderSoon);audio.addEventListener('pause',renderSoon);
-audio.addEventListener('timeupdate',()=>{checkTimer();keyTick();if(SV.doc){scoreAutoTurn();if(S.tlTick%4===0&&$('#svTurn [data-act=scoreTurnSet]'))renderTurnBar()}if(S.tlTick++%4===0){const p=$('.tl-ph'),t=S.tracks.get(S.queue[S.qi]);if(p&&t&&t.duration)document.querySelectorAll('.tl-ph').forEach(x=>x.style.left=Math.min(100,audio.currentTime/t.duration*100)+'%')}if(seeking)return;const d=audio.duration;$('#tCur').textContent=fmt(audio.currentTime);$('#tDur').textContent=fmt(d);$('#seek').value=d?audio.currentTime/d*1000:0;$('#seek').style.setProperty('--p',(d?audio.currentTime/d*100:0)+'%');
+audio.addEventListener('timeupdate',()=>{checkTimer();keyTick();if(SV.doc){scoreAutoTurn();if(S.tlTick%4===0&&!SV.edit)renderTurnBar()}if(S.tlTick++%4===0){const p=$('.tl-ph'),t=S.tracks.get(S.queue[S.qi]);if(p&&t&&t.duration)document.querySelectorAll('.tl-ph').forEach(x=>x.style.left=Math.min(100,audio.currentTime/t.duration*100)+'%')}if(seeking)return;const d=audio.duration;$('#tCur').textContent=fmt(audio.currentTime);$('#tDur').textContent=fmt(d);$('#seek').value=d?audio.currentTime/d*1000:0;$('#seek').style.setProperty('--p',(d?audio.currentTime/d*100:0)+'%');
   if('mediaSession'in navigator&&d&&isFinite(d)){try{navigator.mediaSession.setPositionState({duration:d,position:Math.min(audio.currentTime,d),playbackRate:audio.playbackRate||1})}catch(e){}}});
 let seeking=false;$('#seek').addEventListener('input',e=>{seeking=true;e.target.style.setProperty('--p',e.target.value/10+'%');const d=audio.duration;if(d)$('#tCur').textContent=fmt(e.target.value/1000*d)});
 $('#seek').addEventListener('change',e=>{const d=audio.duration;if(d)audio.currentTime=e.target.value/1000*d;seeking=false});
@@ -1732,7 +1758,7 @@ async function openScore(id){const t=S.tracks.get(id);if(!t)return;if(!t.score){
   const blob=await tx('blobs','readonly',st=>st.get('pdf:'+id));
   if(!blob){SV.noFile=true;$('#svStage').innerHTML=`<div class="sv-empty"><b>この端末に楽譜PDFがありません</b><span>バックアップから移した場合など、PDFファイル自体は引き継がれません。もう一度取り込んでください。</span><button class="btn primary" data-act="scoreReplace" data-id="${id}">${IC.score}楽譜PDFを取り込む</button></div>`;return}
   try{progress('楽譜を表示中…');if(SV.doc){SV.doc.destroy();SV.doc=null}SV.doc=await openPdfDoc(await blob.arrayBuffer());progress(null)}catch(e){progress(null);toast('楽譜を開けませんでした');return}
-  if(SV.id!==id)return;if(t.score.pages!==SV.doc.numPages){t.score.pages=SV.doc.numPages;saveTrack(t)}scEd(t);await gotoPage(Math.min(t.score.page||1,scPages(t)),true)}
+  if(SV.id!==id)return;try{if(!localStorage.getItem('crate.scoreTips'))setTimeout(scoreTips,300)}catch(_){}if(t.score.pages!==SV.doc.numPages){t.score.pages=SV.doc.numPages;saveTrack(t)}scEd(t);await gotoPage(Math.min(t.score.page||1,scPages(t)),true)}
 function closeScore(){const el=$('#scoreView');if(el.hidden)return;el.hidden=true;el.innerHTML='';document.body.classList.remove('score-open');if(SV.task)try{SV.task.cancel()}catch(_){}if(SV.doc){const doc=SV.doc,t=S.tracks.get(SV.id);SV.doc=null;if(t&&t.score&&(SV.undo.length||!t.score.thumb)){makeThumb(doc,t).then(u=>{t.score.thumb=u;saveTrack(t);if(S.view==='scores')renderView()}).catch(()=>{}).finally(()=>doc.destroy())}else doc.destroy()}SV.id=null;SV.edit=false;SV.cropMode=false;SV.op=null}
 function fmtTurn(t,n){const o=scEd(t).order[n-1],v=t.score.turns&&t.score.turns[o];return v!=null?fmt(v):(n===1?'0:00':'—')}
 function scoreShell(t){const sc=t.score;
@@ -1740,17 +1766,25 @@ function scoreShell(t){const sc=t.score;
    <button class="cbtn" data-act="scoreClose" aria-label="楽譜を閉じる" title="閉じる（Esc）">${IC.x}</button>
    <div class="sv-title"><b>${esc(t.title)}</b><span>${esc(sc.name)}</span></div>
    <div class="sv-pg"><button class="cbtn" data-act="scorePage" data-d="-1" aria-label="前のページ">${IC.chevl}</button><span id="svPage">1 / ${scPages(t)}</span><button class="cbtn" data-act="scorePage" data-d="1" aria-label="次のページ">${IC.chev}</button></div>
-   <div class="sv-zoom"><button class="cbtn" data-act="scoreZoom" data-d="-1" aria-label="縮小">${IC.zoomout}</button><span id="svZoom">100%</span><button class="cbtn" data-act="scoreZoom" data-d="1" aria-label="拡大">${IC.zoomin}</button>
-    <button class="btn sm" data-act="scoreFit" data-m="w" title="横幅に合わせる">${IC.fitw}<span>幅に合わせる</span></button><button class="btn sm" data-act="scoreFit" data-m="p" title="ページ全体を表示">${IC.fitp}<span>全体</span></button></div>
-   <button class="btn sm sv-editbtn" id="svEditBtn" data-act="svEdit" aria-pressed="false" title="楽譜に書き込む・回転・トリミング・ページ整理">${IC.pen}<span>編集</span></button>
-   <button class="btn sm sv-savebtn" data-act="svExport" title="書き込みを含めた楽譜をPDFで保存">${IC.dl}<span>PDF保存</span></button>
+   <div class="sv-zoom"><button class="cbtn" data-act="scoreZoom" data-d="-1" aria-label="縮小" title="縮小">${IC.zoomout}</button><span id="svZoom">100%</span><button class="cbtn" data-act="scoreZoom" data-d="1" aria-label="拡大" title="拡大">${IC.zoomin}</button></div>
+   <button class="btn sm sv-editbtn" id="svEditBtn" data-act="svEdit" aria-pressed="false" title="ペンや音符で書き込む・ページを整える">${IC.pen}<span>書き込む</span></button>
+   <button class="btn sm sv-savebtn" data-act="svExport" title="書き込みごとPDFで保存">${IC.dl}<span>PDF保存</span></button>
    <button class="cbtn" data-act="scoreMenu" data-id="${t.id}" aria-label="楽譜のメニュー">${IC.dots}</button></div>
-  <div class="sv-stage" id="svStage" tabindex="0" aria-label="楽譜。ドラッグで移動、ピンチやCtrl＋ホイールで拡大縮小"><canvas id="svCv"></canvas><canvas id="svAn" aria-hidden="true"></canvas><button class="sv-edge l" data-act="scorePage" data-d="-1" aria-label="前のページ"></button><button class="sv-edge r" data-act="scorePage" data-d="1" aria-label="次のページ"></button></div>
+  <div class="sv-stage" id="svStage" tabindex="0" aria-label="楽譜。左右にスワイプでページ送り、ピンチやCtrl＋ホイールで拡大縮小"><canvas id="svCv"></canvas><canvas id="svAn" aria-hidden="true"></canvas><button class="sv-edge l" data-act="scorePage" data-d="-1" aria-label="前のページ"><span class="sv-arw">${IC.chevl}</span></button><button class="sv-edge r" data-act="scorePage" data-d="1" aria-label="次のページ"><span class="sv-arw">${IC.chev}</span></button></div>
   <div class="sv-turn" id="svTurn"></div><div class="sv-tools" id="svTools" hidden></div>`}
+function scoreTips(){const st=$('#svStage');if(!st||$('#svTips'))return;const d=document.createElement('div');d.className='sv-tips';d.id='svTips';
+  d.innerHTML=`<div class="sv-tipcard" role="dialog" aria-label="楽譜の使い方"><b class="sv-tiph">楽譜の使い方</b><ul>
+   <li><i>${IC.chev}</i><span><b>ページをめくる</b>左右の矢印をタップ、または横にスワイプ</span></li>
+   <li><i>${IC.flag}</i><span><b>再生に合わせて自動でめくる</b>再生中に下の「⚑」で、ページを表示する時間を登録</span></li>
+   <li><i>${IC.pen}</i><span><b>書き込む</b>「書く・音符・ページ」から選んで編集。終わったら「完了」</span></li>
+   <li><i>${IC.dl}</i><span><b>PDF保存</b>書き込みごとPDFにして保存</span></li></ul>
+   <button class="btn primary" data-act="tipsClose">わかった</button></div>`;st.appendChild(d)}
 function renderTurnBar(){const t=S.tracks.get(SV.id),el=$('#svTurn');if(!t||!el||!t.score)return;if(SV.edit){el.hidden=true;return}el.hidden=false;const sc=t.score,live=S.queue[S.qi]===t.id&&!!audio.src,p=SV.page,N=scPages(t);const cur=sc.turns[SV.o];
-  el.innerHTML=`<label class="sv-auto"><input type="checkbox" id="svAuto"${sc.auto?' checked':''}><span>再生に合わせて自動でめくる</span></label>
-   <div class="sv-chips">${Array.from({length:N},(_,i)=>i+1).map(n=>`<button class="sv-chip${n===p?' on':''}" data-act="scoreGo" data-p="${n}" title="${n}ページ目へ"><b>${n}</b><span>${fmtTurn(t,n)}</span></button>`).join('')}</div>
-   <div class="sv-set">${p===1?'<span class="muted">1ページ目は曲の最初から表示します</span>':`<button class="btn sm${cur!=null?'':' primary'}" data-act="scoreTurnSet"${live?'':' disabled'} title="${live?'':'この曲を再生中に使えます'}">${IC.flag}${cur!=null?`めくる位置を今（${fmt(audio.currentTime)}）に変更`:`このページを今の再生位置（${live?fmt(audio.currentTime):'—'}）から表示`}</button>${cur!=null?`<button class="btn sm" data-act="scoreTurnDel">解除</button>`:''}${live?'':'<span class="muted">この曲を再生すると設定できます</span>'}`}</div>`;
+  const set=p===1?'':live?`<button class="btn sm sv-flag${cur!=null?'':' primary'}" data-act="scoreTurnSet" title="再生中のこの位置から、このページを表示します">${IC.flag}${cur!=null?`${p}ページ目を ${fmt(audio.currentTime)} からに変更`:`${p}ページ目を ${fmt(audio.currentTime)} から表示`}</button>${cur!=null?`<button class="btn sm" data-act="scoreTurnDel">解除</button>`:''}`
+    :`<span class="muted sv-tip">曲の再生中に、このページを表示する時間を登録できます</span>`;
+  el.innerHTML=`<div class="sv-trow1"><label class="sv-switch" title="登録した時間になると自動でページをめくります"><input type="checkbox" id="svAuto"${sc.auto?' checked':''}><i></i><span>自動でめくる</span></label>
+   <div class="sv-chips" role="tablist" aria-label="ページ">${Array.from({length:N},(_,i)=>i+1).map(n=>`<button class="sv-chip${n===p?' on':''}" data-act="scoreGo" data-p="${n}" title="${n}ページ目へ"><b>${n}</b><span>${fmtTurn(t,n)}</span></button>`).join('')}</div></div>
+   ${set?`<div class="sv-set">${set}</div>`:''}`;
   $('#svAuto').onchange=e=>{sc.auto=e.target.checked;saveTrack(t)}}
 function stageSize(){const st=$('#svStage');return{w:st.clientWidth,h:st.clientHeight}}
 function baseScale(){const{w}=stageSize();return Math.max(.05,(w-32)/SV.pw)}
@@ -1775,7 +1809,7 @@ function redrawSoon(){clearTimeout(SV.rz);SV.rz=setTimeout(drawPage,180)}
 async function gotoPage(n){if(!SV.doc)return;const t=S.tracks.get(SV.id);if(!t)return;const e=scEd(t),N=e.order.length;n=Math.max(1,Math.min(N,n));SV.page=n;const o=e.order[n-1];if(SV.o!==o)SV.sel=null;SV.o=o;
   const page=await SV.doc.getPage(o);if(SV.o!==o)return;const g=pageGeo(t,o,page);SV.g=g;SV.C=SV.cropMode?fullRect(g):g.C;SV.pw=SV.C.w;SV.ph=SV.C.h;
   const v=!SV.cropMode&&t.score.view&&t.score.view[o];SV.z=v&&v.z?v.z:1;placeFromView(v);if(SV.cropMode){fitMode('p',true)}applyXform();
-  $('#svPage').textContent=`${n} / ${N}`;if(t.score.page!==n){t.score.page=n;clearTimeout(SV.pgT);SV.pgT=setTimeout(()=>saveTrack(t),600)}renderTurnBar();if(SV.edit)renderTools();
+  $('#svPage').textContent=`${n} / ${N}`;{const st=$('#svStage');if(st){st.classList.toggle('first',n===1);st.classList.toggle('last',n===N)}}if(t.score.page!==n){t.score.page=n;clearTimeout(SV.pgT);SV.pgT=setTimeout(()=>saveTrack(t),600)}renderTurnBar();if(SV.edit)renderTools();
   const an=$('#svAn');if(an){an.getContext('2d').clearRect(0,0,an.width,an.height)}await drawPage()}
 let svSaveT;function saveViewSoon(){if(SV.cropMode)return;clearTimeout(svSaveT);svSaveT=setTimeout(()=>{const t=S.tracks.get(SV.id);if(!t||!t.score)return;const{w,h}=stageSize(),cs=baseScale()*SV.z;
   t.score.view=t.score.view||{};t.score.view[SV.o]={z:+SV.z.toFixed(3),cx:+((w/2-SV.x)/(SV.pw*cs)).toFixed(4),cy:+((h/2-SV.y)/(SV.ph*cs)).toFixed(4)};saveTrack(t)},400)}
@@ -1783,8 +1817,8 @@ function zoomAt(nz,px,py){nz=Math.max(.25,Math.min(6,nz));const cs0=baseScale()*
 function fitMode(m,quiet){const{w,h}=stageSize();if(m==='p'){SV.z=Math.min((h-24)/(SV.ph*baseScale()),1)}else SV.z=1;placeFromView(null);if(m==='p')SV.y=Math.max(0,(h-SV.ph*baseScale()*SV.z)/2);applyXform();if(!quiet){redrawSoon();saveViewSoon()}}
 function cl2disp(e){const r=$('#svStage').getBoundingClientRect(),cs=baseScale()*SV.z;return[(e.clientX-r.left-SV.x)/cs+SV.C.x,(e.clientY-r.top-SV.y)/cs+SV.C.y]}
 function cl2base(e){const d=cl2disp(e),g=SV.g,b=unrotPt(g.r,g.W,g.H,d[0],d[1]);return[Math.round(Math.min(g.W,Math.max(0,b[0]))*10)/10,Math.round(Math.min(g.H,Math.max(0,b[1]))*10)/10]}
-function bindScore(){const st=$('#svStage');const pts=new Map();let last=null,pinch=null,moved=0;
-  st.addEventListener('pointerdown',e=>{if(e.target.closest('.sv-edge,.sv-crop'))return;if(e.button>0)return;st.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;
+function bindScore(){const st=$('#svStage');const pts=new Map();let last=null,pinch=null,moved=0,sw=null;
+  st.addEventListener('pointerdown',e=>{if(e.target.closest('.sv-edge,.sv-crop,.sv-tips'))return;if(e.button>0)return;st.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;sw=pts.size===1&&!SV.edit?{x:e.clientX,y:e.clientY,t:Date.now(),x0:SV.x}:null;
     const drawing=SV.edit&&!SV.cropMode&&SV.tool!=='hand'&&SV.doc&&SV.g;
     if(pts.size===1&&drawing){SV.lastUser=Date.now();if(startOp(e)!==false){last=null;return}}
     if(pts.size===2){if(SV.op){SV.op=null;annSoon()}const[a,b]=[...pts.values()];const r=st.getBoundingClientRect();pinch={d:Math.hypot(a.x-b.x,a.y-b.y),z:SV.z,cx:(a.x+b.x)/2-r.left,cy:(a.y+b.y)/2-r.top}}
@@ -1794,7 +1828,7 @@ function bindScore(){const st=$('#svStage');const pts=new Map();let last=null,pi
     if(pts.size>=2&&pinch){const[a,b]=[...pts.values()];zoomAt(pinch.z*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d,pinch.cx,pinch.cy);return}
     if(last){const dx=e.clientX-last.x,dy=e.clientY-last.y;moved+=Math.abs(dx)+Math.abs(dy);SV.x+=dx;SV.y+=dy;last={x:e.clientX,y:e.clientY};clampPos();applyXform();SV.lastUser=Date.now()}});
   const up=e=>{if(!pts.has(e.pointerId))return;pts.delete(e.pointerId);if(SV.op&&!pts.size){if(e.type==='pointercancel'){SV.op=null;annSoon()}else endOp(e)}
-    if(pts.size<2)pinch=null;const r=[...pts.values()][0];last=r&&!SV.op?{x:r.x,y:r.y}:null;if(!pts.size){st.classList.remove('grab');if(moved>3)saveViewSoon();moved=0;last=null}};
+    if(pts.size<2)pinch=null;const r=[...pts.values()][0];last=r&&!SV.op?{x:r.x,y:r.y}:null;if(!pts.size){st.classList.remove('grab');const dx=sw?e.clientX-sw.x:0,dy=sw?e.clientY-sw.y:0;if(sw&&!SV.edit&&e.type==='pointerup'&&Math.abs(dx)>60&&Math.abs(dy)<Math.abs(dx)*.6&&Date.now()-sw.t<700&&Math.abs(SV.x-sw.x0)<2){SV.lastUser=Date.now();gotoPage(SV.page+(dx<0?1:-1))}else if(moved>3)saveViewSoon();sw=null;moved=0;last=null}else sw=null};
   st.addEventListener('pointerup',up);st.addEventListener('pointercancel',up);
   st.addEventListener('wheel',e=>{e.preventDefault();const r=st.getBoundingClientRect();if(e.ctrlKey||e.metaKey){zoomAt(SV.z*Math.exp(-e.deltaY*0.0022),e.clientX-r.left,e.clientY-r.top)}else{SV.x-=e.deltaX;SV.y-=e.deltaY;clampPos();applyXform();saveViewSoon();SV.lastUser=Date.now()}},{passive:false});
   st.addEventListener('dblclick',e=>{if(SV.edit&&SV.tool!=='hand')return;const r=st.getBoundingClientRect();zoomAt(SV.z>1.4?1:2,e.clientX-r.left,e.clientY-r.top)});
@@ -1930,11 +1964,14 @@ function textSheet(it,at){const k='tx';sheet(`<h2>${it?'文字を修正':'文字
 function restoreEd(s){const t=curT();if(!t||!s)return;SV.sel=null;t.score.edit=JSON.parse(s);SV.thumbs.clear();saveEdSoon();const N=scPages(t);gotoPage(Math.min(SV.page,N))}
 function svUndo(){if(!SV.undo.length)return;SV.redo.push(snapEd());restoreEd(SV.undo.pop());toast('元に戻しました')}
 function svRedo(){if(!SV.redo.length)return;SV.undo.push(snapEd());restoreEd(SV.redo.pop());toast('やり直しました')}
-function setEdit(on){SV.edit=on;SV.op=null;SV.sel=null;const st=$('#svStage');if(!st)return;st.classList.toggle('editing',on);const b=$('#svEditBtn');if(b){b.classList.toggle('primary',on);b.setAttribute('aria-pressed',on)}
+function setEdit(on){SV.edit=on;SV.op=null;SV.sel=null;if(on&&SV.tool==='hand')SV.tool='pen';const st=$('#svStage');if(!st)return;st.classList.toggle('editing',on);const b=$('#svEditBtn');if(b){b.classList.toggle('primary',on);b.setAttribute('aria-pressed',on);b.innerHTML=on?`${IC.check}<span>完了</span>`:`${IC.pen}<span>書き込む</span>`}
   $('#svTools').hidden=!on;if(on){renderTools()}else{if(SV.cropMode)cropExit()}renderTurnBar();setStageTool();requestAnimationFrame(onScoreResize)}
 function setStageTool(){const st=$('#svStage');if(st)st.dataset.tool=SV.edit&&!SV.cropMode?SV.tool:''}
-const TOOLS=[['hand','移動',IC.hand],['sel','選択',IC.cursor],['nt','音符',IC.note],['rg','範囲',IC.select],['pen','ペン',IC.pen],['mk','マーカー',IC.marker],['tx','文字',IC.text],['wh','白塗り',IC.whiteout],['er','消しゴム',IC.eraser]];
-const TOOL_HINT={hand:'ドラッグで楽譜を動かします',sel:'書き込みや音符をタップして選ぶと、ドラッグで動かしたり種類を変えたりできます',rg:'元の楽譜の音符などを四角で囲むと、切り取って動かせます。別の音符への置き換えもできます',wh:'ドラッグした範囲を白く塗って隠します',er:'書き込みをなぞると消えます（元の楽譜は消えません）',tx:'文字を置きたい場所をタップします。書いた文字をタップすると修正できます'};
+const MODES=[['draw','書く',IC.pen],['note','音符',IC.note],['page','ページ',IC.pages]];
+const MODE_TOOLS={draw:[['pen','ペン',IC.pen],['mk','マーカー',IC.marker],['tx','文字',IC.text],['wh','白で隠す',IC.whiteout],['er','消しゴム',IC.eraser]],note:[['nt','置く',IC.note],['sel','動かす・変える',IC.cursor],['rg','元の音符を囲む',IC.select]]};
+const toolMode=k=>['nt','sel','rg'].includes(k)?'note':k==='hand'?'page':'draw';
+const TOOL_HINT={pen:'なぞって書きます。拡大・移動は2本指（PCはホイール）',mk:'なぞった所に半透明の色を塗ります',tx:'文字を入れたい所をタップ。書いた文字はタップで直せます',wh:'隠したい所を四角く囲むと白く塗ります',er:'書き込みをなぞると消えます（元の楽譜は消えません）',
+  nt:'種類を選んで、置きたい所をタップ。五線に自動で合わせます',sel:'置いた音符や書き込みをタップして選ぶ → ドラッグで移動、下で種類を変更',rg:'印刷された音符を四角く囲む → ドラッグで移動、下で別の音符に変更',hand:'ページの向き・余白・順番を整えます。ドラッグで楽譜を動かせます'};
 function ntGrid(act,cur,only){return`<div class="sv-nts">${NT.filter(([t])=>!only||only(t)).map(([t,l])=>`<button class="sv-nt${cur===t?' on':''}" data-act="${act}" data-t="${t}" title="${l}" aria-label="${l}"><img src="${glyphIcon(t)}" alt=""></button>`).join('')}</div>`}
 function selOpts(it){const isNote=['w','h','q','8','16'].includes(it.t);
   if(it.k==='nt')return`<div class="sv-opts sv-selo"><b class="sv-selt">${ntName(it.t)}</b>${ntGrid('selType',it.t)}<span class="sv-div"></span>
@@ -1949,18 +1986,20 @@ function renderTools(){const el=$('#svTools');if(!el||!SV.edit)return;const t=cu
     <div class="sv-trow"><button class="btn sm" data-act="cropAuto">${IC.crop}自動<span>で余白を詰める</span></button><button class="btn sm" data-act="cropFull">${IC.fitp}全体<span>に戻す</span></button>
     <label class="sv-auto"><input type="checkbox" id="cropAll"${SV.cropAll?' checked':''}><span>全ページに同じ範囲を使う</span></label></div>`;
     $('#cropAll').onchange=e=>{SV.cropAll=e.target.checked};return}
-  const k=SV.tool,items=scEd(t).ann[SV.o]||[],n=items.length,sel=SV.sel!=null?items[SV.sel]:null;if(!sel)SV.sel=null;
+  const k=SV.tool,mode=toolMode(k),items=scEd(t).ann[SV.o]||[],n=items.length,sel=SV.sel!=null?items[SV.sel]:null;if(!sel)SV.sel=null;
   const inkOpts=kk=>`${INK[kk].map(c=>`<button class="sv-ink${SV.color[kk]===c?' on':''}" data-act="svInk" data-c="${c}" style="--ink:${c}" aria-label="色" title="色"></button>`).join('')}`;
-  let opts;
+  let opts='';
   if(sel)opts=selOpts(sel);
   else if(k==='nt')opts=`<div class="sv-opts">${ntGrid('ntPick',SV.ntType)}<span class="sv-div"></span><button class="btn sm${SV.ntDot?' on':''}" data-act="ntDot" title="付点">付点</button>${inkOpts('nt')}</div>`;
   else if(INK[k])opts=`<div class="sv-opts">${inkOpts(k)}<span class="sv-div"></span>${[0,1,2].map(i=>`<button class="sv-sz${SV.size[k]===i?' on':''}" data-act="svSize" data-s="${i}" title="${['細','中','太'][i]}" aria-label="${['細','中','太'][i]}"><i style="--d:${k==='tx'?6+i*4:k==='mk'?7+i*4:3+i*3}px"></i></button>`).join('')}</div>`;
-  else opts=`<span class="muted sv-hint">${TOOL_HINT[k]||''}</span>`;
-  el.innerHTML=`<div class="sv-trow"><div class="sv-seg" role="toolbar" aria-label="書き込みの道具">${TOOLS.map(([id,l,ic])=>`<button class="${k===id?'on':''}" data-act="svTool" data-t="${id}" aria-pressed="${k===id}" title="${l}">${ic}<span>${l}</span></button>`).join('')}</div>${opts}</div>
-   <div class="sv-trow"><button class="cbtn" data-act="svUndo"${SV.undo.length?'':' disabled'} aria-label="元に戻す" title="元に戻す（Ctrl+Z）">${IC.undo}</button><button class="cbtn sv-redo" data-act="svRedo"${SV.redo.length?'':' disabled'} aria-label="やり直す" title="やり直す（Ctrl+Shift+Z）">${IC.undo}</button>
-    <button class="btn sm" data-act="svClearPage"${n?'':' disabled'}>${IC.trash}<span>このページの書き込みを消す</span></button><span class="sv-div"></span>
-    <button class="btn sm" data-act="svRotate">${IC.rotate}<span>回転</span></button><button class="btn sm" data-act="svCrop">${IC.crop}<span>トリミング</span></button><button class="btn sm" data-act="svPages">${IC.pages}<span>ページ整理</span></button>
-    <span class="sv-sp"></span><button class="btn sm" data-act="svExport" title="PDFで保存">${IC.dl}<span>PDF保存</span></button><button class="btn sm primary" data-act="svEdit">${IC.check}<span>完了</span></button></div>`}
+  const tools=mode==='page'?`<div class="sv-tl2 pg"><button class="lbl" data-act="svRotate">${IC.rotate}<span>回転</span></button><button class="lbl" data-act="svCrop">${IC.crop}<span>余白を切る</span></button><button class="lbl" data-act="svPages">${IC.pages}<span>並べ替え・削除</span></button><button class="lbl" data-act="svClearPage"${n?'':' disabled'}>${IC.trash}<span>書き込み消去</span></button></div>`
+    :`<div class="sv-tl2" role="toolbar" aria-label="道具">${MODE_TOOLS[mode].map(([id,l,ic])=>`<button class="${k===id?'on':''}" data-act="svTool" data-t="${id}" aria-pressed="${k===id}">${ic}<span>${l}</span></button>`).join('')}</div>`;
+  const hint=sel?(sel.k==='nt'?'ドラッグで移動（上下で音の高さ）。下で種類・付点・向きを変更':sel.k==='mv'?'ドラッグで移動。下で別の音符に変える／白で消す':'ドラッグで移動、または削除'):(TOOL_HINT[k]||'');
+  el.innerHTML=`<div class="sv-trow sv-top"><div class="sv-modes" role="tablist" aria-label="編集の種類">${MODES.map(([m,l,ic])=>`<button role="tab" class="${mode===m?'on':''}" aria-selected="${mode===m}" data-act="svMode" data-m="${m}">${ic}<span>${l}</span></button>`).join('')}</div><span class="sv-sp"></span>
+     <button class="cbtn" data-act="svUndo"${SV.undo.length?'':' disabled'} aria-label="元に戻す" title="元に戻す（Ctrl+Z）">${IC.undo}</button><button class="cbtn sv-redo" data-act="svRedo"${SV.redo.length?'':' disabled'} aria-label="やり直す" title="やり直す（Ctrl+Shift+Z）">${IC.undo}</button></div>
+   <div class="sv-trow sv-mid">${tools}</div>
+   ${opts?`<div class="sv-trow sv-optrow">${opts}</div>`:''}
+   <div class="sv-hintline">${IC.help}<span>${hint}</span></div>`}
 function svRotate(dir){const t=curT();if(!t)return;pushUndo(snapEd());const e=scEd(t),o=SV.o;e.rot[o]=((((e.rot[o]||0)+(dir||90))%360)+360)%360;if(!e.rot[o])delete e.rot[o];if(t.score.view)delete t.score.view[o];saveEdSoon();gotoPage(SV.page)}
 /* トリミング */
 function cropEnter(){const t=curT();if(!t||!SV.g)return;SV.cropMode=true;SV.cropAll=false;const g=SV.g;SV.cropR={...g.C};setStageTool();
@@ -2041,7 +2080,7 @@ function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropE
       try{const bytes=await buildEditedPdf(t,{ann:$('#pdfAnn').checked});file=new File([bytes],safeName($('#pdfName').value),{type:'application/pdf'});
         go.disabled=false;go.innerHTML=`${IC.check}保存する`;msg.textContent=`PDFができました（${Math.max(1,Math.round(bytes.length/1024))}KB）。「保存する」を押してください。`;if(!isMobile())save()}
       catch(err){console.error(err);go.disabled=false;go.innerHTML=`${IC.dl}PDFを作成`;msg.textContent='PDFを作成できませんでした。このPDFは保護されている可能性があります。'}}})}
-function scoreMenu(btn,id){openActMenu(btn,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['svEdit',SV.edit?'編集を終える':'書き込み・編集',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','PDFで保存',IC.dl],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']])}
+function scoreMenu(btn,id){openActMenu(btn,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['scoreHelp','使い方を見る',IC.help],['svEdit',SV.edit?'書き込みを終える':'書き込む',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','PDFで保存',IC.dl],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']])}
 function smartSheet(){const tagsUsed=[...new Set(all().flatMap(t=>t.tags||[]))],genres=[...new Set(all().map(t=>t.genre).filter(Boolean))],artists=[...new Set(all().map(t=>t.artist).filter(Boolean))];
   const opt=(l,ph)=>`<option value="">${ph}</option>`+l.sort((a,b)=>a.localeCompare(b,'ja')).map(x=>`<option>${esc(x)}</option>`).join('');
   sheet(`<h2>条件で自動プレイリスト</h2><p style="margin:0;color:var(--muted);font-size:13px">条件に合う曲が自動で集まります。曲の評価やタグを変えると中身も変わります。</p>
@@ -2195,6 +2234,9 @@ document.addEventListener('click',e=>{
     if(act==='scoreOpen'){openScore(id||S.queue[S.qi]);return}
     if(act==='scoreClose'){closeScore();return}
     if(act==='svEdit'){if(!SV.doc){toast('楽譜PDFを取り込んでから使えます');return}setEdit(!SV.edit);return}
+    if(act==='svMode'){const m=a.dataset.m;SV.lastTool=SV.lastTool||{};SV.lastTool[toolMode(SV.tool)]=SV.tool;SV.tool=m==='page'?'hand':(SV.lastTool[m]||(m==='note'?'nt':'pen'));SV.sel=null;setStageTool();renderTools();drawAnnLayer();return}
+    if(act==='tipsClose'){const x=$('#svTips');if(x)x.remove();try{localStorage.setItem('crate.scoreTips','1')}catch(_){}return}
+    if(act==='scoreHelp'){scoreTips();return}
     if(act==='svTool'){SV.tool=a.dataset.t;if(SV.tool!=='sel')SV.sel=null;drawAnnLayer();setStageTool();renderTools();return}
     if(act==='ntPick'){SV.ntType=a.dataset.t;renderTools();return}
     if(act==='ntDot'){SV.ntDot=!SV.ntDot;renderTools();return}
@@ -2233,7 +2275,7 @@ document.addEventListener('click',e=>{
     if(act==='scoreZoom'){const{w,h}=stageSize();zoomAt(SV.z*(+a.dataset.d>0?1.2:1/1.2),w/2,h/2);return}
     if(act==='scoreFit'){fitMode(a.dataset.m);return}
     if(act==='scoreFitW'){fitMode('w');return}if(act==='scoreFitP'){fitMode('p');return}
-    if(act==='scoreMenu'){openActMenu(a,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['svEdit',SV.edit?'編集を終える':'書き込み・編集',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','PDFで保存',IC.dl],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']]);return}
+    if(act==='scoreMenu'){openActMenu(a,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['scoreHelp','使い方を見る',IC.help],['svEdit',SV.edit?'書き込みを終える':'書き込む',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','PDFで保存',IC.dl],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']]);return}
     if(act==='scoreReplace'){pickScore(SV.id||id);return}
     if(act==='scoreDelete'){const sid=SV.id;sheet(`<h2>楽譜を削除しますか？</h2><p style="margin:0;color:var(--muted)">この曲に取り込んだ楽譜PDFと、表示位置・ページめくり位置の設定が消えます。元のPDFファイルは消えません。</p><div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">キャンセル</button><button class="btn danger" data-act="scoreDelGo" data-id="${sid}">削除する</button></span></div>`);return}
     if(act==='scoreDelGo'){closeSheet();removeScore(id);return}
