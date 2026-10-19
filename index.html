@@ -2014,6 +2014,7 @@ function drawGlyph(ctx,it,s){const t=it.t,c=it.c||'#14161B';ctx.fillStyle=c;ctx.
     if(t!=='w'){const bv=it.bmv,up=bv?(bv[1]<0):stemDir(it)==='u',beam=!!bv,sx=up?.58:-.58,ey=beam?(Math.abs(bv[1])<1?(up?-1:1):bv[1]):up?-3.4:3.4;ln(sx,up?-.15:.15,sx,ey,.12);
       const nf=beam?0:t==='8'?1:t==='16'?2:t==='32'?3:0;for(let f=0;f<nf;f++){const y0=ey+(up?f*.85:-f*.85)*1,d=up?1:-1;ctx.beginPath();ctx.moveTo(sx*s,y0*s);
         ctx.bezierCurveTo((sx+.1)*s,(y0+d*.9)*s,(sx+1.25)*s,(y0+d*1.2)*s,(sx+.85)*s,(y0+d*2.5)*s);ctx.bezierCurveTo((sx+1.0)*s,(y0+d*1.55)*s,(sx+.35)*s,(y0+d*1.3)*s,sx*s,(y0+d*1.15)*s);ctx.closePath();ctx.fill()}}
+    if(it.ac!=null){const sym=it.ac>0?'sh':it.ac<0?'fl':'na',cnt=Math.abs(it.ac)||1;for(let q=0;q<cnt;q++){ctx.save();ctx.translate((-1.55-q*.75)*s,0);drawGlyph(ctx,{t:sym,c},s);ctx.restore()}ctx.fillStyle=c;ctx.strokeStyle=c}
     if(it.d){const dy=it.ps!=null&&it.ps%2===0?-.5:0;ctx.beginPath();ctx.arc(1.15*s,dy*s,.17*s,0,Math.PI*2);ctx.fill()}}
   else if(t==='r1'){ctx.fillRect(-.6*s,0,1.2*s,.5*s);ln(-.9,0,.9,0,.1)}
   else if(t==='r2'){ctx.fillRect(-.6*s,-.5*s,1.2*s,.5*s);ln(-.9,0,.9,0,.1)}
@@ -2122,16 +2123,31 @@ function chordItems(t,list){const tp=tpOf(t);if(!list||!list.length||!tp.chords|
 async function loadChords(o){SV.chords=SV.chords||{};if(SV.chords[o])return SV.chords[o];if(!SV.doc)return[];const page=await SV.doc.getPage(o);return SV.chords[o]=await findChords(page)}
 /* 移調の幅（半音）から、置いた音符を動かす段数 */
 function diatonicSteps(d){const a=Math.abs(d),st=[0,1,1,2,2,3,3,4,5,5,6,6][a%12]+7*Math.floor(a/12);return d<0?-st:st}
+/* 移調の段数：元のキーがわかれば、主音の文字（A→Bなど）の差で決める（例：変イ長調+1はイ長調＝同じ段） */
+const LET_I={C:0,D:1,E:2,F:3,G:4,A:5,B:6};
+function stepsFor(tp,semi){if(!semi)return 0;const k=tpKey(tp.key);if(!k)return diatonicSteps(semi);const nm=i=>(k.m?KEY_MIN_EN:KEY_MAJ_EN)[md12(i)][0];let d=((LET_I[nm(k.i+semi)]-LET_I[nm(k.i)])%7+7)%7;if(semi<0&&d>0)d-=7;if(Math.abs(semi)>=12)d+=semi>0?7:-7;if(semi>0&&d<0)d+=7;return d}
+/* 臨時記号の書き直し：元の音の高さ（調号・臨時記号・小節内の持ち越しを考慮）を求め、移調後の調で必要な ♯♭♮ を付ける */
+const SEMI_L=[0,2,4,5,7,9,11],FL_L=[6,2,5,1,4,0,3],SH_L=[3,0,4,1,5,2,6],ACC_V={sh:1,fl:-1,na:0};
+function keyAccMap(sig){const m=[0,0,0,0,0,0,0];if(sig<0)for(let i=0;i<-sig;i++)m[FL_L[i]]=-1;if(sig>0)for(let i=0;i<sig;i++)m[SH_L[i]]=1;return m}
+function respell(t){const tp=tpOf(t),k=tpKey(tp.key),e=scEd(t),steps=stepsFor(tp,tp.semi);
+  const km0=k?keyAccMap(keyInfo(k).sig):null,km1=k?keyAccMap(keyInfo({i:md12(k.i+tp.semi),m:k.m}).sig):null;
+  for(const items of Object.values(e.ann||{})){const groups={};for(const it of items||[]){if(it.k!=='nt'||!it.pr||it.ops==null||!['w','h','q','8','16','32'].includes(it.t))continue;(groups[it.sti==null?'x':it.sti]=groups[it.sti==null?'x':it.sti]||[]).push(it)}
+    for(const L of Object.values(groups)){L.sort((a,b)=>a.x-b.x);let mi=-1,s0={},s1={};
+      for(const it of L){if(!k||!tp.semi){if(it.acc0!=null&&tp.semi)it.ac=ACC_V[it.acc0];else delete it.ac;continue}
+        if(it.mi!==mi){mi=it.mi;s0={};s1={}}
+        const n=(it.cl==='bass'?18:30)+(8-it.ops),l=((n%7)+7)%7,oct=Math.floor(n/7);let a;if(it.acc0!=null){a=ACC_V[it.acc0];s0[n]=a}else a=s0[n]!=null?s0[n]:km0[l];
+        const midi=12*(oct+1)+SEMI_L[l]+a+tp.semi,n2=n+steps,l2=((n2%7)+7)%7,o2=Math.floor(n2/7);let a2=midi-(12*(o2+1)+SEMI_L[l2]);a2=Math.max(-2,Math.min(2,a2));
+        const cur=s1[n2]!=null?s1[n2]:km1[l2];if(a2!==cur||it.acc0!=null){it.ac=a2;s1[n2]=a2}else delete it.ac}}}}
 function shiftNotes(t,steps,all){if(!steps)return;const e=scEd(t);
   for(const[o,items]of Object.entries(e.ann||{})){const r=(((e.rot[o]||0)%360)+360)%360;for(const it of items||[]){if(it.k!=='nt'||/^r|sh|fl|na/.test(it.t))continue;if(!all&&!it.pr)continue;
     const dy=-steps*it.sp/2,v=r===90?[dy,0]:r===180?[0,-dy]:r===270?[-dy,0]:[0,dy];it.x=+(it.x+v[0]).toFixed(1);it.y=+(it.y+v[1]).toFixed(1);if(it.ps!=null)it.ps-=steps}}}
 function setTpSemi(t,n,opt){opt=opt||{};const tp=tpOf(t);n=Math.max(-12,Math.min(12,Math.round(n)));const d=n-tp.semi;if(!d&&!opt.force)return;
-  /* 移調前後の音の段の差で動かす（例：+2→+1は同じ段のまま） */shiftNotes(t,diatonicSteps(n)-diatonicSteps(tp.semi),tp.notes);tp.semi=n;saveTrack(t);SV.thumbs&&SV.thumbs.clear();
+  /* 移調前後の音の段の差で動かす（例：+2→+1は同じ段のまま） */shiftNotes(t,stepsFor(tp,n)-stepsFor(tp,tp.semi),tp.notes);tp.semi=n;respell(t);saveTrack(t);SV.thumbs&&SV.thumbs.clear();
   const sid=scoreSongId(t);if(tp.link&&sid&&!opt.fromSong&&S.tracks.get(sid)){setKeyFor(sid,n)}
   drawAnnLayer();renderTp();renderTpBadge()}
 /* 「完了」で全ページの印刷された音符を読み取り、移調した位置の音符に置き換える */
 let tpBusy=false;
-async function transposeAllPrinted(t){if(tpBusy||!SV.doc)return;tpBusy=true;const tp=tpOf(t),e=scEd(t),N=scPages(t),back=SV.page,steps=diatonicSteps(tp.semi);let total=0;
+async function transposeAllPrinted(t){if(tpBusy||!SV.doc)return;tpBusy=true;const tp=tpOf(t),e=scEd(t),N=scPages(t),back=SV.page,steps=stepsFor(tp,tp.semi);let total=0;
   try{pushUndo(snapEd());e.prDone=e.prDone||[];
     const k0=tpKey(tp.key),n0=k0?Math.abs(keyInfo(k0).sig):null;e.ksDone=e.ksDone||[];let ksN=0;
     for(let n=1;n<=N;n++){const o=e.order[n-1],needN=!e.prDone.includes(o),needK=k0&&!e.ksDone.includes(o);if(!needN&&!needK)continue;progress(`全ページの音符を移調しています… ${n}/${N}`);await gotoPage(n);if(curT()!==t)break;
@@ -2144,7 +2160,7 @@ async function transposeAllPrinted(t){if(tpBusy||!SV.doc)return;tpBusy=true;cons
       a.unshift(...whs);a.push(...nts);
       for(const it of nts){const r=(((e.rot[o]||0)%360)+360)%360,dy=-steps*it.sp/2,v=r===90?[dy,0]:r===180?[0,-dy]:r===270?[-dy,0]:[0,dy];it.x=+(it.x+v[0]).toFixed(1);it.y=+(it.y+v[1]).toFixed(1);if(it.ps!=null)it.ps-=steps}
       if(needN)e.prDone.push(o);total+=nts.length}
-    SV.sel=null;saveTrack(t);saveEdSoon();await gotoPage(back);progress(null);const nk=k0&&keyInfo({i:md12(k0.i+tp.semi),m:k0.m});toast((total?`${total}個の音符を${tp.semi>0?'+':'−'}${Math.abs(tp.semi)}の位置に移調しました。`:'')+(nk&&ksN?`調号を${nk.sigTxt}（${nk.ja}）に書き換えました。`:k0?'':'「元のキー」を選ぶと調号も書き換えます。')+'元に戻すで取り消せます')}
+    respell(t);SV.sel=null;saveTrack(t);saveEdSoon();await gotoPage(back);progress(null);const nk=k0&&keyInfo({i:md12(k0.i+tp.semi),m:k0.m});toast((total?`${total}個の音符を${tp.semi>0?'+':'−'}${Math.abs(tp.semi)}の位置に移調しました。`:'')+(nk&&ksN?`調号を${nk.sigTxt}（${nk.ja}）に書き換えました。`:k0?'':'「元のキー」を選ぶと調号も書き換えます。')+'元に戻すで取り消せます')}
   catch(err){progress(null);toast('移調の途中で問題が起きました')}finally{tpBusy=false}}
 function syncTpFromSong(t){const tp=tpOf(t),sid=scoreSongId(t),s=sid&&S.tracks.get(sid);if(!tp.link||!s)return;const k=Math.round(s.key||0);if(k!==tp.semi)setTpSemi(t,k,{fromSong:true})}
 function renderTpBadge(){const st=$('#svStage'),t=curT();if(!st||!t)return;let b=$('#svTpBadge');const tp=tpOf(t);
@@ -2165,7 +2181,7 @@ function renderTp(){const el=$('#svTp'),t=curT();if(!el||!t||!SV.tp)return;const
      <label class="sv-switch"><input type="checkbox" id="tpPrinted"${tp.printed?' checked':''}><i></i><span>楽譜の音符もすべて移調する</span></label><span class="muted tp-note">「完了」で全ページの音符を自動で読み取り、${tp.semi?`${tp.semi>0?'+':'−'}${Math.abs(tp.semi)}の位置に`:'移調した位置に'}書き換えます${tpKey(tp.key)?'（調号も新しいキーに書き換え）':'。「元のキー」を選ぶと調号も書き換えます'}</span>
      <label class="sv-switch"><input type="checkbox" id="tpNotes"${tp.notes?' checked':''}><i></i><span>自分で置いた音符も動かす</span></label>
      ${song?`<label class="sv-switch"><input type="checkbox" id="tpLink"${tp.link?' checked':''}><i></i><span>曲の音程も一緒に変える（${esc(song.title)}）</span></label>`:''}</div>`;
-  $('#tpKey').onchange=e=>{tp.key=e.target.value;saveTrack(t);renderTp();renderTpBadge();drawAnnLayer()};
+  $('#tpKey').onchange=e=>{tp.key=e.target.value;respell(t);saveTrack(t);saveEdSoon();renderTp();renderTpBadge();drawAnnLayer()};
   $('#tpChords').onchange=e=>{tp.chords=e.target.checked;saveTrack(t);drawAnnLayer()};
   $('#tpNotes').onchange=e=>{tp.notes=e.target.checked;saveTrack(t)};
   $('#tpPrinted').onchange=e=>{tp.printed=e.target.checked;saveTrack(t);renderTp()};
@@ -2221,9 +2237,40 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
     if(clef){let ce=-1,gp=0;for(let xx=Math.round(x0+s0.sp*1.8);xx<Math.min(w,x0+s0.sp*5);xx++){if(colInk(xx))gp=0;else if(++gp>=Math.max(2,s0.sp*.18)){ce=xx-gp+1;break}}
       const runs=[];if(ce>0){let xx=ce,cur=null;for(;xx<=s0.sigEnd;xx++){const on=colInk(xx);if(on&&!cur)cur={a:xx};if(!on&&cur){cur.b=xx-1;if(cur.b-cur.a+1>=s0.sp*.35)runs.push(cur);cur=null}}if(cur){cur.b=xx-1;if(cur.b-cur.a+1>=s0.sp*.35)runs.push(cur)}}
       let above=false;for(let xx=x0;xx<Math.min(w,x0+s0.sp*3)&&!above;xx++)for(let y=Math.max(0,top-Math.round(s0.sp*1.6));y<top-Math.round(s0.sp*1.0);y++)if(ink[y*w+xx]){above=true;break}
-      s0.ks={ce,runs,clef:above?'treble':'bass'}}}
+      s0.ks={ce,runs,clef:above?'treble':'bass'}}
+    /* 小節線：五線の上の線から下の線までちょうど縦に通る線（臨時記号が小節の終わりまで効くため） */
+    s0.bars=[];{const yt=top,yb=bot;let prev=-9;for(let xx=x0;xx<w;xx++){let ok=true;for(let y=yt-1;y<=yb+1;y+=1){if(!clean[y*w+xx]&&!clean[y*w+Math.min(w-1,xx+1)]){ok=false;break}}if(!ok)continue;let a=yt,b=yb;while(a>0&&clean[(a-1)*w+xx])a--;while(b<h-1&&clean[(b+1)*w+xx])b++;if(yt-a>s0.sp*.6||b-yb>s0.sp*.6)continue;if(xx-prev>s0.sp*.5)s0.bars.push(xx);prev=xx}}}
   /* 傾き補正した座標 → ページの座標に戻す */
   const fixHead=hd=>{if(!skT||!hd||hd._fx)return hd;hd._fx=1;const cxD=F.w/2,dy=skT*(hd.x-cxD);hd.y-=dy;if(hd.box)hd.box={...hd.box,y:hd.box.y-dy};if(hd.bm)hd.bm={x:hd.bm.x,y:hd.bm.y-skT*(hd.bm.x-cxD)};if(hd.ly)hd.ly=hd.ly.map(([e,a])=>[e-dy,a-dy]);return hd};
+  /* 臨時記号（♯・♭・♮）：玉の左にある、縦に長い記号を探して種類を見分ける */
+  const accAt=c=>{const sw=Math.max(stemw+3,Math.round(sp*.2)),X0=Math.max(0,Math.round(c.x0-sp*1.6)),X1=Math.round(c.x0-sw*.5),Y0=Math.max(0,Math.round(c.cy-sp*2.3)),Y1=Math.min(h-1,Math.round(c.cy+sp*1.6));if(X1-X0<sp*.4)return null;
+    const W=X1-X0+1,H=Y1-Y0+1,Mk=new Uint8Array(W*H);for(let y=0;y<H;y++)for(let x=0;x<W;x++)Mk[y*W+x]=ink[(y+Y0)*w+x+X0];
+    /* 連桁など横に長い太線を取り除いてから探す（混んだ16分でも記号が連桁とつながらないように） */
+    {const LL=Math.round(sp*1.15);for(let y=0;y<H;y++){let x=0;while(x<W){if(!Mk[y*W+x]){x++;continue}let e=x;while(e<W&&Mk[y*W+e])e++;if(e-x>=LL||(x===0&&e-x>=sp*.8)||(e===W&&e-x>=sp*.8)){const T=stInk+1;for(let k=x;k<e;k++){let up=0,dn=0;for(let q=1;q<=T+1;q++){if(y-q>=0&&Mk[(y-q)*W+k])up++;if(y+q<H&&Mk[(y+q)*W+k])dn++}if(!(up>T&&dn>T))Mk[y*W+k]=0}}x=e}}}
+    const seen=new Uint8Array(W*H);let best=null;
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(seen[y*W+x]||!Mk[y*W+x])continue;const st0=[y*W+x];seen[y*W+x]=1;let a=W,b=-1,e=H,f=-1,n=0;const pts=[];
+      while(st0.length){const p=st0.pop(),px=p%W,py=(p-px)/W;n++;pts.push(px+X0,py+Y0);if(px<a)a=px;if(px>b)b=px;if(py<e)e=py;if(py>f)f=py;for(const[qx,qy]of[[px-1,py],[px+1,py],[px,py-1],[px,py+1]])if(qx>=0&&qx<W&&qy>=0&&qy<H&&!seen[qy*W+qx]&&Mk[qy*W+qx]){seen[qy*W+qx]=1;st0.push(qy*W+qx)}}
+      const hh=f-e+1,ww=b-a+1,cyR=c.cy-Y0;if(hh<sp*1.3||hh>sp*3.6||ww<sp*.3||ww>sp*1.6||n<hh*ww*.15)continue;if(cyR<e-sp*.3||cyR>f+sp*.3)continue;
+      if(b+X0>c.x0-1)continue;{const sN=staves.reduce((p,q)=>Math.abs(c.cy-(q.top+2*q.sp))<Math.abs(c.cy-(p.top+2*p.sp))?q:p);if((sN.bars||[]).some(xb=>xb>=a+X0-2&&xb<=b+X0+2))continue}const flatLike=(cyR-e)>(f-cyR)*1.7&&(f-cyR)<sp*.95&&ww<=sp*1.1;if(flatLike&&a===0)continue;
+      /* 記号らしさ：中に小さな白いすき間（♭の丸・♯や♮の真ん中の四角）があり、玉のような塗りつぶしの部分がない */
+      {const ax=a+X0,ay=e+Y0,MW=ww+2,MH=hh+2,M=new Uint8Array(MW*MH);for(let i=0;i<pts.length;i+=2)M[(pts[i+1]-ay+1)*MW+(pts[i]-ax+1)]=1;
+       const holes=MM=>{const out=new Uint8Array(MW*MH),q=[0];out[0]=1;while(q.length){const p=q.pop(),px=p%MW,py=(p-px)/MW;for(const[qx,qy]of[[px-1,py],[px+1,py],[px,py-1],[px,py+1]])if(qx>=0&&qx<MW&&qy>=0&&qy<MH&&!MM[qy*MW+qx]&&!out[qy*MW+qx]){out[qy*MW+qx]=1;q.push(qy*MW+qx)}}let k=0;for(let i=0;i<MW*MH;i++)if(!MM[i]&&!out[i])k++;return k};
+       let hole=holes(M);if(hole<2&&flatLike){/* 細い線のすき間を1画素ふさいでから、♭の丸が閉じているか見る */const D2=M.slice();for(let y=1;y<MH-1;y++)for(let x=1;x<MW-1;x++)if(M[y*MW+x])for(const d of[-1,1,-MW,MW])D2[y*MW+x+d]=1;hole=holes(D2)}
+       if(hole<2)continue;
+       const r=Math.max(1,Math.round(sp*.2));let solid=false;for(let yy=r;yy<MH-r&&!solid;yy++)for(let xx=r;xx<MW-r&&!solid;xx++){let ok=true;for(let dy=-r;dy<=r&&ok;dy++)for(let dx=-r;dx<=r;dx++)if(!M[(yy+dy)*MW+xx+dx]){ok=false;break}if(ok)solid=true}if(solid)continue}
+      if(!best||n>best.n)best={a:a+X0,b:b+X0,e:e+Y0,f:f+Y0,n}}
+    if(!best)return null;const up=c.cy-best.e,dn=best.f-c.cy;let kind;
+    /* 形の確かめ：列ごとの縦の長さ（縦線が何本あるか）と、下側のふくらみの中身 */
+    const colH=[];for(let x=best.a;x<=best.b;x++){let n=0;for(let y=best.e;y<=best.f;y++)n+=clean[y*w+x];colH.push(n)}const HH=best.f-best.e+1;
+    let strokes=0,inS=false;for(const v of colH){if(v>=HH*.55&&!inS){strokes++;inS=true}else if(v<HH*.55)inS=false}
+    const cxm=(best.a+best.b)/2;
+    if(up>dn*1.7&&dn<sp*.95){/* ♭：縦線は左側、下の丸は中が空いている（音符の玉＋符尾との区別） */let sx=0,sn=0;for(let y=best.e;y<c.cy-sp*.6;y++)for(let x=best.a;x<=best.b;x++)if(clean[y*w+x]){sx+=x;sn++}
+      let bf=0,bn=0;for(let y=Math.round(c.cy-sp*.3);y<=best.f;y++)for(let x=best.a;x<=best.b;x++){bn++;bf+=clean[y*w+x]}
+      if(!sn||sx/sn>cxm||bf/Math.max(1,bn)>.62||best.b-best.a+1>sp*1.1)return null;
+      /* ♭の上半分は細い縦線だけ（休符・小節線＋隣の音符などを除く） */{let mx=-1,mn=1e9;for(let y=best.e;y<c.cy-sp*.7;y++)for(let x=best.a;x<=best.b;x++)if(clean[y*w+x]){if(x>mx)mx=x;if(x<mn)mn=x}if(mx-mn+1>sp*.38||mn>best.a+sp*.3||best.b-best.a+1<sp*.45)return null}kind="fl"}
+    else{if(strokes<2)return null;const third=Math.max(1,Math.round((best.b-best.a+1)/3)),ext=(x0,x1)=>{let t=1e9,u=-1;for(let x=x0;x<=x1;x++)for(let y=best.e;y<=best.f;y++)if(clean[y*w+x]){if(y<t)t=y;if(y>u)u=y}return[t,u]};
+      const L=ext(best.a,best.a+third-1),Rr=ext(best.b-third+1,best.b);kind=(Rr[0]-L[0]>sp*.2&&Rr[1]-L[1]>sp*.2)?'na':'sh'}
+    return{kind,x0:best.a,x1:best.b,y0:best.e,y1:best.f}};
   const analyze=(c0,loose)=>{let c=c0;
     /* タイやスラーがつながって横に長いときは、玉の部分（縦に厚い列）だけに絞る */
     if(c.x1-c.x0+1>sp*1.6){const W0=c.x1-c.x0+1,col=new Array(W0).fill(0);for(let x=c.x0;x<=c.x1;x++)for(let y=c.y0;y<=c.y1;y++)col[x-c.x0]+=fl[y*w+x];const mx=Math.max(...col);
@@ -2268,11 +2315,12 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
     const pd=Math.max(2,Math.round(sp*.2));let bx0=c.x0-pd,bx1=c.x1+pd,by0=c.y0-pd,by1=c.y1+pd;if(best&&best.bm){const B=best.bm;if(best.d==='u'){by0=Math.min(by0,B.y+B.th+1);bx1=Math.max(bx1,best.x+stemw+2)}else{by1=Math.max(by1,B.y-B.th-1);bx0=Math.min(bx0,best.x-2);bx1=Math.max(bx1,best.x+stemw+2)}}
     else if(best){if(best.d==='u'){by0=Math.min(by0,c.cy-hh+1-best.n-2);bx1=Math.max(bx1,best.x+((t==='8'||t==='16'||t==='32')?sp*1.4:stemw+2))}else{by1=Math.max(by1,c.cy+hh-1+best.n+2);bx0=Math.min(bx0,best.x-2);bx1=Math.max(bx1,best.x+((t==='8'||t==='16'||t==='32')?sp*1.2:stemw+2))}}
     if(dot)bx1=Math.max(bx1,c.cx+hw+sp*1.1);
+    const acc=accAt(c),box0={x0:bx0,y0:by0,y1:by1};if(acc){bx0=Math.min(bx0,acc.x0-2);by0=Math.min(by0,acc.y0-1);by1=Math.max(by1,acc.y1+1)}
     /* 白塗りの左右で五線の実際の高さを測る（スキャンの傾き対策） */
     const ly=[];for(let j=0;j<5;j++){const ye=st.top+j*st.sp;if(ye<by0-1||ye>by1+1)continue;const r=Math.max(2,Math.round(st.sp*.3)),acc=new Array(2*r+1).fill(0);
       for(const[xa,xb]of[[Math.round(bx0-sp*1.5),Math.round(bx0)-1],[Math.round(bx1)+1,Math.round(bx1+sp*1.5)]])for(let x=Math.max(0,xa);x<=Math.min(w-1,xb);x++)for(let k=-r;k<=r;k++){const y=Math.round(ye)+k;if(y<0||y>=h)continue;const i=(y*w+x)*4;acc[k+r]+=255-(d[i]*.3+d[i+1]*.59+d[i+2]*.11)}
       let sw=0,sy=0;const mx=Math.max(...acc);if(mx>0){for(let k=0;k<acc.length;k++)if(acc[k]>mx*.5){sw+=acc[k];sy+=acc[k]*(k-r)}ly.push([ye/sc,(Math.round(ye)+sy/sw)/sc])}}
-    return({_cl:c._cl,_sx:best?best.x:null,_c:[c.cx,c.cy,fill],ly,x:c.cx/sc,y:(st.top+ps*st.sp/2)/sc,ps,sp:st.sp/sc,t,d:dot,sd:best?best.d:null,...(best&&best.bm?{bm:{x:best.bm.x/sc,y:best.bm.y/sc}}:{}),box:{x:bx0/sc,y:by0/sc,w:(bx1-bx0)/sc,h:(by1-by0)/sc}})};
+    return({acc:acc?acc.kind:null,_accb:acc,_box0:box0,_sc:sc,sti:staves.indexOf(st),clef:(st.ks&&st.ks.clef)||'treble',_cl:c._cl,_sx:best?best.x:null,_c:[c.cx,c.cy,fill],ly,x:c.cx/sc,y:(st.top+ps*st.sp/2)/sc,ps,sp:st.sp/sc,t,d:dot,sd:best?best.d:null,...(best&&best.bm?{bm:{x:best.bm.x/sc,y:best.bm.y/sc}}:{}),box:{x:bx0/sc,y:by0/sc,w:(bx1-bx0)/sc,h:(by1-by0)/sc}})};
   /* 上下に重なった2つの玉（3度の和音・二重唱）は、一番細い行で上下に分ける */
   /* くっついた玉を分ける：縦に長ければ一番細い行で、横に長ければ一番細い列で（最大3段まで） */
   const part=(c,x0,x1,y0,y1)=>{let n=0,sx=0,sy=0,a=1e9,b=-1,e=1e9,f=-1;for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(ho[y*w+x]){n++;sx+=x;sy+=y;if(x<a)a=x;if(x>b)b=x;if(y<e)e=y;if(y>f)f=y}return n?{x0:a,x1:b,y0:e,y1:f,cnt:n,cx:sx/n,cy:sy/n,cut:1}:null};
@@ -2329,9 +2377,12 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
         const Y=Math.round(st.top+ps*st.sp/2),hw2=Math.round(sp*.65),hh2=Math.round(sp*.45);let n=0,tot=0,inner=0;for(let y=Y-hh2;y<=Y+hh2;y++)for(let x=cx0-hw2;x<=cx0+hw2;x++){if(x<0||y<0||x>=w||y>=h)continue;tot++;if(ink[y*w+x]){n++;if(Math.abs(x-cx0)<hw2*.4&&Math.abs(y-Y)<hh2*.4)inner++}}
         /* 白い玉（輪の形）のときだけ置く：まわりに黒、まん中が白 */if(!tot||n<tot*.3||inner>2)return null;{let ring=0;for(const[dx,dy]of[[-hw2*.7,0],[hw2*.7,0],[0,-hh2*.8],[0,hh2*.8]]){const x=Math.round(cx0+dx),y=Math.round(Y+dy);let f=0;for(let k=-1;k<=1;k++)if(ink[(y+k)*w+x]||ink[y*w+x+k])f=1;ring+=f}if(ring<4)return null}return{x:cx0/sc,y:Y/sc,ps,sp:st.sp/sc,t:'h',d:false,sd:null,ly:[],box:{x:(cx0-hw2-pd)/sc,y:(Y-hh2-pd)/sc,w:(2*hw2+2*pd)/sc,h:(2*hh2+2*pd)/sc}}};
       const hd=viaPick(pick(mk(clean,true))||pick(mk(ho,false)))||viaTM()||viaSyn();if(hd)hd.manual=true;return fixHead(hd)}};
+  /* 臨時記号の枠の中に別の音符の玉があれば、それは記号ではない（隣の音符） */
+  for(const hd of heads){const A=hd._accb;if(!A)continue;if(heads.some(o=>o!==hd&&o._c&&o._c[0]>=A.x0-1&&o._c[0]<=A.x1+1&&o._c[1]>=A.y0&&o._c[1]<=A.y1)){hd.acc=null;const b0=hd._box0;const x1=hd.box.x+hd.box.w,y1=hd.box.y+hd.box.h;hd.box={x:b0.x0/sc,y:b0.y0/sc,w:x1-b0.x0/sc,h:Math.max(b0.y1/sc,y1)-b0.y0/sc}}}
   /* ページ全体で比べて、まん中が黒い玉よりはっきり明るいものは白い玉（2分）にする（にじんで中が埋まったスキャン向け） */
   {const cls=heads.filter(x=>x._cl!=null&&x.t!=='h'&&x.t!=='w').map(x=>x._cl).sort((a,b)=>a-b);if(cls.length>=8){const m=cls[Math.floor(cls.length*.3)];for(const hd of heads){if(hd._cl!=null&&hd.t==='q'&&!hd.bm&&hd._cl>m+38)hd.t='h'}}}
   for(const hd of heads)fixHead(hd);
+  SV.bars=SV.bars||{};SV.bars[key]=staves.map(s0=>(s0.bars||[]).map(x=>x/sc));
   SV.ks=SV.ks||{};SV.ks[key]=staves.filter(s0=>s0.ks&&s0.ks.ce>0).map(s0=>{const xc=(s0.ks.runs.length?s0.ks.runs[0].a:s0.ks.ce)/sc,dy=skT*(xc-F.w/2);return{x0:s0.x0/sc,ce:s0.ks.ce/sc,runs:s0.ks.runs.map(r=>[r.a/sc,r.b/sc]),top:s0.top/sc-dy,sp:s0.sp/sc,clef:s0.ks.clef,th:s0.th/sc}});
   /* ページ内の段で多数決：音部記号の終わりと調号の終わり（段の左端からの距離）をそろえる。読み違えた段もこれで直す */
   {const L=SV.ks[key],med=a=>{a=a.slice().sort((p,q)=>p-q);return a.length?a[a.length>>1]:null},ok=L.filter(q=>q.runs.length);const ceR=med(ok.map(q=>q.ce-q.x0)),enR=med(ok.map(q=>q.runs[q.runs.length-1][1]-q.x0));
@@ -2341,7 +2392,7 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
 /* 印刷された音符 → 編集できる音符に変換 */
 /* 印刷された音符 → 白で消す枠＋編集できる音符（副作用なし） */
 function headItems(hd){const g=SV.g;const B=unrotRect(g.r,g.W,g.H,hd.box),wh={k:'wh',x:+B.x.toFixed(1),y:+B.y.toFixed(1),w:+B.w.toFixed(1),h:+B.h.toFixed(1)};attachStaff(wh,hd.box,hd.ly);
-  const p=unrotPt(g.r,g.W,g.H,hd.x,hd.y),nt={k:'nt',t:hd.t,x:+p[0].toFixed(1),y:+p[1].toFixed(1),sp:+hd.sp.toFixed(2),ps:hd.ps,c:'#14161B',pr:1};if(hd.d)nt.d=true;if(hd.sd)nt.sd=hd.sd;if(hd.bm){const q=unrotPt(g.r,g.W,g.H,hd.bm.x,hd.bm.y);nt.bm=[+q[0].toFixed(1),+q[1].toFixed(1)]}
+  const p=unrotPt(g.r,g.W,g.H,hd.x,hd.y),nt={k:'nt',t:hd.t,x:+p[0].toFixed(1),y:+p[1].toFixed(1),sp:+hd.sp.toFixed(2),ps:hd.ps,c:'#14161B',pr:1,ops:hd.ps,cl:hd.clef||'treble'};if(hd.acc)nt.acc0=hd.acc;if(hd.sti!=null){nt.sti=hd.sti;const bl=((SV.bars||{})[`${SV.o}|${g.r}`]||[])[hd.sti]||[];nt.mi=bl.filter(x=>x<hd.x).length}if(hd.d)nt.d=true;if(hd.sd)nt.sd=hd.sd;if(hd.bm){const q=unrotPt(g.r,g.W,g.H,hd.bm.x,hd.bm.y);nt.bm=[+q[0].toFixed(1),+q[1].toFixed(1)]}
   return[wh,nt]}
 function adoptHead(hd,quiet){const t=curT();if(!t||!SV.g)return null;const snap=snapEd();pushUndo(snap);const a=annOf(SV.o);const[wh,nt]=headItems(hd);
   a.push(wh,nt);SV.sel=a.length-1;hd.used=true;saveEdSoon();drawAnnLayer();renderTools();if(!quiet)toast('音符を動かせるようにしました。ドラッグで移動、下で種類を変更できます');return{i:SV.sel,it:nt,snap}}
