@@ -178,6 +178,8 @@ input[type=range]:hover{background:linear-gradient(to right,var(--accent) var(--
 .plchk label{display:flex;gap:10px;align-items:center;font-size:14px}
 .plchk input{accent-color:var(--accent);width:16px;height:16px}
 
+.progress{width:max-content}body.score-open .progress{pointer-events:none;bottom:auto;top:calc(66px + env(safe-area-inset-top,0px))}.prog-undo{white-space:nowrap;flex:none}
+.progress.has-undo{display:flex;align-items:center;gap:14px;padding:6px 6px 6px 18px}.prog-undo{pointer-events:auto;border:0;background:#fff;color:var(--ink);font:inherit;font-size:13px;font-weight:800;border-radius:7px;height:36px;padding:0 14px;cursor:pointer}
 .progress{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--player-h) + 16px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--primary);color:#fff;padding:10px 18px;border-radius:8px;font-size:13.5px;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(17,19,24,.2)}
 .drop{position:fixed;inset:0;z-index:50;background:rgba(255,255,255,.85);border:2px dashed var(--accent);display:grid;place-items:center;font-weight:800;font-size:24px;color:var(--accent);pointer-events:none}
 
@@ -751,7 +753,7 @@ button.badge.key:hover{background:var(--accent);color:#fff}
 .sv-stage.editing .sv-edge{display:none}
 .sv-stage[data-tool=pen],.sv-stage[data-tool=mk],.sv-stage[data-tool=wh]{cursor:crosshair}.sv-stage[data-tool=tx]{cursor:text}.sv-stage[data-tool=er]{cursor:cell}
 .sv-notebtn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.sv-editbtn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.sv-editbtn{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}.sv-editbtn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
 .sv-tools{background:#fff;border-top:1px solid var(--line);padding:8px max(12px,env(safe-area-inset-right,0px)) 10px max(12px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:8px}
 .sv-trow{display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none;min-height:36px}.sv-trow::-webkit-scrollbar{display:none}
 .sv-trow>*{flex:none}.sv-tools .sv-trow:first-child{flex-wrap:wrap;row-gap:8px}.sv-sp{flex:1 1 auto!important}.sv-div{width:1px;height:22px;background:var(--line2);margin:0 4px}
@@ -856,14 +858,20 @@ button.badge.score{border:0;cursor:pointer;font:inherit;font-size:10.5px;font-we
   .sv-bar{gap:4px;padding-block:8px;flex-wrap:nowrap}.sv-title{display:none}
   .sv-bar{flex-wrap:nowrap;overflow:hidden}.sv-bar .sv-tpbtn span:not(.tp-ic),.sv-bar .sv-savebtn span{display:none!important}.sv-bar .sv-tpbtn,.sv-bar .sv-savebtn{padding-inline:8px!important}.sv-bar .cbtn{width:34px;height:34px}.sv-bar #svPage{min-width:40px;font-size:12px}
   .sv-tools .sv-opts.sv-selo{flex-wrap:wrap;overflow:visible;row-gap:6px}.sv-tools .sv-nts{flex-wrap:wrap;max-width:100%}.sv-tools .sv-opts{flex-wrap:wrap;overflow:visible;row-gap:6px}
-  .sv-tools .sv-trow:first-child:has(.sv-seg){flex-wrap:wrap;row-gap:8px}.sv-tools .sv-opts{max-width:100%;overflow-x:auto;scrollbar-width:none}.sv-hint2{display:none}.sv-seg button{padding:7px 8px!important}.sv-tools .sv-hint{display:none}.sv-tools .sv-trow .sv-auto span{font-size:12px}.sv-zoom{display:none!important}.sv-bar .sv-editbtn span{display:none!important}.sv-editbtn{padding-inline:9px!important}.sv-bar .sv-notebtn span{display:inline!important}.sv-notebtn{padding-inline:10px!important}
+  .sv-tools .sv-trow:first-child:has(.sv-seg){flex-wrap:wrap;row-gap:8px}.sv-tools .sv-opts{max-width:100%;overflow-x:auto;scrollbar-width:none}.sv-hint2{display:none}.sv-seg button{padding:7px 8px!important}.sv-tools .sv-hint{display:none}.sv-tools .sv-trow .sv-auto span{font-size:12px}.sv-zoom{display:none!important}.sv-bar .sv-editbtn span{display:inline!important}.sv-editbtn{padding-inline:12px!important}.sv-bar .sv-notebtn span{display:inline!important}.sv-notebtn{padding-inline:10px!important}
   .sv-arw{width:34px;height:34px;margin-top:-17px}.sv-edge.l .sv-arw{left:4px}.sv-edge.r .sv-arw{right:4px}
   .sv-tip{display:none}.sv-flag{flex:1}
   .sv-modes button{padding:7px 10px;font-size:13px}.sv-tools .sv-trow .sv-done span{display:inline!important}
   .sv-tl2{width:100%}.sv-tl2 button{flex:1 1 0;min-width:0;flex-direction:column;gap:2px;padding:6px 2px;font-size:10.5px;border-radius:9px}.sv-tl2 button span{display:block!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
   .sv-hintline{font-size:11.5px}
+  .sv-tl2 button{flex-direction:row;gap:5px;padding:0 4px;height:40px;font-size:12px;justify-content:center}.sv-tl2 button svg{width:16px;height:16px;flex:none}
+  .sv-tools{gap:6px;padding-top:6px;padding-bottom:6px}
+  .sv-modes button{min-height:40px}.sv-tools .sv-nts button{min-width:38px;height:40px}.sv-tools .sv-ink{width:34px;height:34px}.sv-tools .sv-sz{width:38px;height:38px}.sv-tools .sv-opts .btn.sm{min-height:40px}.sv-bar .sv-savebtn{min-width:36px;min-height:36px}
+  .sv-tl2:has(>:nth-child(4)) button{flex-direction:column;gap:1px;height:46px;font-size:10.5px}
+  .sv-tools .sv-opts:not(.sv-selo){flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}.sv-tools .sv-opts:not(.sv-selo)::-webkit-scrollbar{display:none}
+  .sv-tools .sv-opts:not(.sv-selo) .sv-nts{flex-wrap:nowrap;max-width:none}.sv-tools .sv-opts:not(.sv-selo)>*,.sv-tools .sv-opts:not(.sv-selo) .sv-nts>*{flex:none}
     .sv-savebtn span{display:none}.sv-savebtn{padding-inline:9px}#svZoom{display:none}.sv-tools .sv-trow:last-child .cbtn{width:34px;height:34px}.sv-tools .sv-trow:last-child{gap:3px}.sv-tools .sv-trow:last-child .sv-div{margin:0 1px}
-  .sv-editbtn span{display:none}.sv-editbtn{padding-inline:9px}.sv-seg button span{display:none}.sv-seg button{padding:7px 9px}.sv-trow .btn.sm span{display:none}.sv-tools .sv-trow .btn.primary span{display:inline}.pg-grid{grid-template-columns:repeat(2,1fr)}.pg-th{height:150px}
+  .sv-editbtn{padding-inline:12px}.sv-seg button span{display:none}.sv-seg button{padding:7px 9px}.sv-trow .btn.sm span{display:none}.sv-tools .sv-trow .btn.primary span{display:inline}.pg-grid{grid-template-columns:repeat(2,1fr)}.pg-th{height:150px}
   .sv-bar .cbtn{width:36px;height:36px}.sv-pg,.sv-zoom{gap:2px}.sv-zoom .btn{display:none}.sv-pg{margin-right:auto}
   #svPage{min-width:44px}#svZoom{min-width:42px;font-size:12px}
 }
@@ -987,7 +995,8 @@ body.selmode .main{padding-bottom:calc(var(--player-h) + 120px)}
 .tp-opts{display:flex;flex-direction:column;gap:7px}.tp-note{font-size:11.5px;margin:-4px 0 2px 44px}
 .sv-tpbadge{position:absolute;left:12px;bottom:12px;z-index:4;border:0;background:var(--ink);color:#fff;border-radius:10px;padding:6px 11px;display:flex;flex-direction:column;align-items:flex-start;line-height:1.25;box-shadow:0 6px 16px -8px rgba(0,0,0,.5);cursor:pointer}
 .sv-tpbadge b{font-size:13px}.sv-tpbadge span{font-size:11px;opacity:.8}
-@media (max-width:760px){.tp-btn{width:40px;height:40px;font-size:20px}.sv-tp{gap:8px;padding-top:8px}.sv-bar .sv-pg .cbtn{display:none}.sv-tpbtn{padding-inline:9px!important}.tp-top .btn.primary span{display:inline}.tp-val{min-width:96px}.tp-note{margin-left:0}}
+@media (max-width:760px){.tp-btn{width:40px;height:40px;font-size:20px}.sv-tp{gap:8px;padding-top:8px}.sv-bar .sv-pg .cbtn{width:30px!important;height:36px!important}.sv-bar .sv-pg{gap:0}.sv-tpbtn{padding-inline:9px!important}.tp-top .btn.primary span{display:inline}.tp-val{min-width:96px}.tp-note{margin-left:0}}
+@media (max-width:380px){.sv-tl2 button{font-size:11px!important;letter-spacing:-.02em;padding:0 2px!important;gap:3px!important}}
 </style>
 </head>
 <body>
@@ -1856,7 +1865,9 @@ function pickScore(id){const t=S.tracks.get(id);if(!t)return;if(t.sample){toast(
 async function importScore(file){return importScoreFiles(file?[file]:[])}
 async function removeScore(id){const t=S.tracks.get(id);if(!t)return;await tx('blobs','readwrite',st=>st.delete('pdf:'+id));if(t.scoreOnly){S.tracks.delete(id);await tx('tracks','readwrite',st=>st.delete(id))}else{delete t.score;saveTrack(t)}closeScore();render();toast('楽譜を削除しました')}
 const SV={id:null,doc:null,page:1,o:1,z:1,x:0,y:0,pw:0,ph:0,task:null,rz:null,lastUser:0,noFile:false,
-  edit:false,tool:'pen',color:{pen:'#14161B',mk:'#FFD60A',tx:'#E5484D',nt:'#14161B'},size:{pen:1,mk:1,tx:1},g:null,C:{x:0,y:0,w:0,h:0},rs:1,op:null,undo:[],redo:[],cropMode:false,cropR:null,cropAll:false,thumbs:new Map(),sel:null,ntType:'q',ntDot:false,staves:{},lastSp:7};
+  edit:false,tool:'pr',color:{pen:'#14161B',mk:'#FFD60A',tx:'#E5484D',nt:'#14161B'},size:{pen:1,mk:1,tx:1},g:null,C:{x:0,y:0,w:0,h:0},rs:1,op:null,undo:[],redo:[],cropMode:false,cropR:null,cropAll:false,thumbs:new Map(),sel:null,ntType:'q',ntDot:false,staves:{},lastSp:7};
+/* 元の音符に印を付ける（細かい楽譜は自動で拡大） */
+function findHeads(){const o=SV.o;const cached=(SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`];if(!cached)progress('音符を探しています…');detectHeads().then(hs=>{progress(null);if(SV.o!==o||!SV.edit)return;{const spx=(SV.lastSp||7)*baseScale()*SV.z;if(hs.length&&spx<10){const{w,h}=stageSize();zoomAt(SV.z*10/spx,w/2,h/3)}}drawAnnLayer();renderTools();if(!cached)toast(hs.length?`${hs.length}個の音符に印を付けました。印をタップすると動かせます`:'このページで音符を見つけられませんでした。写真の場合は、明るくまっすぐ撮り直すと見つかりやすくなります')})}
 const PEN_W=[0.9,1.8,3.6],MK_W=[7,12,20],TX_S=[11,16,26],TXF='"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif';
 const INK={nt:['#14161B','#E5484D','#2F6FEB','#1F9D55'],pen:['#14161B','#E5484D','#2F6FEB','#1F9D55'],mk:['#FFD60A','#FF8FB1','#7CD4FF','#9BE37B'],tx:['#14161B','#E5484D','#2F6FEB','#1F9D55']};
 function scEd(t){const sc=t.score;if(!sc.edit)sc.edit={};const e=sc.edit;
@@ -1904,8 +1915,7 @@ function scoreShell(t){const sc=t.score;
    <div class="sv-title"><b>${esc(t.title)}</b><span>${esc(sc.name)}</span></div>
    <div class="sv-pg"><button class="cbtn" data-act="scorePage" data-d="-1" aria-label="前のページ">${IC.chevl}</button><span id="svPage">1 / ${scPages(t)}</span><button class="cbtn" data-act="scorePage" data-d="1" aria-label="次のページ">${IC.chev}</button></div>
    <div class="sv-zoom"><button class="cbtn" data-act="scoreZoom" data-d="-1" aria-label="縮小" title="縮小">${IC.zoomout}</button><span id="svZoom">100%</span><button class="cbtn" data-act="scoreZoom" data-d="1" aria-label="拡大" title="拡大">${IC.zoomin}</button></div>
-   <button class="btn sm sv-notebtn" id="svNoteBtn" data-act="svNotes" title="楽譜の音符をそのまま指で動かせます">${IC.note}<span>音符を動かす</span></button>
-   <button class="btn sm sv-editbtn" id="svEditBtn" data-act="svEdit" aria-pressed="false" title="ペンや音符で書き込む・ページを整える">${IC.pen}<span>書き込む</span></button>
+   <button class="btn sm sv-editbtn" id="svEditBtn" data-act="svEdit" aria-pressed="false" title="音符を動かす・書き込む・ページを整える">${IC.pen}<span>編集</span></button>
    <button class="btn sm sv-tpbtn" id="svTpBtn" data-act="svTp" aria-pressed="false" title="楽譜を移調する"><span class="tp-ic">♯♭</span><span>移調</span></button>
    <button class="btn sm sv-savebtn" data-act="svExport" title="書き込みごとPDFで保存">${IC.dl}<span>PDF保存</span></button>
    <button class="cbtn" data-act="scoreMenu" data-id="${t.id}" aria-label="楽譜のメニュー">${IC.dots}</button></div>
@@ -1915,8 +1925,7 @@ function scoreTips(){const st=$('#svStage');if(!st||$('#svTips'))return;const d=
   d.innerHTML=`<div class="sv-tipcard" role="dialog" aria-label="楽譜の使い方"><b class="sv-tiph">楽譜の使い方</b><ul>
    <li><i>${IC.chev}</i><span><b>ページをめくる</b>左右の矢印をタップ、または横にスワイプ</span></li>
    <li><i>${IC.flag}</i><span><b>再生に合わせて自動でめくる</b>再生中に下の「⚑」で、ページを表示する時間を登録</span></li>
-   <li><i>${IC.note}</i><span><b>音符を動かす</b>上の「音符を動かす」を押すと音符に印が付きます。印を指でそのまま動かせます</span></li>
-   <li><i>${IC.pen}</i><span><b>書き込む</b>ペン・文字・白塗りなど。終わったら「完了」</span></li>
+   <li><i>${IC.pen}</i><span><b>編集</b>上の「編集」で音符に印が付きます。印をタップして動かす・変える。ペンや文字は「書く」、回転や並べ替えは「ページ」。終わったら「完了」</span></li>
    <li><i>${IC.dl}</i><span><b>PDF保存</b>書き込みごとPDFにして保存</span></li></ul>
    <button class="btn primary" data-act="tipsClose">わかった</button></div>`;st.appendChild(d)}
 function renderTurnBar(){const t=S.tracks.get(SV.id),el=$('#svTurn');if(!t||!el||!t.score)return;if(SV.edit||SV.tp){el.hidden=true;el.dataset.sig='';return}el.hidden=false;const sc=t.score,live=scoreLive(t),p=SV.page,N=scPages(t);const cur=sc.turns[SV.o];
@@ -1951,7 +1960,7 @@ async function gotoPage(n){if(!SV.doc)return;const t=S.tracks.get(SV.id);if(!t)r
   const page=await SV.doc.getPage(o);if(SV.o!==o)return;const g=pageGeo(t,o,page);SV.g=g;SV.C=SV.cropMode?fullRect(g):g.C;SV.pw=SV.C.w;SV.ph=SV.C.h;
   const v=!SV.cropMode&&t.score.view&&t.score.view[o];SV.z=v&&v.z?v.z:1;placeFromView(v);if(SV.cropMode){fitMode('p',true)}applyXform();
   $('#svPage').textContent=`${n} / ${N}`;{const st=$('#svStage');if(st){st.classList.toggle('first',n===1);st.classList.toggle('last',n===N)}}if(t.score.page!==n){t.score.page=n;clearTimeout(SV.pgT);SV.pgT=setTimeout(()=>{if(S.tracks.get(t.id)===t)saveTrack(t)},600)}renderTurnBar();if(SV.edit)renderTools();
-  const an=$('#svAn');if(an){an.getContext('2d').clearRect(0,0,an.width,an.height)}await drawPage();renderTpBadge();{const tp=tpOf(t);if((tp.semi&&tp.chords)||SV.tp)loadChords(o).then(()=>{if(SV.o===o){drawAnnLayer();renderTp()}})}}
+  const an=$('#svAn');if(an){an.getContext('2d').clearRect(0,0,an.width,an.height)}await drawPage();if(SV.edit&&SV.tool==='pr'&&SV.o===o)findHeads();renderTpBadge();{const tp=tpOf(t);if((tp.semi&&tp.chords)||SV.tp)loadChords(o).then(()=>{if(SV.o===o){drawAnnLayer();renderTp()}})}}
 let svSaveT;function saveViewSoon(){if(SV.cropMode)return;clearTimeout(svSaveT);svSaveT=setTimeout(()=>{const t=S.tracks.get(SV.id);if(!t||!t.score)return;const{w,h}=stageSize(),cs=baseScale()*SV.z;
   t.score.view=t.score.view||{};t.score.view[SV.o]={z:+SV.z.toFixed(3),cx:+((w/2-SV.x)/(SV.pw*cs)).toFixed(4),cy:+((h/2-SV.y)/(SV.ph*cs)).toFixed(4)};saveTrack(t)},400)}
 function zoomAt(nz,px,py){nz=Math.max(.25,Math.min(6,nz));const cs0=baseScale()*SV.z,cs1=baseScale()*nz;const ux=(px-SV.x)/cs0,uy=(py-SV.y)/cs0;SV.z=nz;SV.x=px-ux*cs1;SV.y=py-uy*cs1;clampPos();applyXform();redrawSoon();saveViewSoon();SV.lastUser=Date.now()}
@@ -2245,7 +2254,7 @@ function endOp(e){const op=SV.op;SV.op=null;if(!op)return;const o=SV.o;
   else if(op.k==='pen'||op.k==='mk'){const s=snapEd();pushUndo(s);annOf(o).push({k:op.k,c:op.c,w:op.w,p:op.p});saveEdSoon();drawAnnLayer();renderTools()}
   else if(op.k==='wh'){if(op.e){const R=bbox(op.s,op.e);if(R.w>2&&R.h>2){pushUndo(snapEd());annOf(o).push({k:'wh',x:+R.x.toFixed(1),y:+R.y.toFixed(1),w:+R.w.toFixed(1),h:+R.h.toFixed(1)});saveEdSoon();renderTools()}}drawAnnLayer()}
   else if(op.k==='rg'){if(op.e){const R=bbox(op.s,op.e);if(R.w>3&&R.h>3){pushUndo(snapEd());const a=annOf(o),it={k:'mv',sx:+R.x.toFixed(1),sy:+R.y.toFixed(1),sw:+R.w.toFixed(1),sh:+R.h.toFixed(1),dx:0,dy:0};a.push(it);SV.sel=a.length-1;saveEdSoon();toast('囲んだ部分をドラッグすると動かせます');renderTools();detectStaves().then(()=>{if(SV.o!==o)return;attachStaff(it,rotRect(SV.g.r,SV.g.W,SV.g.H,R));saveEdSoon();drawAnnLayer()})}}drawAnnLayer()}
-  else if(op.k==='er'){if(op.hit){pushUndo(op.snap);saveEdSoon();renderTools()}}
+  else if(op.k==='er'){if(op.hit){pushUndo(op.snap);saveEdSoon();renderTools();undoToast('消しました')}}
   else if(op.k==='tx'){if(!op.moved){const hit=hitTest(e,['tx']);textSheet(hit?hit.it:null,hit?null:cl2base(e))}}}
 function hitTest(e,only){const t=curT(),items=scEd(t).ann[SV.o]||[],g=SV.g,d=cl2disp(e),cs=baseScale()*SV.z,tol=(SV.tool==='pr'||SV.tool==='sel'?16:10)/cs;
   for(let i=items.length-1;i>=0;i--){const it=items[i];if(only&&!only.includes(it.k))continue;
@@ -2270,7 +2279,7 @@ function textSheet(it,at){const k='tx';sheet(`<h2>${it?'文字を修正':'文字
 function restoreEd(s){const t=curT();if(!t||!s)return;SV.sel=null;SV.heads={};t.score.edit=JSON.parse(s);SV.thumbs.clear();saveEdSoon();const N=scPages(t);gotoPage(Math.min(SV.page,N))}
 function svUndo(){if(!SV.undo.length)return;SV.redo.push(snapEd());restoreEd(SV.undo.pop());toast('元に戻しました')}
 function svRedo(){if(!SV.redo.length)return;SV.undo.push(snapEd());restoreEd(SV.redo.pop());toast('やり直しました')}
-function setEdit(on){{const nb=$('#svNoteBtn');if(nb){nb.classList.toggle('primary',!!on&&SV.tool==='pr')}}if(on&&SV.tp){SV.tp=false;const x=$('#svTp');if(x)x.hidden=true;const b=$('#svTpBtn');if(b){b.classList.remove('primary');b.setAttribute('aria-pressed','false')}}SV.edit=on;SV.op=null;SV.sel=null;if(on&&SV.tool==='hand')SV.tool='pen';const st=$('#svStage');if(!st)return;st.classList.toggle('editing',on);const b=$('#svEditBtn');if(b){b.classList.toggle('primary',on);b.setAttribute('aria-pressed',on);b.innerHTML=on?`${IC.check}<span>完了</span>`:`${IC.pen}<span>書き込む</span>`}
+function setEdit(on){if(on&&SV.tp){SV.tp=false;const x=$('#svTp');if(x)x.hidden=true;const b=$('#svTpBtn');if(b){b.classList.remove('primary');b.setAttribute('aria-pressed','false')}}SV.edit=on;SV.op=null;SV.sel=null;if(on&&SV.tool==='hand')SV.tool='pr';const st=$('#svStage');if(!st)return;st.classList.toggle('editing',on);const b=$('#svEditBtn');if(b){b.classList.toggle('primary',on);b.setAttribute('aria-pressed',on);b.innerHTML=on?`${IC.check}<span>完了</span>`:`${IC.pen}<span>編集</span>`}
   $('#svTools').hidden=!on;if(on){renderTools()}else{if(SV.cropMode)cropExit()}renderTurnBar();setStageTool();requestAnimationFrame(onScoreResize)}
 function setStageTool(){const st=$('#svStage');if(st)st.dataset.tool=SV.edit&&!SV.cropMode?SV.tool:''}
 const MODES=[['draw','書く',IC.pen],['note','音符',IC.note],['page','ページ',IC.pages]];
@@ -2296,11 +2305,11 @@ function renderTools(){const el=$('#svTools');if(!el||!SV.edit)return;const t=cu
   const inkOpts=kk=>`${INK[kk].map(c=>`<button class="sv-ink${SV.color[kk]===c?' on':''}" data-act="svInk" data-c="${c}" style="--ink:${c}" aria-label="色" title="色"></button>`).join('')}`;
   let opts='';
   if(sel)opts=sel.k==='nt'?'':selOpts(sel);
-  else if(k==='nt')opts=`<div class="sv-opts">${ntGrid('ntPick',SV.ntType)}<span class="sv-div"></span><button class="btn sm${SV.ntDot?' on':''}" data-act="ntDot" title="付点">付点</button>${inkOpts('nt')}</div>`;
+  else if(k==='nt')opts=`<div class="sv-opts"><button class="btn sm${SV.ntDot?' on':''}" data-act="ntDot" title="付点">付点</button>${ntGrid('ntPick',SV.ntType)}<span class="sv-div"></span>${inkOpts('nt')}</div>`;
   else if(INK[k])opts=`<div class="sv-opts">${inkOpts(k)}<span class="sv-div"></span>${[0,1,2].map(i=>`<button class="sv-sz${SV.size[k]===i?' on':''}" data-act="svSize" data-s="${i}" title="${['細','中','太'][i]}" aria-label="${['細','中','太'][i]}"><i style="--d:${k==='tx'?6+i*4:k==='mk'?7+i*4:3+i*3}px"></i></button>`).join('')}</div>`;
   const tools=mode==='page'?`<div class="sv-tl2 pg"><button class="lbl" data-act="svRotate">${IC.rotate}<span>回転</span></button><button class="lbl" data-act="svCrop">${IC.crop}<span>余白を切る</span></button><button class="lbl" data-act="svPages">${IC.pages}<span>並べ替え・削除</span></button><button class="lbl" data-act="svClearPage"${n?'':' disabled'}>${IC.trash}<span>書き込み消去</span></button></div>`
     :`<div class="sv-tl2" role="toolbar" aria-label="道具">${MODE_TOOLS[mode].map(([id,l,ic])=>`<button class="${k===id?'on':''}" data-act="svTool" data-t="${id}" aria-pressed="${k===id}">${ic}<span>${l}</span></button>`).join('')}</div>`;
-  const prN=SV.tool==='pr'?((SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`]||[]).filter(x=>!x.used).length:0;const hint=sel?(sel.k==='nt'?'音符の下のバーで ▲▼・種類を変更。指でドラッグしても動かせます':sel.k==='mv'?'ドラッグで移動。下で別の音符に変える／白で消す':'ドラッグで移動、または削除'):(k==='pr'&&(SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`]?`${prN}個の音符に印を付けました。印をそのまま指で動かしてください`:TOOL_HINT[k]||'');
+  const prN=SV.tool==='pr'?((SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`]||[]).filter(x=>!x.used).length:0;const hint=sel?(sel.k==='nt'?'音符の下のバーで ▲▼・種類を変更。指でドラッグしても動かせます':sel.k==='mv'?'ドラッグで移動。下で別の音符に変える／白で消す':'ドラッグで移動、または削除'):(k==='pr'&&(SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`]?`${prN}個の音符に印を付けました。印をタップすると動かせます`:TOOL_HINT[k]||'');
   el.innerHTML=`<div class="sv-trow sv-top"><div class="sv-modes" role="tablist" aria-label="編集の種類">${MODES.map(([m,l,ic])=>`<button role="tab" class="${mode===m?'on':''}" aria-selected="${mode===m}" data-act="svMode" data-m="${m}">${ic}<span>${l}</span></button>`).join('')}</div><span class="sv-sp"></span>
      <button class="cbtn" data-act="svUndo"${SV.undo.length?'':' disabled'} aria-label="元に戻す" title="元に戻す（Ctrl+Z）">${IC.undo}</button><button class="cbtn sv-redo" data-act="svRedo"${SV.redo.length?'':' disabled'} aria-label="やり直す" title="やり直す（Ctrl+Shift+Z）">${IC.undo}</button></div>
    <div class="sv-trow sv-mid">${tools}</div>
@@ -2384,7 +2393,7 @@ function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropE
     root.querySelectorAll('#pdfName,#pdfAnn').forEach(x=>x.addEventListener('input',()=>{file=null;go.innerHTML=`${IC.dl}PDFを作成`;go.classList.add('primary')}));
     go.onclick=async()=>{if(file){save();return}go.disabled=true;go.textContent='作成中…';
       try{const bytes=await buildEditedPdf(t,{ann:$('#pdfAnn').checked});file=new File([bytes],safeName($('#pdfName').value),{type:'application/pdf'});
-        go.disabled=false;go.innerHTML=`${IC.check}保存する`;msg.textContent=`PDFができました（${Math.max(1,Math.round(bytes.length/1024))}KB）。「保存する」を押してください。`;if(!isMobile())save()}
+        SV.savedSig=snapEd();go.disabled=false;go.innerHTML=`${IC.check}保存する`;msg.textContent=`PDFができました（${Math.max(1,Math.round(bytes.length/1024))}KB）。「保存する」を押してください。`;if(!isMobile())save()}
       catch(err){console.error(err);go.disabled=false;go.innerHTML=`${IC.dl}PDFを作成`;msg.textContent='PDFを作成できませんでした。このPDFは保護されている可能性があります。'}}})}
 function scoreMenu(btn,id){openActMenu(btn,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['scoreHelp','使い方を見る',IC.help],['svTp','移調',IC.note],...(curT()&&curT().scoreOnly?[['scoreRename','楽譜の名前を変更',IC.pen],['songPick',curT().score&&curT().score.song?'一緒に再生する曲を変更':'一緒に再生する曲を選ぶ',IC.note]]:[]),['svEdit',SV.edit?'書き込みを終える':'書き込む',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','PDFで保存',IC.dl],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']])}
 function smartSheet(){const tagsUsed=[...new Set(all().flatMap(t=>t.tags||[]))],genres=[...new Set(all().map(t=>t.genre).filter(Boolean))],artists=[...new Set(all().map(t=>t.artist).filter(Boolean))];
@@ -2541,18 +2550,18 @@ document.addEventListener('click',e=>{
     if(act==='songLink'){const t=S.tracks.get(id);if(t&&t.score){if(a.dataset.song)t.score.song=a.dataset.song;else delete t.score.song;saveTrack(t);{const tp=tpOf(t);if(a.dataset.song&&tp.link&&tp.semi&&S.tracks.get(a.dataset.song))setKeyFor(a.dataset.song,tp.semi)}closeSheet();const el=$('#svTurn');if(el)el.dataset.sig='';renderTurnBar();render();toast(a.dataset.song?`「${(S.tracks.get(a.dataset.song)||{}).title||''}」と組み合わせました`:'曲との組み合わせを外しました')}return}
     if(act==='scorePlayOpen'){const t=S.tracks.get(id);if(t){const sid=scoreSongId(t);if(sid&&S.tracks.get(sid)){S.queue=[sid];S.queueOrig=[sid];playIdx(0)}else if(t.scoreOnly){openScore(id);toast('一緒に再生する曲が選ばれていません。下の「一緒に再生する曲を選ぶ」から選べます');return}openScore(id)}return}
     if(act==='scoreOpen'){openScore(id||S.queue[S.qi]);return}
-    if(act==='scoreClose'){const t=curT();if(t&&SV.undo.length&&!SV.askedSave){SV.askedSave=true;sheet(`<h2>変更した楽譜をPDFで保存しますか？</h2><p style="margin:0;color:var(--muted);font-size:13px">保存しなくても、変更はこのアプリの中に残ります。あとから「PDF保存」でも書き出せます。</p><div class="foot"><span></span><span class="actions"><button class="btn" data-act="scoreCloseNow">保存せずに閉じる</button><button class="btn primary" data-act="scoreSaveClose">${IC.dl}PDFで保存</button></span></div>`);return}closeScore();return}
+    if(act==='scoreClose'){const t=curT();if(t&&SV.undo.length&&snapEd()!==SV.savedSig&&!SV.askedSave){SV.askedSave=true;sheet(`<h2>変更した楽譜をPDFで保存しますか？</h2><p style="margin:0;color:var(--muted);font-size:13px">保存しなくても、変更はこのアプリの中に残ります。あとから「PDF保存」でも書き出せます。</p><div class="foot"><span></span><span class="actions"><button class="btn" data-act="scoreCloseNow">保存せずに閉じる</button><button class="btn primary" data-act="scoreSaveClose">${IC.dl}PDFで保存</button></span></div>`);return}closeScore();return}
     if(act==='scoreCloseNow'){closeSheet();closeScore();return}
     if(act==='scoreSaveClose'){closeSheet();exportScore();return}
-    if(act==='svEdit'){if(!SV.doc){toast('楽譜PDFを取り込んでから使えます');return}setEdit(!SV.edit);return}
-    if(act==='svNotes'){if(!SV.doc){toast('楽譜を開いてから使えます');return}if(SV.edit&&SV.tool==='pr'){setEdit(false);return}if(!SV.edit)setEdit(true);SV.tool='pr';SV.sel=null;setStageTool();renderTools();drawAnnLayer();{const nb=$('#svNoteBtn');if(nb)nb.classList.add('primary')}progress('音符を探しています…');detectHeads().then(hs=>{progress(null);{const spx=(SV.lastSp||7)*baseScale()*SV.z;if(hs.length&&spx<10){const{w,h}=stageSize();zoomAt(SV.z*10/spx,w/2,h/3)}}drawAnnLayer();renderTools();toast(hs.length?`${hs.length}個の音符に印を付けました。印をタップしてください`:'このページで音符を見つけられませんでした。写真の場合は、明るくまっすぐ撮り直すと見つかりやすくなります')});return}
+    if(act==='svEdit'){if(!SV.doc){toast('楽譜PDFを取り込んでから使えます');return}if(SV.edit){setEdit(false);return}setEdit(true);if(SV.tool==='pr')findHeads();return}
+    if(act==='svNotes'){if(!SV.doc){toast('楽譜を開いてから使えます');return}if(!SV.edit)setEdit(true);SV.tool='pr';SV.sel=null;setStageTool();renderTools();drawAnnLayer();findHeads();return}
     if(act==='svTp'){if(!SV.doc){toast('楽譜を開いてから使えます');return}setTpOpen(!SV.tp);return}
     if(act==='tpStep'){const t=curT();if(t)setTpSemi(t,tpOf(t).semi+(+a.dataset.d));return}
     if(act==='tpReset'){const t=curT();if(t)setTpSemi(t,0);return}
-    if(act==='svMode'){const m=a.dataset.m;SV.lastTool=SV.lastTool||{};SV.lastTool[toolMode(SV.tool)]=SV.tool;SV.tool=m==='page'?'hand':(SV.lastTool[m]||(m==='note'?'pr':'pen'));SV.sel=null;setStageTool();renderTools();drawAnnLayer();if(SV.tool==='pr'){progress('音符を探しています…');detectHeads().then(hs=>{progress(null);drawAnnLayer();renderTools();if(!hs.length)toast('このページで音符を見つけられませんでした。写真の場合は、明るくまっすぐ撮り直すと見つかりやすくなります')})}return}
+    if(act==='svMode'){const m=a.dataset.m;SV.lastTool=SV.lastTool||{};SV.lastTool[toolMode(SV.tool)]=SV.tool;SV.tool=m==='page'?'hand':(SV.lastTool[m]||(m==='note'?'pr':'pen'));SV.sel=null;setStageTool();renderTools();drawAnnLayer();if(SV.tool==='pr')findHeads();return}
     if(act==='tipsClose'){const x=$('#svTips');if(x)x.remove();try{localStorage.setItem('crate.scoreTips','1')}catch(_){}return}
     if(act==='scoreHelp'){scoreTips();return}
-    if(act==='svTool'){SV.tool=a.dataset.t;if(SV.tool!=='sel')SV.sel=null;{const nb=$('#svNoteBtn');if(nb)nb.classList.toggle('primary',SV.tool==='pr')}drawAnnLayer();if(SV.tool==='pr'){progress('音符を探しています…');detectHeads().then(hs=>{progress(null);drawAnnLayer();renderTools();if(!hs.length)toast('このページで音符を見つけられませんでした。写真の場合は、明るくまっすぐ撮り直すと見つかりやすくなります')})}setStageTool();renderTools();return}
+    if(act==='svTool'){SV.tool=a.dataset.t;if(SV.tool!=='sel')SV.sel=null;drawAnnLayer();if(SV.tool==='pr')findHeads();setStageTool();renderTools();return}
     if(act==='ntPick'){SV.ntType=a.dataset.t;renderTools();return}
     if(act==='ntDot'){SV.ntDot=!SV.ntDot;renderTools();return}
     if(act==='popClose'){SV.sel=null;SV.popMore=false;drawAnnLayer();renderTools();return}
@@ -2566,14 +2575,14 @@ document.addEventListener('click',e=>{
       else if(act==='selDot'){if(it.d)delete it.d;else it.d=true}
       else if(act==='selStem'){it.sd=it.sd==='u'?'d':it.sd==='d'?undefined:'u';if(!it.sd)delete it.sd}
       else if(act==='selColor'){const L=INK.nt,i=L.indexOf(it.c||L[0]);it.c=L[(i+1)%L.length]}
-      else if(act==='selDel'){arr.splice(SV.sel,1);SV.sel=null}
+      else if(act==='selDel'){arr.splice(SV.sel,1);SV.sel=null;SV.popMore=false;setTimeout(()=>undoToast(it.k==='nt'?'音符を消しました':'消しました'))}
       else if(act==='selWhite'){arr.splice(SV.sel,1,{k:'wh',x:it.sx,y:it.sy,w:it.sw,h:it.sh,...(it.sl?{sl:it.sl,th:it.th}:{})});SV.sel=null}
       else if(act==='selReset'){it.dx=0;it.dy=0}
       saveEdSoon();drawAnnLayer();renderTools();return}
     if(act==='svInk'){SV.color[SV.tool]=a.dataset.c;renderTools();return}
     if(act==='svSize'){SV.size[SV.tool]=+a.dataset.s;renderTools();return}
     if(act==='svUndo'){svUndo();return}if(act==='svRedo'){svRedo();return}
-    if(act==='svClearPage'){const t=curT();if(t&&(scEd(t).ann[SV.o]||[]).length){pushUndo(snapEd());scEd(t).ann[SV.o]=[];saveEdSoon();drawAnnLayer();renderTools();toast('このページの書き込みを消しました（元に戻すボタンで戻せます）')}return}
+    if(act==='svClearPage'){const t=curT();if(t&&(scEd(t).ann[SV.o]||[]).length){pushUndo(snapEd());scEd(t).ann[SV.o]=[];saveEdSoon();drawAnnLayer();renderTools();undoToast('このページの書き込みを消しました')}return}
     if(act==='svRotate'){svRotate(90);return}
     if(act==='svCrop'){cropEnter();return}if(act==='cropCancel'){cropExit();return}if(act==='cropApply'){cropApply();return}if(act==='cropAuto'){cropAuto();return}
     if(act==='cropFull'){if(SV.g){SV.cropR={...fullRect(SV.g)};placeCrop()}return}
@@ -2691,7 +2700,9 @@ document.addEventListener('keydown',e=>{const tag=(document.activeElement||{}).t
   if(e.code==='Space'&&!/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName)&&!$('#layer .veil')){e.preventDefault();$('#bPlay').click()}});
 
 let toastT;function toast(msg){progress(msg);clearTimeout(toastT);toastT=setTimeout(()=>progress(null),3600)}
-function progress(msg){let el=$('#prog');if(!msg){el&&el.remove();return}if(!el){el=document.createElement('div');el.id='prog';el.className='progress';el.setAttribute('role','status');document.body.appendChild(el)}el.textContent=msg}
+/* 取り消しボタン付きのお知らせ */
+function undoToast(msg){progress(msg);const el=$('#prog');if(el){el.classList.add('has-undo');const b=document.createElement('button');b.className='prog-undo';b.dataset.act='svUndo';b.textContent='元に戻す';el.appendChild(b)}clearTimeout(toastT);toastT=setTimeout(()=>progress(null),5000)}
+function progress(msg){let el=$('#prog');if(!msg){el&&el.remove();return}if(!el){el=document.createElement('div');el.id='prog';el.className='progress';el.setAttribute('role','status');document.body.appendChild(el)}el.className='progress';el.textContent=msg}
 
 /* ---------- 起動 ---------- */
 (async()=>{
