@@ -842,6 +842,8 @@ button.badge.key:hover{background:var(--accent);color:#fff}
 .p2-bar .p2-mv{background:var(--accent);min-width:48px;font-size:17px}
 .p2-ty{display:flex!important;align-items:center;gap:4px;font-size:12.5px!important}.p2-ty img{width:18px;height:22px;filter:invert(1)}.p2-ty.on{background:#fff!important;color:#15171C!important}.p2-ty.on img{filter:none}
 .p2-ic svg{width:18px;height:18px}
+.p2-bar .p2-pl{display:flex;flex-direction:column;gap:0;line-height:1;font-size:14px;padding:0 6px;min-width:42px}.p2-bar .p2-pl small{font-size:9.5px;font-weight:700;opacity:.8;margin-top:2px}.p2-bar .p2-pl.on{background:#fff;color:#15171C}
+.p2-from{border:0;width:100%;margin-top:6px;height:42px;border-radius:10px;background:rgba(255,255,255,.1);color:#fff;font:inherit;font-weight:800;font-size:14px}.p2-from.on{background:#fff;color:#15171C}
 .p2-bar .p2-ac{font-size:16px;letter-spacing:-1px}.p2-bar .p2-ac.on{background:#fff;color:#15171C}
 .p2-acc{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:6px}.p2-acc button{border:0;background:rgba(255,255,255,.1);color:#fff;border-radius:10px;height:44px;font:inherit;font-weight:800;font-size:20px}.p2-acc button:last-child{font-size:14px}.p2-acc button.on{background:var(--accent)}
 .p2-more .pop-nts button{height:44px}.p2-more .pop-ft button{height:44px}.p2-more .pop-ft button{white-space:nowrap;padding:0 4px;font-size:12.5px}.p2-more .p2-del{color:#C8283E;border-color:#F3C4CB}.p2-more .p2-del svg{width:15px;height:15px}.p2-more{background:#fff;color:var(--ink);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:6px}
@@ -1891,7 +1893,7 @@ function drawAnn(ctx,items,g,scale,C,src){if(!items)return;const P=(x,y)=>{const
     if(it.k==='wh'){const R=rotRect(g.r,g.W,g.H,it);ctx.fillStyle='#fff';ctx.fillRect((R.x-C.x)*scale,(R.y-C.y)*scale,R.w*scale,R.h*scale);drawStaffSegs(ctx,it,P,scale)}
     else if(it.k==='mv'){drawMv(ctx,it,src,P,scale)}
     else if(it.k==='ks'){drawKs(ctx,it,P,scale,0)}
-    else if(it.k==='nt'){const a=P(it.x,it.y);ctx.translate(a[0],a[1]);drawGlyph(ctx,withBeam(it,a,P,it.sp*scale,0),it.sp*scale)}
+    else if(it.k==='nt'){const a=P(it.x,it.y);ctx.translate(a[0],a[1]);const gi=withBeam(it,a,P,it.sp*scale,0);drawGlyph(ctx,SV.hl&&SV.hl.has(it)&&!src?{...gi,c:'#E0263F'}:gi,it.sp*scale)}
     else if(it.k==='pen'||it.k==='mk'){ctx.strokeStyle=it.c;ctx.lineWidth=it.w*scale;ctx.lineCap='round';ctx.lineJoin='round';if(it.k==='mk'){ctx.globalAlpha=.4;ctx.globalCompositeOperation='multiply'}
       const p=it.p;ctx.beginPath();let a=P(p[0],p[1]);ctx.moveTo(a[0],a[1]);if(p.length<=2)ctx.lineTo(a[0]+.01,a[1]);
       for(let i=2;i<p.length;i+=2){const b=P(p[i],p[i+1]);if(i+2<p.length){const c=P(p[i+2],p[i+3]);ctx.quadraticCurveTo(b[0],b[1],(b[0]+c[0])/2,(b[1]+c[1])/2)}else ctx.lineTo(b[0],b[1])}ctx.stroke()}
@@ -2254,7 +2256,10 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
       const above=!bassL&&upX>=s0.sp*.65;
       s0.ks={ce,runs,clef:above?'treble':'bass'}}
     /* 小節線：五線の上の線から下の線までちょうど縦に通る線（臨時記号が小節の終わりまで効くため） */
-    s0.bars=[];{const yt=top,yb=bot;let prev=-9;for(let xx=x0;xx<w;xx++){let ok=true;for(let y=yt-1;y<=yb+1;y+=1){if(!clean[y*w+xx]&&!clean[y*w+Math.min(w-1,xx+1)]){ok=false;break}}if(!ok)continue;let a=yt,b=yb;while(a>0&&clean[(a-1)*w+xx])a--;while(b<h-1&&clean[(b+1)*w+xx])b++;if(yt-a>s0.sp*.6||b-yb>s0.sp*.6)continue;if(xx-prev>s0.sp*.5)s0.bars.push(xx);prev=xx}}}
+    s0.bars=[];{const yt=top,yb=bot;let prev=-9;for(let xx=x0;xx<w;xx++){let ok=true;for(let y=yt+1;y<=yb-1;y+=1){if(!clean[y*w+xx]&&!clean[y*w+Math.min(w-1,xx+1)]){ok=false;break}}if(!ok)continue;let a=yt,b=yb;while(a>0&&clean[(a-1)*w+xx])a--;while(b<h-1&&clean[(b+1)*w+xx])b++;/* 上下にはみ出すのは、隣の段までつながる縦線（ピアノ譜の小節線）だけ許す */const si=staves.indexOf(s0),pS=staves[si-1],nS=staves[si+1];
+      const upOK=yt-a<=s0.sp*.6||(pS&&a<=pS.top+4*pS.sp+pS.sp*.4&&yt-pS.top-4*pS.sp<s0.sp*9),dnOK=b-yb<=s0.sp*.6||(nS&&b>=nS.top-nS.sp*.4&&nS.top-yb<s0.sp*9);if(!upOK||!dnOK)continue;
+      /* 符頭や旗がくっついた棒（符尾）は除く：横に広いかたまりが続く行が多い */let wide=0;for(let y=yt;y<=yb;y++){let l=xx,r=xx;while(l>0&&xx-l<s0.sp&&clean[y*w+l-1])l--;while(r<w-1&&r-xx<s0.sp&&clean[y*w+r+1])r++;if(r-l+1>s0.sp*.7)wide++}if(wide>s0.sp*1.2)continue;
+      if(xx-prev>s0.sp*.5){s0.bars.push(xx);if(yt-a>s0.sp*.6)(s0.bU=s0.bU||[]).push(xx);if(b-yb>s0.sp*.6)(s0.bD=s0.bD||[]).push(xx)}prev=xx}}}
   /* 傾き補正した座標 → ページの座標に戻す */
   const fixHead=hd=>{if(!skT||!hd||hd._fx)return hd;hd._fx=1;const cxD=F.w/2,dy=skT*(hd.x-cxD);hd.y-=dy;if(hd.box)hd.box={...hd.box,y:hd.box.y-dy};if(hd.bm)hd.bm={x:hd.bm.x,y:hd.bm.y-skT*(hd.bm.x-cxD)};if(hd.ly)hd.ly=hd.ly.map(([e,a])=>[e-dy,a-dy]);return hd};
   /* 臨時記号（♯・♭・♮）：玉の左にある、縦に長い記号を探して種類を見分ける */
@@ -2397,7 +2402,9 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
   /* ページ全体で比べて、まん中が黒い玉よりはっきり明るいものは白い玉（2分）にする（にじんで中が埋まったスキャン向け） */
   {const cls=heads.filter(x=>x._cl!=null&&x.t!=='h'&&x.t!=='w').map(x=>x._cl).sort((a,b)=>a-b);if(cls.length>=8){const m=cls[Math.floor(cls.length*.3)];for(const hd of heads){if(hd._cl!=null&&hd.t==='q'&&!hd.bm&&hd._cl>m+38)hd.t='h'}}}
   for(const hd of heads)fixHead(hd);
-  SV.bars=SV.bars||{};SV.bars[key]=staves.map(s0=>(s0.bars||[]).map(x=>x/sc));
+  /* 小節線の候補から、音符の玉のすぐ横の縦線（符尾）を除く */SV.bars=SV.bars||{};{const own=staves.map((s0,si)=>(s0.bars||[]).filter(x=>!heads.some(hd=>hd.sti===si&&Math.abs(x-hd.x*sc)<=hd.sp*sc*.85)));
+    /* ピアノ譜：上下の段をつなぐ小節線は、片方で見つかれば両方の段の小節線にする */
+    SV.bars[key]=staves.map((s0,si)=>{const A=own[si].slice(),add=(L,ok)=>{for(const x of L||[])if(ok.includes(x)&&!A.some(y=>Math.abs(y-x)<s0.sp*.6))A.push(x)};if(si>0)add(staves[si-1].bD,own[si-1]);if(si<staves.length-1)add(staves[si+1].bU,own[si+1]);return A.sort((p,q)=>p-q).map(x=>x/sc)})}
   SV.ks=SV.ks||{};SV.ks[key]=staves.filter(s0=>s0.ks&&s0.ks.ce>0).map(s0=>{const xc=(s0.ks.runs.length?s0.ks.runs[0].a:s0.ks.ce)/sc,dy=skT*(xc-F.w/2);return{x0:s0.x0/sc,ce:s0.ks.ce/sc,runs:s0.ks.runs.map(r=>[r.a/sc,r.b/sc]),top:s0.top/sc-dy,sp:s0.sp/sc,clef:s0.ks.clef,th:s0.th/sc}});
   /* ページ内の段で多数決：音部記号の終わりと調号の終わり（段の左端からの距離）をそろえる。読み違えた段もこれで直す */
   {const L=SV.ks[key],med=a=>{a=a.slice().sort((p,q)=>p-q);return a.length?a[a.length>>1]:null},ok=L.filter(q=>q.runs.length);const ceR=med(ok.map(q=>q.ce-q.x0)),enR=med(ok.map(q=>q.runs[q.runs.length-1][1]-q.x0));
@@ -2426,9 +2433,37 @@ function hitHead(e){const hs=(SV.heads||{})[`${SV.o}|${SV.g.r}`];if(!hs){toast('
 /* 音名（ト音記号として計算。移調パネルの「元のキー」の調号を反映） */
 const SOL7=['ド','レ','ミ','ファ','ソ','ラ','シ'],LET7=['C','D','E','F','G','A','B'],SEMI7=[0,2,4,5,7,9,11];
 const SHARP_ORDER=[3,0,4,1,5,2,6],FLAT_ORDER=[6,2,5,1,4,0,3];
-function notePitch(it){if(!it||it.ps==null||!['w','h','q','8','16','32'].includes(it.t))return null;const d=2+(8-it.ps),l=((d%7)+7)%7,oct=4+Math.floor(d/7);
-  let acc=0;const t=curT(),tp=t&&t.score&&t.score.tp;if(tp&&tp.key){const k=tpKey(tp.key);if(k){const sig=keyInfo(k).sig;if(sig>0&&SHARP_ORDER.slice(0,sig).includes(l))acc=1;if(sig<0&&FLAT_ORDER.slice(0,-sig).includes(l))acc=-1}}if(it.ac!=null)acc=it.ac;
-  const midi=12*(oct+1)+SEMI7[l]+acc,AS=['𝄫','♭','','♯','𝄪'][acc+2]||'';return{name:SOL7[l]+AS,en:LET7[l]+AS+oct,midi}}
+/* 今見えている調（移調して音符を動かした後は新しい調）の調号 */
+const NOTE_T=['w','h','q','8','16','32'],DUR={w:4,h:2,q:1,'8':.5,'16':.25,'32':.125,r1:4,r2:2,r4:1,r8:.5};
+function dispKeyMap(t){const tp=t&&tpOf(t),k=tp&&tpKey(tp.key);if(!k)return null;const e=scEd(t),moved=tp.notes||(e.prDone&&e.prDone.length);return keyAccMap(keyInfo(moved&&tp.semi?{i:md12(k.i+tp.semi),m:k.m}:k).sig)}
+/* 同じ段（五線）の音符・休符を左から順に */
+function staffNotes(it,items){const g=SV.g;if(!g||!it||it.ps==null)return[];const P=o=>rotPt(g.r,g.W,g.H,o.x,o.y),a=P(it),ty=a[1]-it.ps*it.sp/2,sp=it.sp;
+  const L=[];for(const o of items||[]){if(o===it||o.k!=='nt'||Math.abs((o.sp||0)-sp)>sp*.3)continue;const q=P(o);
+    if(NOTE_T.includes(o.t)&&o.ps!=null){if(Math.abs(q[1]-o.ps*o.sp/2-ty)<sp*1.2)L.push({o,x:q[0]})}else if(/^r/.test(o.t)&&q[1]>ty-sp&&q[1]<ty+5*sp)L.push({o,x:q[0]})}
+  L.push({o:it,x:a[0]});return L.sort((p,q)=>p.x-q.x)}
+function clefOf(it,L){if(it.cl)return it.cl;let b=null,bd=1e9;for(const e of L)if(e.o.cl){const d=Math.abs(e.o.x-it.x);if(d<bd){bd=d;b=e.o}}return b?b.cl:'treble'}
+/* 小節：読み取った小節番号（mi）。番号のない音符は一番近い音符の小節に入れる */
+function measureOf(it,L){const has=L.filter(e=>e.o.mi!=null&&(it.sti==null||e.o.sti==null||e.o.sti===it.sti));if(!has.length)return L;
+  const miOf=e=>{if(e.o.mi!=null)return e.o.mi;let b=has[0];for(const h of has)if(Math.abs(h.x-e.x)<Math.abs(b.x-e.x))b=h;return b.o.mi};const m=miOf(L.find(e=>e.o===it));return L.filter(e=>miOf(e)===m)}
+function pitchIn(it,km,cl,carry){const n=(cl==='bass'?18:30)+(8-it.ps),l=((n%7)+7)%7,oct=Math.floor(n/7);let a;
+  if(it.ac!=null){a=it.ac;carry[n]=a}else a=carry[n]!=null?carry[n]:(km?km[l]:0);return{l,oct,a,midi:12*(oct+1)+SEMI_L[l]+a}}
+function notePitch(it){if(!it||it.ps==null||!NOTE_T.includes(it.t))return null;const t=curT();const items=t&&SV.g?annOf(SV.o):[];const L=staffNotes(it,items),km=dispKeyMap(t),cl=clefOf(it,L),M=measureOf(it,L),carry={};
+  for(const e of M){if(e.o===it)break;if(NOTE_T.includes(e.o.t)&&e.o.ac!=null&&e.o.ps!=null)pitchIn(e.o,km,clefOf(e.o,L),carry)}
+  const p=pitchIn(it,km,cl,carry),acc=p.a,AS=['𝄫','♭','','♯','𝄪'][acc+2]||'';return{name:SOL7[p.l]+AS,en:LET7[p.l]+AS+(p.oct),midi:p.midi}}
+/* 小節（またはその音符から段の終わりまで）を鳴らす。鳴っている音符を赤く光らせる */
+let playT=[],playSrc=[];function stopPlay(){playT.forEach(clearTimeout);playT=[];playSrc.forEach(o=>{try{o.stop()}catch(_){}});playSrc=[];if(SV.hl){SV.hl=null;drawAnnLayer()}if(SV.playing){SV.playing=null;renderPopSoon()}}
+function playNotes(it,mode){stopPlay();const t=curT();if(!t||!SV.g)return 0;const items=annOf(SV.o),L=staffNotes(it,items);let M=mode==='from'?L.filter(e=>e.x>=L.find(f=>f.o===it).x-1):measureOf(it,L);if(!M.length)return 0;
+  const km=dispKeyMap(t),sp=it.sp,cl=clefOf(it,L),q=60/96;
+  /* x が近いものは同時に鳴らす（和音） */const C=[];for(const e of M){const c=C[C.length-1];if(c&&e.x-c.x<sp*.7)c.L.push(e.o);else C.push({x:e.x,L:[e.o]})}
+  try{toneCtx=toneCtx||new (window.AudioContext||window.webkitAudioContext)();if(toneCtx.state!=='running')toneCtx.resume()}catch(_){return 0}
+  let tt=0,carry={},mi=null;const t0=toneCtx.currentTime+.08;
+  for(const c of C){let step=1e9;const hl=[];
+    for(const o of c.L){const d=(DUR[o.t]||1)*(o.d?1.5:1);step=Math.min(step,d);if(!NOTE_T.includes(o.t))continue;if(mode==='from'&&o.mi!=null&&o.mi!==mi){mi=o.mi;carry={}}
+      const p=pitchIn(o,km,o.cl||cl,carry);tone(p.midi,t0+tt*q,d*q*.92);hl.push(o)}
+    const at=tt*q*1000+80;playT.push(setTimeout(()=>{SV.hl=new Set(hl);drawAnnLayer()},at));tt+=step===1e9?1:step}
+  playT.push(setTimeout(()=>{SV.hl=null;SV.playing=null;drawAnnLayer();renderPopSoon()},tt*q*1000+200));SV.playing=mode;renderPopSoon();return C.length}
+function tone(midi,at,dur){const o=toneCtx.createOscillator(),g=toneCtx.createGain(),f=440*Math.pow(2,(midi-69)/12);o.type='triangle';o.frequency.value=f;
+  g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(.2,at+.015);g.gain.setTargetAtTime(.12,at+.05,.15);g.gain.setTargetAtTime(0,at+Math.max(.06,dur-.04),.03);o.connect(g).connect(toneCtx.destination);o.start(at);o.stop(at+dur+.25);playSrc.push(o)}
 let toneCtx=null;function playTone(midi){try{toneCtx=toneCtx||new (window.AudioContext||window.webkitAudioContext)();if(toneCtx.state!=='running')toneCtx.resume();const t0=toneCtx.currentTime,o=toneCtx.createOscillator(),g=toneCtx.createGain(),f=440*Math.pow(2,(midi-69)/12);
   o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(.22,t0+.015);g.gain.exponentialRampToValueAtTime(.001,t0+.45);o.connect(g).connect(toneCtx.destination);o.start(t0);o.stop(t0+.5)}catch(_){}}
 let nameT=0,prevT=0;function showNoteName(prev,it){const st=$('#svStage');if(!st||!it)return;const p=notePitch(it);if(!p)return;
@@ -2444,11 +2479,11 @@ function renderPop(){const st=$('#svStage');if(!st)return;let el=$('#svPop');con
   const isNote=['w','h','q','8','16','32'].includes(it.t),p=notePitch(it),more=!!SV.popMore,accO=!!SV.popAcc&&isNote,curA=it.ac==null?'none':ACC_N[it.ac];
   el.innerHTML=`<div class="p2-bar"><span class="p2-name${SV.prevName?' chg':''}">${p?`${SV.prevName?`<em>${SV.prevName} →</em>`:''}<b>${p.name}</b><small>${p.en}</small>`:`<b>${ntName(it.t)}</b>`}</span>
     <button class="p2-mv" data-act="popMove" data-dy="-1" aria-label="1段上へ">▲</button><button class="p2-mv" data-act="popMove" data-dy="1" aria-label="1段下へ">▼</button>
-    <button class="p2-ty${more?' on':''}" data-act="popMore" aria-expanded="${more}"><img src="${glyphIcon(it.t)}" alt=""><span>種類</span></button>${isNote?`<button class="p2-ac${accO?' on':''}" data-act="popAcc" aria-expanded="${accO}" aria-label="臨時記号">♯♭</button>`:''}
+    <button class="p2-ty${more?' on':''}" data-act="popMore" aria-expanded="${more}"><img src="${glyphIcon(it.t)}" alt=""><span>種類</span></button>${isNote?`<button class="p2-pl${SV.playing==='bar'?' on':''}" data-act="popPlay" data-m="bar" aria-label="${SV.playing==='bar'?'止める':'この小節を再生'}">${SV.playing==='bar'?'■':'▶'}<small>小節</small></button>`:''}${isNote?`<button class="p2-ac${accO?' on':''}" data-act="popAcc" aria-expanded="${accO}" aria-label="臨時記号">♯♭</button>`:''}
     <button class="p2-ic" data-act="popClose" aria-label="閉じる">${IC.x}</button></div>
    ${accO?`<div class="p2-acc">${[['sh','♯','シャープ'],['fl','♭','フラット'],['na','♮','ナチュラル'],['none','なし','臨時記号なし']].map(([v,l,al])=>`<button class="${curA===v?'on':''}" data-act="selAcc" data-a="${v}" aria-label="${al}">${l}</button>`).join('')}</div>`:''}
    ${more?`<div class="p2-more"><div class="pop-nts">${NT.map(([tt,l])=>`<button class="${it.t===tt?'on':''}" data-act="selType" data-t="${tt}" title="${l}" aria-label="${l}に置き換え"><img src="${glyphIcon(tt)}" alt=""></button>`).join('')}</div>
-     <div class="pop-ft"><button data-act="popMove" data-dx="-1" aria-label="左へ">◀</button><button data-act="popMove" data-dx="1" aria-label="右へ">▶</button><button class="${it.d?'on':''}" data-act="selDot"${isNote?'':' disabled'}>付点</button><button data-act="selStem"${isNote&&it.t!=='w'?'':' disabled'}>棒 ${({u:'↑',d:'↓'})[it.sd]||'自動'}</button><button class="p2-del" data-act="selDel" aria-label="消す">${IC.trash}消す</button></div></div>`:''}`;
+     <div class="pop-ft"><button data-act="popMove" data-dx="-1" aria-label="左へ">◀</button><button data-act="popMove" data-dx="1" aria-label="右へ">▶</button><button class="${it.d?'on':''}" data-act="selDot"${isNote?'':' disabled'}>付点</button><button data-act="selStem"${isNote&&it.t!=='w'?'':' disabled'}>棒 ${({u:'↑',d:'↓'})[it.sd]||'自動'}</button><button class="p2-del" data-act="selDel" aria-label="消す">${IC.trash}消す</button></div>${isNote?`<button class="p2-from${SV.playing==='from'?' on':''}" data-act="popPlay" data-m="from">${SV.playing==='from'?'■ 止める':'▶ ここから段の終わりまで再生'}</button>`:''}</div>`:''}`;
   el.hidden=false;
   const B=itemBox(it,SV.g),cs=baseScale()*SV.z,sw=st.clientWidth,sh=st.clientHeight,pw=el.offsetWidth,ph=el.offsetHeight;
   const nx=SV.x+(B.x+B.w/2-SV.C.x)*cs,ny=SV.y+(B.y-SV.C.y)*cs,nb=SV.y+(B.y+B.h-SV.C.y)*cs;
@@ -2818,8 +2853,9 @@ document.addEventListener('click',e=>{
     if(act==='svTool'){SV.tool=a.dataset.t;if(SV.tool!=='sel')SV.sel=null;drawAnnLayer();if(SV.tool==='pr')findHeads();setStageTool();renderTools();return}
     if(act==='ntPick'){SV.ntType=a.dataset.t;renderTools();return}
     if(act==='ntDot'){SV.ntDot=!SV.ntDot;renderTools();return}
-    if(act==='popClose'){SV.sel=null;SV.popMore=false;SV.popAcc=false;drawAnnLayer();renderTools();return}
+    if(act==='popClose'){stopPlay();SV.sel=null;SV.popMore=false;SV.popAcc=false;drawAnnLayer();renderTools();return}
     if(act==='popMore'){SV.popMore=!SV.popMore;if(SV.popMore)SV.popAcc=false;renderPop();return}
+    if(act==='popPlay'){const it=SV.sel!=null&&annOf(SV.o)[SV.sel];const m=a.dataset.m;if(SV.playing===m){stopPlay();return}if(it&&!playNotes(it,m))toast('鳴らせる音符がありません');return}
     if(act==='popAcc'){SV.popAcc=!SV.popAcc;if(SV.popAcc)SV.popMore=false;renderPop();return}
     if(act==='selAcc'){const t=curT(),it=SV.sel!=null&&annOf(SV.o)[SV.sel];if(!t||!it||it.k!=='nt')return;const pp=notePitch(it);pushUndo(snapEd());setAcc(t,it,a.dataset.a);saveEdSoon();drawAnnLayer();renderTools();renderPop();showNoteName(pp,it);return}
     if(act==='popMove'){const arr=annOf(SV.o),it=SV.sel!=null&&arr[SV.sel];if(!it||it.k!=='nt')return;const pp=notePitch(it);pushUndo(snapEd());moveItem(it,JSON.parse(JSON.stringify(it)),(+a.dataset.dx||0)*it.sp,(+a.dataset.dy||0)*it.sp/2);saveEdSoon();keepVisible(it);drawAnnLayer();renderTools();if(+a.dataset.dy)showNoteName(pp,it);return}
