@@ -833,6 +833,17 @@ button.badge.key:hover{background:var(--accent);color:#fff}
 .pop-mv button:nth-child(n+3){background:#3B3F48}
 .pop-nts{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}.pop-nts button{border:1px solid var(--line2);background:#fff;border-radius:8px;height:40px;padding:0;display:grid;place-items:center}.pop-nts img{width:24px;height:29px}.pop-nts button.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);background:#FFF5F5}
 .pop-ft{display:flex;gap:6px}.pop-ft button{flex:1;border:1px solid var(--line2);background:#fff;border-radius:9px;height:36px;font:inherit;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:4px}.pop-ft button.on{background:var(--ink);color:#fff;border-color:var(--ink)}.pop-ft button:disabled{opacity:.4}.pop-ft svg{width:14px;height:14px}.pop-del{color:var(--danger)!important}
+.sv-pop2{position:absolute;z-index:6;background:#15171C;color:#fff;border-radius:14px;box-shadow:0 14px 34px -12px rgba(20,22,27,.55);padding:5px;display:flex;flex-direction:column;gap:6px;max-width:calc(100% - 16px);touch-action:auto}
+.p2-bar{display:flex;align-items:center;gap:3px}
+.p2-name{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:48px;padding:0 6px;line-height:1.05}.p2-name b{font-size:15px}.p2-name em{font-style:normal;font-size:10px;color:#FF8A98;font-weight:700}.p2-name.chg b{color:#FFD3D9}.p2-name small{font-size:10px;color:#A9AFBC;font-weight:600}
+.p2-bar button{border:0;background:rgba(255,255,255,.08);color:#fff;border-radius:10px;height:44px;min-width:44px;display:grid;place-items:center;font:inherit;font-weight:800;font-size:15px;padding:0 8px}
+.p2-bar .p2-mv{background:var(--accent);min-width:48px;font-size:17px}
+.p2-ty{display:flex!important;align-items:center;gap:4px;font-size:12.5px!important}.p2-ty img{width:18px;height:22px;filter:invert(1)}.p2-ty.on{background:#fff!important;color:#15171C!important}.p2-ty.on img{filter:none}
+.p2-ic svg{width:18px;height:18px}
+.p2-more .pop-nts button{height:44px}.p2-more .pop-ft button{height:44px}.p2-more{background:#fff;color:var(--ink);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:6px}
+.sv-nname{position:absolute;z-index:7;pointer-events:none;background:#fff;color:#15171C;border-radius:999px;padding:5px 12px;box-shadow:0 8px 22px -8px rgba(20,22,27,.5),0 0 0 1px rgba(20,22,27,.08);display:flex;align-items:baseline;gap:6px;font-size:13px;font-weight:700;white-space:nowrap}
+.sv-nname span{color:#8A909C}.sv-nname i{font-style:normal;color:var(--accent)}.sv-nname b{font-size:17px}.sv-nname small{font-size:10.5px;color:#8A909C}
+.sv-loupe{position:absolute;z-index:8;pointer-events:none;border-radius:50%;box-shadow:0 10px 26px -8px rgba(20,22,27,.55),0 0 0 3px #fff,0 0 0 4px rgba(20,22,27,.18)}
 .sv-empty{position:absolute;inset:0;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--muted)}.sv-empty b{color:var(--ink);font-size:16px}
 .scorerow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#fff;border:1px solid var(--line2);border-radius:12px;padding:11px 14px;margin-top:16px;cursor:pointer}
 .scorerow:hover{border-color:var(--ink2)}.scorerow>svg{width:20px;height:20px;color:var(--ink);flex:none}
@@ -1950,14 +1961,14 @@ function cl2base(e){const d=cl2disp(e),g=SV.g,b=unrotPt(g.r,g.W,g.H,d[0],d[1]);r
 function bindScore(){const st=$('#svStage');const pts=new Map();let last=null,pinch=null,moved=0,sw=null;
   st.addEventListener('pointerdown',e=>{if(e.target.closest('.sv-edge,.sv-crop,.sv-tips'))return;if(e.button>0)return;st.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;sw=pts.size===1&&!SV.edit?{x:e.clientX,y:e.clientY,t:Date.now(),x0:SV.x}:null;
     const drawing=SV.edit&&!SV.cropMode&&SV.tool!=='hand'&&SV.doc&&SV.g;
-    if(pts.size===1&&drawing){SV.lastUser=Date.now();if(startOp(e)!==false){last=null;return}}
-    if(pts.size===2){if(SV.op){SV.op=null;annSoon()}const[a,b]=[...pts.values()];const r=st.getBoundingClientRect();pinch={d:Math.hypot(a.x-b.x,a.y-b.y),z:SV.z,cx:(a.x+b.x)/2-r.left,cy:(a.y+b.y)/2-r.top}}
+    if(pts.size===1&&drawing){SV.lastUser=Date.now();if(startOp(e)!==false){last=null;if(['pr','sel','nt'].includes(SV.tool))showLoupe(e);return}}
+    if(pts.size===2){hideLoupe();if(SV.op){SV.op=null;annSoon()}const[a,b]=[...pts.values()];const r=st.getBoundingClientRect();pinch={d:Math.hypot(a.x-b.x,a.y-b.y),z:SV.z,cx:(a.x+b.x)/2-r.left,cy:(a.y+b.y)/2-r.top}}
     last={x:e.clientX,y:e.clientY};st.classList.add('grab')});
   st.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-    if(SV.op&&pts.size===1){moveOp(e);return}
+    if(SV.op&&pts.size===1){moveOp(e);if(['pr','sel','nt'].includes(SV.tool))showLoupe(e);return}
     if(pts.size>=2&&pinch){const[a,b]=[...pts.values()];zoomAt(pinch.z*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d,pinch.cx,pinch.cy);return}
     if(last){const dx=e.clientX-last.x,dy=e.clientY-last.y;moved+=Math.abs(dx)+Math.abs(dy);SV.x+=dx;SV.y+=dy;last={x:e.clientX,y:e.clientY};clampPos();applyXform();SV.lastUser=Date.now()}});
-  const up=e=>{if(!pts.has(e.pointerId))return;pts.delete(e.pointerId);if(SV.op&&!pts.size){if(e.type==='pointercancel'&&SV.op.k!=='drag'){SV.op=null;annSoon()}else endOp(e)}
+  const up=e=>{if(!pts.has(e.pointerId))return;pts.delete(e.pointerId);hideLoupe();if(SV.op&&!pts.size){if(e.type==='pointercancel'&&SV.op.k!=='drag'){SV.op=null;annSoon()}else endOp(e)}
     if(pts.size<2)pinch=null;const r=[...pts.values()][0];last=r&&!SV.op?{x:r.x,y:r.y}:null;if(!pts.size){st.classList.remove('grab');const dx=sw?e.clientX-sw.x:0,dy=sw?e.clientY-sw.y:0;if(sw&&!SV.edit&&e.type==='pointerup'&&Math.abs(dx)>60&&Math.abs(dy)<Math.abs(dx)*.6&&Date.now()-sw.t<700&&Math.abs(SV.x-sw.x0)<2){SV.lastUser=Date.now();gotoPage(SV.page+(dx<0?1:-1))}else if(moved>3)saveViewSoon();sw=null;moved=0;last=null}else sw=null};
   st.addEventListener('pointerup',up);st.addEventListener('pointercancel',up);
   st.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});st.addEventListener('touchmove',e=>{e.preventDefault()},{passive:false});
@@ -2155,21 +2166,50 @@ function adoptHead(hd,quiet){const t=curT();if(!t||!SV.g)return null;const g=SV.
 function drawHeadMarks(ctx){if(!SV.edit||SV.tool!=='pr')return;const hs=(SV.heads||{})[`${SV.o}|${SV.g.r}`];if(!hs)return;const s=SV.rs,C=SV.C;ctx.save();
   for(const hd of hs){if(hd.used)continue;const x=(hd.x-C.x)*s,y=(hd.y-C.y)*s,r=Math.max(hd.sp*1.1,14/(baseScale()*SV.z))*s;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle='rgba(47,111,235,.14)';ctx.fill();ctx.strokeStyle='#2F6FEB';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);ctx.stroke()}ctx.restore()}
 function hitHead(e){const hs=(SV.heads||{})[`${SV.o}|${SV.g.r}`];if(!hs){toast('音符を探しています。少し待ってからもう一度タップしてください');return null}const d=cl2disp(e);let best=null,bd=1e9;for(const hd of hs){if(hd.used)continue;const dd=Math.hypot(d[0]-hd.x,d[1]-hd.y);const lim=Math.max(hd.sp*1.4,22/(baseScale()*SV.z));if(dd<lim&&dd<bd){bd=dd;best=hd}}return best}
+/* 音名（ト音記号として計算。移調パネルの「元のキー」の調号を反映） */
+const SOL7=['ド','レ','ミ','ファ','ソ','ラ','シ'],LET7=['C','D','E','F','G','A','B'],SEMI7=[0,2,4,5,7,9,11];
+const SHARP_ORDER=[3,0,4,1,5,2,6],FLAT_ORDER=[6,2,5,1,4,0,3];
+function notePitch(it){if(!it||it.ps==null||!['w','h','q','8','16'].includes(it.t))return null;const d=2+(8-it.ps),l=((d%7)+7)%7,oct=4+Math.floor(d/7);
+  let acc=0;const t=curT(),tp=t&&t.score&&t.score.tp;if(tp&&tp.key){const k=tpKey(tp.key);if(k){const sig=keyInfo(k).sig;if(sig>0&&SHARP_ORDER.slice(0,sig).includes(l))acc=1;if(sig<0&&FLAT_ORDER.slice(0,-sig).includes(l))acc=-1}}
+  const midi=12*(oct+1)+SEMI7[l]+acc;return{name:SOL7[l]+(acc>0?'♯':acc<0?'♭':''),en:LET7[l]+(acc>0?'♯':acc<0?'♭':'')+oct,midi}}
+let toneCtx=null;function playTone(midi){try{toneCtx=toneCtx||new (window.AudioContext||window.webkitAudioContext)();if(toneCtx.state!=='running')toneCtx.resume();const t0=toneCtx.currentTime,o=toneCtx.createOscillator(),g=toneCtx.createGain(),f=440*Math.pow(2,(midi-69)/12);
+  o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(.22,t0+.015);g.gain.exponentialRampToValueAtTime(.001,t0+.45);o.connect(g).connect(toneCtx.destination);o.start(t0);o.stop(t0+.5)}catch(_){}}
+let nameT=0,prevT=0;function showNoteName(prev,it){const st=$('#svStage');if(!st||!it)return;const p=notePitch(it);if(!p)return;
+  if(!(SV.op&&SV.op.k==='drag'&&SV.op.moved)){const nn=$('#svNoteName');if(nn)nn.hidden=true;if(prev&&prev.midi!==p.midi){SV.prevName=prev.name;clearTimeout(prevT);prevT=setTimeout(()=>{SV.prevName=null;renderPopSoon()},1500)}renderPopSoon();if(!prev||prev.midi!==p.midi)playTone(p.midi);return}let el=$('#svNoteName');if(!el){el=document.createElement('div');el.id='svNoteName';el.className='sv-nname';st.appendChild(el)}
+  el.innerHTML=prev&&prev.midi!==p.midi?`<span>${prev.name}</span><i>→</i><b>${p.name}</b><small>${p.en}</small>`:`<b>${p.name}</b><small>${p.en}</small>`;
+  const B=itemBox(it,SV.g),cs=baseScale()*SV.z;el.hidden=false;const w=el.offsetWidth;el.style.left=Math.max(6,Math.min(st.clientWidth-w-6,SV.x+(B.x+B.w/2-SV.C.x)*cs-w/2))+'px';el.style.top=Math.max(6,SV.y+(B.y-SV.C.y)*cs-el.offsetHeight-14)+'px';
+  clearTimeout(nameT);nameT=setTimeout(()=>{el.hidden=true},1400);if(!prev||prev.midi!==p.midi)playTone(p.midi)}
+/* 音符の下に出る細い操作バー */
 let popRaf=0;function renderPopSoon(){if(popRaf)return;popRaf=requestAnimationFrame(()=>{popRaf=0;renderPop()})}
-/* 音符をタップすると横に出るメニュー */
 function renderPop(){const st=$('#svStage');if(!st)return;let el=$('#svPop');const t=curT();const items=t&&SV.g?(scEd(t).ann[SV.o]||[]):[];const it=SV.edit&&SV.sel!=null?items[SV.sel]:null;
-  if(!it||it.k!=='nt'||(SV.op&&SV.op.k==='drag')){if(el)el.hidden=true;return}
-  if(!el){el=document.createElement('div');el.id='svPop';el.className='sv-pop';st.appendChild(el);['pointerdown','pointermove','pointerup','touchstart','touchmove'].forEach(n=>el.addEventListener(n,e=>e.stopPropagation()))}
-  const isNote=['w','h','q','8','16'].includes(it.t);
-  el.innerHTML=`<div class="pop-h"><b>${ntName(it.t)}</b><button class="pop-x" data-act="popClose" aria-label="閉じる">${IC.x}</button></div>
-   <div class="pop-sec"><span class="pop-l">移動</span><div class="pop-mv"><button data-act="popMove" data-dy="-1" aria-label="1段上へ">▲<small>上へ</small></button><button data-act="popMove" data-dy="1" aria-label="1段下へ">▼<small>下へ</small></button><button data-act="popMove" data-dx="-1" aria-label="左へ">◀<small>左へ</small></button><button data-act="popMove" data-dx="1" aria-label="右へ">▶<small>右へ</small></button></div></div>
-   <div class="pop-sec"><span class="pop-l">置き換え</span><div class="pop-nts">${NT.map(([tt,l])=>`<button class="${it.t===tt?'on':''}" data-act="selType" data-t="${tt}" title="${l}" aria-label="${l}に置き換え"><img src="${glyphIcon(tt)}" alt=""></button>`).join('')}</div></div>
-   <div class="pop-ft"><button class="${it.d?'on':''}" data-act="selDot"${isNote?'':' disabled'}>付点</button><button data-act="selStem"${isNote&&it.t!=='w'?'':' disabled'}>棒 ${({u:'↑',d:'↓'})[it.sd]||'自動'}</button><button class="pop-del" data-act="selDel">${IC.trash}消す</button></div>`;
+  if(!it||it.k!=='nt'||(SV.op&&(SV.op.k==='drag'||SV.op.k==='pr'))){if(el)el.hidden=true;return}
+  if(!el){el=document.createElement('div');el.id='svPop';el.className='sv-pop2';st.appendChild(el);['pointerdown','pointermove','pointerup','touchstart','touchmove'].forEach(n=>el.addEventListener(n,e=>e.stopPropagation()))}
+  const isNote=['w','h','q','8','16'].includes(it.t),p=notePitch(it),more=!!SV.popMore;
+  el.innerHTML=`<div class="p2-bar"><span class="p2-name${SV.prevName?' chg':''}">${p?`${SV.prevName?`<em>${SV.prevName} →</em>`:''}<b>${p.name}</b><small>${p.en}</small>`:`<b>${ntName(it.t)}</b>`}</span>
+    <button class="p2-mv" data-act="popMove" data-dy="-1" aria-label="1段上へ">▲</button><button class="p2-mv" data-act="popMove" data-dy="1" aria-label="1段下へ">▼</button>
+    <button class="p2-ty${more?' on':''}" data-act="popMore" aria-expanded="${more}"><img src="${glyphIcon(it.t)}" alt=""><span>種類</span></button>
+    <button class="p2-ic" data-act="selDel" aria-label="消す">${IC.trash}</button><button class="p2-ic" data-act="popClose" aria-label="閉じる">${IC.x}</button></div>
+   ${more?`<div class="p2-more"><div class="pop-nts">${NT.map(([tt,l])=>`<button class="${it.t===tt?'on':''}" data-act="selType" data-t="${tt}" title="${l}" aria-label="${l}に置き換え"><img src="${glyphIcon(tt)}" alt=""></button>`).join('')}</div>
+     <div class="pop-ft"><button data-act="popMove" data-dx="-1">◀ 左へ</button><button data-act="popMove" data-dx="1">右へ ▶</button><button class="${it.d?'on':''}" data-act="selDot"${isNote?'':' disabled'}>付点</button><button data-act="selStem"${isNote&&it.t!=='w'?'':' disabled'}>棒 ${({u:'↑',d:'↓'})[it.sd]||'自動'}</button></div></div>`:''}`;
   el.hidden=false;
   const B=itemBox(it,SV.g),cs=baseScale()*SV.z,sw=st.clientWidth,sh=st.clientHeight,pw=el.offsetWidth,ph=el.offsetHeight;
   const nx=SV.x+(B.x+B.w/2-SV.C.x)*cs,ny=SV.y+(B.y-SV.C.y)*cs,nb=SV.y+(B.y+B.h-SV.C.y)*cs;
-  let top=ny-ph-12;if(top<8)top=nb+12;if(top+ph>sh-8)top=Math.max(8,sh-ph-8);
-  const left=Math.max(8,Math.min(sw-pw-8,nx-pw/2));el.style.left=left+'px';el.style.top=top+'px'}
+  let top=nb+14;if(top+ph>sh-8)top=ny-ph-14;if(top<8)top=Math.max(8,sh-ph-8);
+  el.style.left=Math.max(8,Math.min(sw-pw-8,nx-pw/2))+'px';el.style.top=top+'px'}
+/* ▲▼で画面外へ出た音符を追いかける */
+function keepVisible(it){const st=$('#svStage');if(!st||!SV.g)return;const B=itemBox(it,SV.g),cs=baseScale()*SV.z,m=60,sw=st.clientWidth,sh=st.clientHeight;
+  const x0=SV.x+(B.x-SV.C.x)*cs,x1=x0+B.w*cs,y0=SV.y+(B.y-SV.C.y)*cs,y1=y0+B.h*cs;let dx=0,dy=0;
+  if(y0<m)dy=m-y0;else if(y1>sh-m)dy=sh-m-y1;if(x0<m)dx=m-x0;else if(x1>sw-m)dx=sw-m-x1;if(!dx&&!dy)return;SV.x+=dx;SV.y+=dy;clampPos();applyXform();saveViewSoon()}
+/* 指の下を拡大する虫めがね */
+function showLoupe(e){if(e.pointerType!=='touch'||!SV.edit)return;const st=$('#svStage'),cv=$('#svCv'),an=$('#svAn');if(!st||!cv)return;let lp=$('#svLoupe');
+  if(!lp){lp=document.createElement('canvas');lp.id='svLoupe';lp.className='sv-loupe';st.appendChild(lp)}
+  const D=128,dpr=Math.min(devicePixelRatio||1,3),M=2.2;lp.width=D*dpr;lp.height=D*dpr;lp.style.width=lp.style.height=D+'px';
+  const r=st.getBoundingClientRect(),cs=baseScale()*SV.z,fx=e.clientX-r.left,fy=e.clientY-r.top;
+  const k=SV.rs/cs,sx=(fx-SV.x)*k,sy=(fy-SV.y)*k,half=D/2/M*k;const g=lp.getContext('2d');g.clearRect(0,0,lp.width,lp.height);g.save();g.beginPath();g.arc(lp.width/2,lp.height/2,lp.width/2,0,Math.PI*2);g.clip();g.fillStyle='#fff';g.fillRect(0,0,lp.width,lp.height);
+  try{g.drawImage(cv,sx-half,sy-half,half*2,half*2,0,0,lp.width,lp.height);if(an)g.drawImage(an,sx-half,sy-half,half*2,half*2,0,0,lp.width,lp.height)}catch(_){}
+  g.strokeStyle='rgba(204,47,69,.85)';g.lineWidth=1.5*dpr;g.beginPath();g.moveTo(lp.width/2-9*dpr,lp.height/2);g.lineTo(lp.width/2+9*dpr,lp.height/2);g.moveTo(lp.width/2,lp.height/2-9*dpr);g.lineTo(lp.width/2,lp.height/2+9*dpr);g.stroke();g.restore();
+  let ly=fy-D-56;if(ly<4)ly=fy+56;lp.style.left=Math.max(4,Math.min(st.clientWidth-D-4,fx-D/2))+'px';lp.style.top=ly+'px';lp.hidden=false}
+function hideLoupe(){const lp=$('#svLoupe');if(lp)lp.hidden=true}
 /* ---------- 楽譜の編集（書き込み・回転・トリミング・ページ整理） ---------- */
 function curT(){return S.tracks.get(SV.id)}
 function snapEd(){const t=curT();return t?JSON.stringify(scEd(t)):null}
@@ -2194,14 +2234,14 @@ function startOp(e){const b=cl2base(e),k=SV.tool;
   annSoon();return true}
 function moveOp(e){const op=SV.op;if(!op)return;
   if(op.k==='pr'){if(Math.hypot(e.clientX-op.sc[0],e.clientY-op.sc[1])<4)return;const r=adoptHead(op.hd,true);if(!r){SV.op=null;return}SV.op={k:'drag',i:r.i,orig:JSON.parse(JSON.stringify(r.it)),s:op.s,snap:null,moved:false};moveOp(e);return}
-  if(op.k==='drag'){const d=cl2disp(e),dX=d[0]-op.s[0],dY=d[1]-op.s[1];if(Math.hypot(dX,dY)*baseScale()*SV.z>3)op.moved=true;if(!op.moved)return;const it=annOf(SV.o)[op.i];if(it){moveItem(it,op.orig,dX,dY);annSoon()}}
+  if(op.k==='drag'){const d=cl2disp(e),dX=d[0]-op.s[0],dY=d[1]-op.s[1];if(Math.hypot(dX,dY)*baseScale()*SV.z>3)op.moved=true;if(!op.moved)return;const it=annOf(SV.o)[op.i];if(it){moveItem(it,op.orig,dX,dY);annSoon();if(it.k==='nt'){if(op.lps===undefined){op.lps=op.orig.ps;op.lpp=notePitch(op.orig)}if(it.ps!==op.lps){showNoteName(op.lpp,it);op.lps=it.ps;op.lpp=notePitch(it)}}}}
   else if(op.k==='pen'||op.k==='mk'){const b=cl2base(e),p=op.p,lx=p[p.length-2],ly=p[p.length-1];if(Math.hypot(b[0]-lx,b[1]-ly)>=0.6/Math.max(.3,SV.z)){p.push(b[0],b[1]);annSoon()}}
   else if(op.k==='wh'||op.k==='rg'){op.e=cl2base(e);annSoon()}
   else if(op.k==='er'){eraseAt(e)}
   else if(op.k==='tx'){if(Math.hypot(e.clientX-op.cx,e.clientY-op.cy)>10)op.moved=true}}
 function endOp(e){const op=SV.op;SV.op=null;if(!op)return;const o=SV.o;
-  if(op.k==='pr'){adoptHead(op.hd,true);return}
-  if(op.k==='drag'){if(op.moved){if(op.snap)pushUndo(op.snap);saveEdSoon()}renderTools();drawAnnLayer()}
+  if(op.k==='pr'){const r=adoptHead(op.hd,true);if(r)showNoteName(null,r.it);return}
+  if(op.k==='drag'){if(op.moved){if(op.snap)pushUndo(op.snap);saveEdSoon()}else{const it=annOf(o)[op.i];if(it&&it.k==='nt')showNoteName(null,it)}renderTools();drawAnnLayer()}
   else if(op.k==='pen'||op.k==='mk'){const s=snapEd();pushUndo(s);annOf(o).push({k:op.k,c:op.c,w:op.w,p:op.p});saveEdSoon();drawAnnLayer();renderTools()}
   else if(op.k==='wh'){if(op.e){const R=bbox(op.s,op.e);if(R.w>2&&R.h>2){pushUndo(snapEd());annOf(o).push({k:'wh',x:+R.x.toFixed(1),y:+R.y.toFixed(1),w:+R.w.toFixed(1),h:+R.h.toFixed(1)});saveEdSoon();renderTools()}}drawAnnLayer()}
   else if(op.k==='rg'){if(op.e){const R=bbox(op.s,op.e);if(R.w>3&&R.h>3){pushUndo(snapEd());const a=annOf(o),it={k:'mv',sx:+R.x.toFixed(1),sy:+R.y.toFixed(1),sw:+R.w.toFixed(1),sh:+R.h.toFixed(1),dx:0,dy:0};a.push(it);SV.sel=a.length-1;saveEdSoon();toast('囲んだ部分をドラッグすると動かせます');renderTools();detectStaves().then(()=>{if(SV.o!==o)return;attachStaff(it,rotRect(SV.g.r,SV.g.W,SV.g.H,R));saveEdSoon();drawAnnLayer()})}}drawAnnLayer()}
@@ -2260,7 +2300,7 @@ function renderTools(){const el=$('#svTools');if(!el||!SV.edit)return;const t=cu
   else if(INK[k])opts=`<div class="sv-opts">${inkOpts(k)}<span class="sv-div"></span>${[0,1,2].map(i=>`<button class="sv-sz${SV.size[k]===i?' on':''}" data-act="svSize" data-s="${i}" title="${['細','中','太'][i]}" aria-label="${['細','中','太'][i]}"><i style="--d:${k==='tx'?6+i*4:k==='mk'?7+i*4:3+i*3}px"></i></button>`).join('')}</div>`;
   const tools=mode==='page'?`<div class="sv-tl2 pg"><button class="lbl" data-act="svRotate">${IC.rotate}<span>回転</span></button><button class="lbl" data-act="svCrop">${IC.crop}<span>余白を切る</span></button><button class="lbl" data-act="svPages">${IC.pages}<span>並べ替え・削除</span></button><button class="lbl" data-act="svClearPage"${n?'':' disabled'}>${IC.trash}<span>書き込み消去</span></button></div>`
     :`<div class="sv-tl2" role="toolbar" aria-label="道具">${MODE_TOOLS[mode].map(([id,l,ic])=>`<button class="${k===id?'on':''}" data-act="svTool" data-t="${id}" aria-pressed="${k===id}">${ic}<span>${l}</span></button>`).join('')}</div>`;
-  const prN=SV.tool==='pr'?((SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`]||[]).filter(x=>!x.used).length:0;const hint=sel?(sel.k==='nt'?'音符の横のメニューで移動・置き換え。指でドラッグしても動かせます':sel.k==='mv'?'ドラッグで移動。下で別の音符に変える／白で消す':'ドラッグで移動、または削除'):(k==='pr'&&(SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`]?`${prN}個の音符に印を付けました。印をそのまま指で動かしてください`:TOOL_HINT[k]||'');
+  const prN=SV.tool==='pr'?((SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`]||[]).filter(x=>!x.used).length:0;const hint=sel?(sel.k==='nt'?'音符の下のバーで ▲▼・種類を変更。指でドラッグしても動かせます':sel.k==='mv'?'ドラッグで移動。下で別の音符に変える／白で消す':'ドラッグで移動、または削除'):(k==='pr'&&(SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`]?`${prN}個の音符に印を付けました。印をそのまま指で動かしてください`:TOOL_HINT[k]||'');
   el.innerHTML=`<div class="sv-trow sv-top"><div class="sv-modes" role="tablist" aria-label="編集の種類">${MODES.map(([m,l,ic])=>`<button role="tab" class="${mode===m?'on':''}" aria-selected="${mode===m}" data-act="svMode" data-m="${m}">${ic}<span>${l}</span></button>`).join('')}</div><span class="sv-sp"></span>
      <button class="cbtn" data-act="svUndo"${SV.undo.length?'':' disabled'} aria-label="元に戻す" title="元に戻す（Ctrl+Z）">${IC.undo}</button><button class="cbtn sv-redo" data-act="svRedo"${SV.redo.length?'':' disabled'} aria-label="やり直す" title="やり直す（Ctrl+Shift+Z）">${IC.undo}</button></div>
    <div class="sv-trow sv-mid">${tools}</div>
@@ -2515,8 +2555,9 @@ document.addEventListener('click',e=>{
     if(act==='svTool'){SV.tool=a.dataset.t;if(SV.tool!=='sel')SV.sel=null;{const nb=$('#svNoteBtn');if(nb)nb.classList.toggle('primary',SV.tool==='pr')}drawAnnLayer();if(SV.tool==='pr'){progress('音符を探しています…');detectHeads().then(hs=>{progress(null);drawAnnLayer();renderTools();if(!hs.length)toast('このページで音符を見つけられませんでした。写真の場合は、明るくまっすぐ撮り直すと見つかりやすくなります')})}setStageTool();renderTools();return}
     if(act==='ntPick'){SV.ntType=a.dataset.t;renderTools();return}
     if(act==='ntDot'){SV.ntDot=!SV.ntDot;renderTools();return}
-    if(act==='popClose'){SV.sel=null;drawAnnLayer();renderTools();return}
-    if(act==='popMove'){const arr=annOf(SV.o),it=SV.sel!=null&&arr[SV.sel];if(!it||it.k!=='nt')return;pushUndo(snapEd());moveItem(it,JSON.parse(JSON.stringify(it)),(+a.dataset.dx||0)*it.sp,(+a.dataset.dy||0)*it.sp/2);saveEdSoon();drawAnnLayer();renderTools();return}
+    if(act==='popClose'){SV.sel=null;SV.popMore=false;drawAnnLayer();renderTools();return}
+    if(act==='popMore'){SV.popMore=!SV.popMore;renderPop();return}
+    if(act==='popMove'){const arr=annOf(SV.o),it=SV.sel!=null&&arr[SV.sel];if(!it||it.k!=='nt')return;const pp=notePitch(it);pushUndo(snapEd());moveItem(it,JSON.parse(JSON.stringify(it)),(+a.dataset.dx||0)*it.sp,(+a.dataset.dy||0)*it.sp/2);saveEdSoon();keepVisible(it);drawAnnLayer();renderTools();if(+a.dataset.dy)showNoteName(pp,it);return}
     if(['selType','selDot','selStem','selDel','selWhite','selReset','selColor','selRepl'].includes(act)){const it=SV.sel!=null&&annOf(SV.o)[SV.sel];if(!it)return;
       if(act==='selRepl'){const g=SV.g,c=rotPt(g.r,g.W,g.H,it.sx+it.dx+it.sw/2,it.sy+it.dy+it.sh/2),t=a.dataset.t;detectStaves().then(st=>{const sn=snapToStaff(c[0],c[1],st),bb=unrotPt(g.r,g.W,g.H,c[0],sn.Y);pushUndo(snapEd());const arr=annOf(SV.o),i=arr.indexOf(it);if(i<0)return;
         const wh={k:'wh',x:it.sx,y:it.sy,w:it.sw,h:it.sh,...(it.sl?{sl:it.sl,th:it.th}:{})},nt={k:'nt',t,x:+bb[0].toFixed(1),y:+bb[1].toFixed(1),sp:+sn.sp.toFixed(2),ps:sn.ps,c:SV.color.nt};arr.splice(i,1,wh,nt);SV.sel=i+1;saveEdSoon();drawAnnLayer();renderTools();toast(`${ntName(t)}に置き換えました。ドラッグで位置を調整できます`)});return}
