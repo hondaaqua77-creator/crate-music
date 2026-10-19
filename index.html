@@ -733,7 +733,8 @@ button.badge.key:hover{background:var(--accent);color:#fff}
 .sv-pg,.sv-zoom{display:flex;align-items:center;gap:6px}
 #svPage,#svZoom{min-width:56px;text-align:center;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
 .btn.sm{padding:6px 11px;font-size:12.5px}.btn.sm svg{width:14px;height:14px}
-.sv-stage{position:relative;flex:1;overflow:hidden;touch-action:none;cursor:grab;outline:none}
+.sv-stage{position:relative;flex:1;overflow:hidden;touch-action:none;cursor:grab;outline:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:contain}
+.sv-stage *{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .sv-stage.grab{cursor:grabbing}
 .sv-stage canvas{position:absolute;left:0;top:0;transform-origin:0 0;background:#fff;box-shadow:0 10px 30px -12px rgba(20,22,27,.35),0 0 0 1px rgba(20,22,27,.06)}
 .sv-edge{position:absolute;top:0;bottom:0;width:14%;max-width:110px;border:0;background:transparent;cursor:pointer;z-index:2}
@@ -825,6 +826,13 @@ button.badge.key:hover{background:var(--accent);color:#fff}
 .sv-tiph{font-size:17px}.sv-tipcard ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
 .sv-tipcard li{display:flex;gap:12px;align-items:flex-start}.sv-tipcard li i{width:32px;height:32px;border-radius:9px;background:#FFF0EE;color:var(--accent);display:grid;place-items:center;flex:none}.sv-tipcard li i svg{width:17px;height:17px}
 .sv-tipcard li span{display:flex;flex-direction:column;font-size:12.5px;color:var(--muted);line-height:1.5}.sv-tipcard li b{font-size:14px;color:var(--ink)}
+.sv-pop{position:absolute;z-index:6;background:#fff;border-radius:14px;box-shadow:0 18px 40px -14px rgba(20,22,27,.45),0 0 0 1px rgba(20,22,27,.08);padding:10px;width:min(300px,calc(100% - 16px));display:flex;flex-direction:column;gap:8px;touch-action:auto}
+.pop-h{display:flex;align-items:center;justify-content:space-between}.pop-h b{font-size:14px}.pop-x{border:0;background:#F1F2F5;width:28px;height:28px;border-radius:50%;display:grid;place-items:center}.pop-x svg{width:14px;height:14px}
+.pop-sec{display:flex;flex-direction:column;gap:4px}.pop-l{font-size:11px;font-weight:700;color:var(--muted)}
+.pop-mv{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.pop-mv button{border:0;background:var(--accent);color:#fff;border-radius:10px;height:46px;font-size:16px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}.pop-mv small{font-size:10px;font-weight:700;margin-top:3px;opacity:.9}
+.pop-mv button:nth-child(n+3){background:#3B3F48}
+.pop-nts{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}.pop-nts button{border:1px solid var(--line2);background:#fff;border-radius:8px;height:40px;padding:0;display:grid;place-items:center}.pop-nts img{width:24px;height:29px}.pop-nts button.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);background:#FFF5F5}
+.pop-ft{display:flex;gap:6px}.pop-ft button{flex:1;border:1px solid var(--line2);background:#fff;border-radius:9px;height:36px;font:inherit;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:4px}.pop-ft button.on{background:var(--ink);color:#fff;border-color:var(--ink)}.pop-ft button:disabled{opacity:.4}.pop-ft svg{width:14px;height:14px}.pop-del{color:var(--danger)!important}
 .sv-empty{position:absolute;inset:0;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--muted)}.sv-empty b{color:var(--ink);font-size:16px}
 .scorerow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#fff;border:1px solid var(--line2);border-radius:12px;padding:11px 14px;margin-top:16px;cursor:pointer}
 .scorerow:hover{border-color:var(--ink2)}.scorerow>svg{width:20px;height:20px;color:var(--ink);flex:none}
@@ -835,7 +843,7 @@ button.badge.key:hover{background:var(--accent);color:#fff}
 button.badge.score{border:0;cursor:pointer;font:inherit;font-size:10.5px;font-weight:700;background:var(--ink);color:#fff}
 @media (max-width:760px){
   .sv-bar{gap:4px;padding-block:8px;flex-wrap:nowrap}.sv-title{display:none}
-  .sv-bar{flex-wrap:nowrap;overflow:hidden}.sv-bar .sv-tpbtn span,.sv-bar .sv-savebtn span{display:none!important}.sv-bar .sv-tpbtn,.sv-bar .sv-savebtn{padding-inline:8px!important}.sv-bar .cbtn{width:34px;height:34px}.sv-bar #svPage{min-width:40px;font-size:12px}
+  .sv-bar{flex-wrap:nowrap;overflow:hidden}.sv-bar .sv-tpbtn span:not(.tp-ic),.sv-bar .sv-savebtn span{display:none!important}.sv-bar .sv-tpbtn,.sv-bar .sv-savebtn{padding-inline:8px!important}.sv-bar .cbtn{width:34px;height:34px}.sv-bar #svPage{min-width:40px;font-size:12px}
   .sv-tools .sv-opts.sv-selo{flex-wrap:wrap;overflow:visible;row-gap:6px}.sv-tools .sv-nts{flex-wrap:wrap;max-width:100%}.sv-tools .sv-opts{flex-wrap:wrap;overflow:visible;row-gap:6px}
   .sv-tools .sv-trow:first-child:has(.sv-seg){flex-wrap:wrap;row-gap:8px}.sv-tools .sv-opts{max-width:100%;overflow-x:auto;scrollbar-width:none}.sv-hint2{display:none}.sv-seg button{padding:7px 8px!important}.sv-tools .sv-hint{display:none}.sv-tools .sv-trow .sv-auto span{font-size:12px}.sv-zoom{display:none!important}.sv-bar .sv-editbtn span{display:none!important}.sv-editbtn{padding-inline:9px!important}.sv-bar .sv-notebtn span{display:inline!important}.sv-notebtn{padding-inline:10px!important}
   .sv-arw{width:34px;height:34px;margin-top:-17px}.sv-edge.l .sv-arw{left:4px}.sv-edge.r .sv-arw{right:4px}
@@ -1914,14 +1922,14 @@ function placeFromView(v){const{w,h}=stageSize(),cs=baseScale()*SV.z;if(v&&v.cx!
 function clampPos(){const{w,h}=stageSize(),cs=baseScale()*SV.z,W=SV.pw*cs,H=SV.ph*cs,m=80;
   if(W<=w)SV.x=Math.min(Math.max(SV.x,Math.min(16,(w-W)/2)),Math.max(w-W-16,(w-W)/2));else SV.x=Math.min(m,Math.max(w-W-m,SV.x));
   if(H<=h)SV.y=Math.min(Math.max(SV.y,0),h-H);else SV.y=Math.min(m,Math.max(h-H-m,SV.y))}
-function applyXform(){const cs=baseScale()*SV.z;for(const id of['svCv','svAn']){const cv=$('#'+id);if(!cv)continue;cv.style.width=SV.pw*cs+'px';cv.style.height=SV.ph*cs+'px';cv.style.transform=`translate(${SV.x}px,${SV.y}px)`}
+function applyXform(){try{renderPopSoon()}catch(_){}const cs=baseScale()*SV.z;for(const id of['svCv','svAn']){const cv=$('#'+id);if(!cv)continue;cv.style.width=SV.pw*cs+'px';cv.style.height=SV.ph*cs+'px';cv.style.transform=`translate(${SV.x}px,${SV.y}px)`}
   const zl=$('#svZoom');if(zl)zl.textContent=Math.round(SV.z*100)+'%';if(SV.cropMode)placeCrop()}
 async function drawPage(){if(!SV.doc||!SV.g)return;const o=SV.o,g=SV.g,C=SV.C;const page=await SV.doc.getPage(o);const cv=$('#svCv');if(!cv)return;const cs=baseScale()*SV.z,dpr=Math.min(devicePixelRatio||1,2.5);
   let rs=cs*dpr;const maxPx=4096;rs=Math.min(rs,maxPx/SV.pw,maxPx/SV.ph);
   if(SV.task)try{SV.task.cancel()}catch(_){}const r=await renderPageCanvas(page,g,rs,C);SV.task=r.task;try{await r.task.promise}catch(e){return}SV.task=null;if(o!==SV.o||g!==SV.g)return;
   cv.width=r.cv.width;cv.height=r.cv.height;cv.getContext('2d').drawImage(r.cv,0,0);SV.rs=rs;drawAnnLayer();applyXform()}
 let annRaf=0;function annSoon(){if(annRaf)return;annRaf=requestAnimationFrame(()=>{annRaf=0;drawAnnLayer()})}
-function drawAnnLayer(){const an=$('#svAn'),cv=$('#svCv'),t=S.tracks.get(SV.id);if(!an||!cv||!t||!SV.g)return;if(an.width!==cv.width||an.height!==cv.height){an.width=cv.width;an.height=cv.height}
+function drawAnnLayer(){try{renderPopSoon()}catch(_){}const an=$('#svAn'),cv=$('#svCv'),t=S.tracks.get(SV.id);if(!an||!cv||!t||!SV.g)return;if(an.width!==cv.width||an.height!==cv.height){an.width=cv.width;an.height=cv.height}
   const ctx=an.getContext('2d'),items=scEd(t).ann[SV.o]||[],s=SV.rs,C=SV.C;ctx.clearRect(0,0,an.width,an.height);drawAnn(ctx,chordItems(t,(SV.chords||{})[SV.o]),SV.g,s,C,cv);drawAnn(ctx,items,SV.g,s,C,cv);drawHeadMarks(ctx);
   const it=SV.sel!=null&&items[SV.sel];if(it&&SV.edit){const B=itemBox(it,SV.g),p=5;ctx.save();ctx.setLineDash([6,4]);ctx.strokeStyle='#E5484D';ctx.lineWidth=2;ctx.strokeRect((B.x-C.x)*s-p,(B.y-C.y)*s-p,B.w*s+2*p,B.h*s+2*p);ctx.restore()}
   const op=SV.op;if(!op)return;if(op.k==='pen'||op.k==='mk')drawAnn(ctx,[op],SV.g,s,C);
@@ -1952,6 +1960,8 @@ function bindScore(){const st=$('#svStage');const pts=new Map();let last=null,pi
   const up=e=>{if(!pts.has(e.pointerId))return;pts.delete(e.pointerId);if(SV.op&&!pts.size){if(e.type==='pointercancel'&&SV.op.k!=='drag'){SV.op=null;annSoon()}else endOp(e)}
     if(pts.size<2)pinch=null;const r=[...pts.values()][0];last=r&&!SV.op?{x:r.x,y:r.y}:null;if(!pts.size){st.classList.remove('grab');const dx=sw?e.clientX-sw.x:0,dy=sw?e.clientY-sw.y:0;if(sw&&!SV.edit&&e.type==='pointerup'&&Math.abs(dx)>60&&Math.abs(dy)<Math.abs(dx)*.6&&Date.now()-sw.t<700&&Math.abs(SV.x-sw.x0)<2){SV.lastUser=Date.now();gotoPage(SV.page+(dx<0?1:-1))}else if(moved>3)saveViewSoon();sw=null;moved=0;last=null}else sw=null};
   st.addEventListener('pointerup',up);st.addEventListener('pointercancel',up);
+  st.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});st.addEventListener('touchmove',e=>{e.preventDefault()},{passive:false});
+  st.addEventListener('gesturestart',e=>e.preventDefault());
   st.addEventListener('wheel',e=>{e.preventDefault();const r=st.getBoundingClientRect();if(e.ctrlKey||e.metaKey){zoomAt(SV.z*Math.exp(-e.deltaY*0.0022),e.clientX-r.left,e.clientY-r.top)}else{SV.x-=e.deltaX;SV.y-=e.deltaY;clampPos();applyXform();saveViewSoon();SV.lastUser=Date.now()}},{passive:false});
   st.addEventListener('dblclick',e=>{if(SV.edit&&SV.tool!=='hand')return;const r=st.getBoundingClientRect();zoomAt(SV.z>1.4?1:2,e.clientX-r.left,e.clientY-r.top)});
   window.addEventListener('resize',onScoreResize)}
@@ -2110,8 +2120,8 @@ function hOpen(bin,w,h,k){const er=new Uint8Array(w*h),out=new Uint8Array(w*h);
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){let v=0;for(let d=-k;d<=k;d++){const xx=x+d;if(xx>=0&&xx<w&&er[y*w+xx]){v=1;break}}out[y*w+x]=v}return out}
 /* 戻り値：表示座標（ページ全体、回転後）での符頭リスト */
 async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${SV.o}|${g.r}`;SV.heads=SV.heads||{};if(SV.heads[key])return SV.heads[key];
-  const page=await SV.doc.getPage(SV.o),F=fullRect(g),sc=Math.min(2.6,1500/Math.max(F.w,F.h));const r=await renderPageCanvas(page,g,sc,F);try{await r.task.promise}catch(_){return[]}
-  const w=r.cv.width,h=r.cv.height,d=r.cv.getContext('2d').getImageData(0,0,w,h).data,ink=new Uint8Array(w*h);
+  const page=await SV.doc.getPage(SV.o),F=fullRect(g),sc=Math.min(2.6,(isMobile()?1200:1500)/Math.max(F.w,F.h));const r=await renderPageCanvas(page,g,sc,F);try{await r.task.promise}catch(_){return[]}
+  await new Promise(r=>setTimeout(r,0));const w=r.cv.width,h=r.cv.height,d=r.cv.getContext('2d').getImageData(0,0,w,h).data,ink=new Uint8Array(w*h);
   for(let i=0;i<w*h;i++)ink[i]=(d[i*4]*.3+d[i*4+1]*.59+d[i*4+2]*.11)<150?1:0;
   const staves=(await detectStaves()).map(s=>({top:s.top*sc,sp:s.sp*sc,th:(s.th||.8)*sc}));if(!staves.length)return SV.heads[key]=[];
   const clean=ink.slice();
@@ -2143,7 +2153,22 @@ function adoptHead(hd,quiet){const t=curT();if(!t||!SV.g)return null;const g=SV.
   a.push(wh,nt);SV.sel=a.length-1;hd.used=true;saveEdSoon();drawAnnLayer();renderTools();if(!quiet)toast('音符を動かせるようにしました。ドラッグで移動、下で種類を変更できます');return{i:SV.sel,it:nt,snap}}
 function drawHeadMarks(ctx){if(!SV.edit||SV.tool!=='pr')return;const hs=(SV.heads||{})[`${SV.o}|${SV.g.r}`];if(!hs)return;const s=SV.rs,C=SV.C;ctx.save();
   for(const hd of hs){if(hd.used)continue;const x=(hd.x-C.x)*s,y=(hd.y-C.y)*s,r=Math.max(hd.sp*1.1,14/(baseScale()*SV.z))*s;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle='rgba(47,111,235,.14)';ctx.fill();ctx.strokeStyle='#2F6FEB';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);ctx.stroke()}ctx.restore()}
-function hitHead(e){const hs=(SV.heads||{})[`${SV.o}|${SV.g.r}`];if(!hs)return null;const d=cl2disp(e);let best=null,bd=1e9;for(const hd of hs){if(hd.used)continue;const dd=Math.hypot(d[0]-hd.x,d[1]-hd.y);const lim=Math.max(hd.sp*1.4,22/(baseScale()*SV.z));if(dd<lim&&dd<bd){bd=dd;best=hd}}return best}
+function hitHead(e){const hs=(SV.heads||{})[`${SV.o}|${SV.g.r}`];if(!hs){toast('音符を探しています。少し待ってからもう一度タップしてください');return null}const d=cl2disp(e);let best=null,bd=1e9;for(const hd of hs){if(hd.used)continue;const dd=Math.hypot(d[0]-hd.x,d[1]-hd.y);const lim=Math.max(hd.sp*1.4,22/(baseScale()*SV.z));if(dd<lim&&dd<bd){bd=dd;best=hd}}return best}
+let popRaf=0;function renderPopSoon(){if(popRaf)return;popRaf=requestAnimationFrame(()=>{popRaf=0;renderPop()})}
+/* 音符をタップすると横に出るメニュー */
+function renderPop(){const st=$('#svStage');if(!st)return;let el=$('#svPop');const t=curT();const items=t&&SV.g?(scEd(t).ann[SV.o]||[]):[];const it=SV.edit&&SV.sel!=null?items[SV.sel]:null;
+  if(!it||it.k!=='nt'||(SV.op&&SV.op.k==='drag')){if(el)el.hidden=true;return}
+  if(!el){el=document.createElement('div');el.id='svPop';el.className='sv-pop';st.appendChild(el);['pointerdown','pointermove','pointerup','touchstart','touchmove'].forEach(n=>el.addEventListener(n,e=>e.stopPropagation()))}
+  const isNote=['w','h','q','8','16'].includes(it.t);
+  el.innerHTML=`<div class="pop-h"><b>${ntName(it.t)}</b><button class="pop-x" data-act="popClose" aria-label="閉じる">${IC.x}</button></div>
+   <div class="pop-sec"><span class="pop-l">移動</span><div class="pop-mv"><button data-act="popMove" data-dy="-1" aria-label="1段上へ">▲<small>上へ</small></button><button data-act="popMove" data-dy="1" aria-label="1段下へ">▼<small>下へ</small></button><button data-act="popMove" data-dx="-1" aria-label="左へ">◀<small>左へ</small></button><button data-act="popMove" data-dx="1" aria-label="右へ">▶<small>右へ</small></button></div></div>
+   <div class="pop-sec"><span class="pop-l">置き換え</span><div class="pop-nts">${NT.map(([tt,l])=>`<button class="${it.t===tt?'on':''}" data-act="selType" data-t="${tt}" title="${l}" aria-label="${l}に置き換え"><img src="${glyphIcon(tt)}" alt=""></button>`).join('')}</div></div>
+   <div class="pop-ft"><button class="${it.d?'on':''}" data-act="selDot"${isNote?'':' disabled'}>付点</button><button data-act="selStem"${isNote&&it.t!=='w'?'':' disabled'}>棒 ${({u:'↑',d:'↓'})[it.sd]||'自動'}</button><button class="pop-del" data-act="selDel">${IC.trash}消す</button></div>`;
+  el.hidden=false;
+  const B=itemBox(it,SV.g),cs=baseScale()*SV.z,sw=st.clientWidth,sh=st.clientHeight,pw=el.offsetWidth,ph=el.offsetHeight;
+  const nx=SV.x+(B.x+B.w/2-SV.C.x)*cs,ny=SV.y+(B.y-SV.C.y)*cs,nb=SV.y+(B.y+B.h-SV.C.y)*cs;
+  let top=ny-ph-12;if(top<8)top=nb+12;if(top+ph>sh-8)top=Math.max(8,sh-ph-8);
+  const left=Math.max(8,Math.min(sw-pw-8,nx-pw/2));el.style.left=left+'px';el.style.top=top+'px'}
 /* ---------- 楽譜の編集（書き込み・回転・トリミング・ページ整理） ---------- */
 function curT(){return S.tracks.get(SV.id)}
 function snapEd(){const t=curT();return t?JSON.stringify(scEd(t)):null}
@@ -2229,12 +2254,12 @@ function renderTools(){const el=$('#svTools');if(!el||!SV.edit)return;const t=cu
   const k=SV.tool,mode=toolMode(k),items=scEd(t).ann[SV.o]||[],n=items.length,sel=SV.sel!=null?items[SV.sel]:null;if(!sel)SV.sel=null;
   const inkOpts=kk=>`${INK[kk].map(c=>`<button class="sv-ink${SV.color[kk]===c?' on':''}" data-act="svInk" data-c="${c}" style="--ink:${c}" aria-label="色" title="色"></button>`).join('')}`;
   let opts='';
-  if(sel)opts=selOpts(sel);
+  if(sel)opts=sel.k==='nt'?'':selOpts(sel);
   else if(k==='nt')opts=`<div class="sv-opts">${ntGrid('ntPick',SV.ntType)}<span class="sv-div"></span><button class="btn sm${SV.ntDot?' on':''}" data-act="ntDot" title="付点">付点</button>${inkOpts('nt')}</div>`;
   else if(INK[k])opts=`<div class="sv-opts">${inkOpts(k)}<span class="sv-div"></span>${[0,1,2].map(i=>`<button class="sv-sz${SV.size[k]===i?' on':''}" data-act="svSize" data-s="${i}" title="${['細','中','太'][i]}" aria-label="${['細','中','太'][i]}"><i style="--d:${k==='tx'?6+i*4:k==='mk'?7+i*4:3+i*3}px"></i></button>`).join('')}</div>`;
   const tools=mode==='page'?`<div class="sv-tl2 pg"><button class="lbl" data-act="svRotate">${IC.rotate}<span>回転</span></button><button class="lbl" data-act="svCrop">${IC.crop}<span>余白を切る</span></button><button class="lbl" data-act="svPages">${IC.pages}<span>並べ替え・削除</span></button><button class="lbl" data-act="svClearPage"${n?'':' disabled'}>${IC.trash}<span>書き込み消去</span></button></div>`
     :`<div class="sv-tl2" role="toolbar" aria-label="道具">${MODE_TOOLS[mode].map(([id,l,ic])=>`<button class="${k===id?'on':''}" data-act="svTool" data-t="${id}" aria-pressed="${k===id}">${ic}<span>${l}</span></button>`).join('')}</div>`;
-  const prN=SV.tool==='pr'?((SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`]||[]).filter(x=>!x.used).length:0;const hint=sel?(sel.k==='nt'?'ドラッグで移動（上下で音の高さ）。下で種類・付点・向きを変更':sel.k==='mv'?'ドラッグで移動。下で別の音符に変える／白で消す':'ドラッグで移動、または削除'):(k==='pr'&&(SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`]?`${prN}個の音符に印を付けました。印をそのまま指で動かしてください`:TOOL_HINT[k]||'');
+  const prN=SV.tool==='pr'?((SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`]||[]).filter(x=>!x.used).length:0;const hint=sel?(sel.k==='nt'?'音符の横のメニューで移動・置き換え。指でドラッグしても動かせます':sel.k==='mv'?'ドラッグで移動。下で別の音符に変える／白で消す':'ドラッグで移動、または削除'):(k==='pr'&&(SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`]?`${prN}個の音符に印を付けました。印をそのまま指で動かしてください`:TOOL_HINT[k]||'');
   el.innerHTML=`<div class="sv-trow sv-top"><div class="sv-modes" role="tablist" aria-label="編集の種類">${MODES.map(([m,l,ic])=>`<button role="tab" class="${mode===m?'on':''}" aria-selected="${mode===m}" data-act="svMode" data-m="${m}">${ic}<span>${l}</span></button>`).join('')}</div><span class="sv-sp"></span>
      <button class="cbtn" data-act="svUndo"${SV.undo.length?'':' disabled'} aria-label="元に戻す" title="元に戻す（Ctrl+Z）">${IC.undo}</button><button class="cbtn sv-redo" data-act="svRedo"${SV.redo.length?'':' disabled'} aria-label="やり直す" title="やり直す（Ctrl+Shift+Z）">${IC.undo}</button></div>
    <div class="sv-trow sv-mid">${tools}</div>
@@ -2489,6 +2514,8 @@ document.addEventListener('click',e=>{
     if(act==='svTool'){SV.tool=a.dataset.t;if(SV.tool!=='sel')SV.sel=null;{const nb=$('#svNoteBtn');if(nb)nb.classList.toggle('primary',SV.tool==='pr')}drawAnnLayer();if(SV.tool==='pr'){progress('音符を探しています…');detectHeads().then(hs=>{progress(null);drawAnnLayer();renderTools();if(!hs.length)toast('このページで音符を見つけられませんでした。写真の場合は、明るくまっすぐ撮り直すと見つかりやすくなります')})}setStageTool();renderTools();return}
     if(act==='ntPick'){SV.ntType=a.dataset.t;renderTools();return}
     if(act==='ntDot'){SV.ntDot=!SV.ntDot;renderTools();return}
+    if(act==='popClose'){SV.sel=null;drawAnnLayer();renderTools();return}
+    if(act==='popMove'){const arr=annOf(SV.o),it=SV.sel!=null&&arr[SV.sel];if(!it||it.k!=='nt')return;pushUndo(snapEd());moveItem(it,JSON.parse(JSON.stringify(it)),(+a.dataset.dx||0)*it.sp,(+a.dataset.dy||0)*it.sp/2);saveEdSoon();drawAnnLayer();renderTools();return}
     if(['selType','selDot','selStem','selDel','selWhite','selReset','selColor','selRepl'].includes(act)){const it=SV.sel!=null&&annOf(SV.o)[SV.sel];if(!it)return;
       if(act==='selRepl'){const g=SV.g,c=rotPt(g.r,g.W,g.H,it.sx+it.dx+it.sw/2,it.sy+it.dy+it.sh/2),t=a.dataset.t;detectStaves().then(st=>{const sn=snapToStaff(c[0],c[1],st),bb=unrotPt(g.r,g.W,g.H,c[0],sn.Y);pushUndo(snapEd());const arr=annOf(SV.o),i=arr.indexOf(it);if(i<0)return;
         const wh={k:'wh',x:it.sx,y:it.sy,w:it.sw,h:it.sh,...(it.sl?{sl:it.sl,th:it.th}:{})},nt={k:'nt',t,x:+bb[0].toFixed(1),y:+bb[1].toFixed(1),sp:+sn.sp.toFixed(2),ps:sn.ps,c:SV.color.nt};arr.splice(i,1,wh,nt);SV.sel=i+1;saveEdSoon();drawAnnLayer();renderTools();toast(`${ntName(t)}に置き換えました。ドラッグで位置を調整できます`)});return}
