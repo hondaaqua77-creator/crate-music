@@ -2142,6 +2142,13 @@ function labelCC(bin,w,h){const lab=new Int32Array(w*h);let n=0;const st=[];cons
       if(y>0&&bin[p-w]&&!lab[p-w]){lab[p-w]=n;st.push(p-w)}if(y<h-1&&bin[p+w]&&!lab[p+w]){lab[p+w]=n;st.push(p+w)}}
     comps.push({x0,x1,y0,y1,cnt,cx:sx/cnt,cy:sy/cnt})}
   return comps}
+/* 小さな穴（白い玉の中）だけを埋める：連桁と符尾で囲まれた広い白地は埋めない */
+function fillSmallHoles(bin,w,h,maxA){const out=bin.slice(),seen=new Uint8Array(w*h),st=[],reg=[];
+  for(let s0=0;s0<w*h;s0++){if(bin[s0]||seen[s0])continue;seen[s0]=1;st.push(s0);reg.length=0;let border=false;
+    while(st.length){const p=st.pop();reg.push(p);const x=p%w;if(x===0||x===w-1||p<w||p>=w*(h-1))border=true;
+      if(x>0&&!bin[p-1]&&!seen[p-1]){seen[p-1]=1;st.push(p-1)}if(x<w-1&&!bin[p+1]&&!seen[p+1]){seen[p+1]=1;st.push(p+1)}if(p>=w&&!bin[p-w]&&!seen[p-w]){seen[p-w]=1;st.push(p-w)}if(p<w*(h-1)&&!bin[p+w]&&!seen[p+w]){seen[p+w]=1;st.push(p+w)}}
+    if(!border&&reg.length<=maxA)for(const p of reg)out[p]=1}
+  return out}
 function fillHoles(bin,w,h){const out=new Uint8Array(w*h);const bg=new Uint8Array(w*h);const st=[];
   for(let x=0;x<w;x++){st.push(x,(h-1)*w+x)}for(let y=0;y<h;y++){st.push(y*w,y*w+w-1)}
   while(st.length){const p=st.pop();if(bin[p]||bg[p])continue;bg[p]=1;const x=p%w;if(x>0)st.push(p-1);if(x<w-1)st.push(p+1);if(p>=w)st.push(p-w);if(p<w*(h-1))st.push(p+w)}
@@ -2160,27 +2167,55 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
   const clean=ink.slice();
   for(const s of staves)for(let j=0;j<5;j++){const yc=Math.round(s.top+j*s.sp),hh=Math.ceil(s.th/2)+1;for(let x=0;x<w;x++){const up=yc-hh-2,dn=yc+hh+2;if((up<0||!ink[up*w+x])&&(dn>=h||!ink[dn*w+x]))for(let y=Math.max(0,yc-hh);y<=Math.min(h-1,yc+hh);y++)clean[y*w+x]=0}}
   /* 五線1本のインクの縦の太さ（連桁と見分けるため） */const stInk=(()=>{const R=[];for(const s of staves)for(let j=0;j<5;j++){const yc=Math.round(s.top+j*s.sp);for(let x=Math.round(w*.1);x<w*.9;x+=7){if(!ink[yc*w+x])continue;let a=yc,b=yc;while(a>0&&ink[(a-1)*w+x])a--;while(b<h-1&&ink[(b+1)*w+x])b++;R.push(b-a+1)}}R.sort((p,q)=>p-q);return R.length?R[R.length>>1]:2})(),sp=staves.reduce((a,s)=>a+s.sp,0)/staves.length,stemw=Math.max(1,Math.round(sp*.18));
-  let dl=clean;const nd=Math.max(1,Math.round(sp*.12));for(let i=0;i<nd;i++)dl=dil3(dl,w,h);let fl=fillHoles(dl,w,h);for(let i=0;i<nd;i++)fl=ero3(fl,w,h);for(let i=0;i<w*h;i++)if(clean[i])fl[i]=1;const ho=hOpen(fl,w,h,stemw),comps=labelCC(ho,w,h);const heads=[];
+  /* 加線（短い横線）やタイの平らな部分を消す：細くて横に長い線 → 隣の音符どうしがつながらないように */
+  {const L=Math.round(sp*1.2),T=stInk+1,rm=[];for(let y=1;y<h-1;y++){let x=0;while(x<w){if(!clean[y*w+x]){x++;continue}let e=x;while(e<w&&clean[y*w+e])e++;if(e-x>=L)for(let k=x;k<e;k++){let a=y,b=y;while(a>0&&clean[(a-1)*w+k]&&y-a<=T)a--;while(b<h-1&&clean[(b+1)*w+k]&&b-y<=T)b++;if(b-a+1<=T)rm.push(y*w+k)}x=e}}for(const i of rm)clean[i]=0}
+  let dl=clean;const nd=Math.max(1,Math.round(sp*.12));for(let i=0;i<nd;i++)dl=dil3(dl,w,h);let fl=fillSmallHoles(dl,w,h,Math.round(sp*sp*1.1));for(let i=0;i<nd;i++)fl=ero3(fl,w,h);for(let i=0;i<w*h;i++)if(clean[i])fl[i]=1;const ho=hOpen(fl,w,h,Math.max(stemw,Math.round(sp*.25)));
+  /* 縦に厚い所（玉）だけ残す：タイの中ほどや連桁など、縦に薄い横長の部分を切り離す */
+  const th2=new Uint8Array(w*h),V=Math.round(sp*.55);for(let x=0;x<w;x++){let y=0;while(y<h){if(!ho[y*w+x]){y++;continue}let e=y;while(e<h&&ho[e*w+x])e++;if(e-y>=V)for(let k=y;k<e;k++)th2[k*w+x]=1;y=e}}
+  const comps=labelCC(hOpen(th2,w,h,Math.max(1,Math.round(sp*.15))),w,h);const heads=[];
   const vrun=(x,y0,dir)=>{let n=0,y=y0;while(y>=0&&y<h&&clean[y*w+x]){n++;y+=dir}return n};
-  const analyze=(c,loose)=>{const hg=c.y1-c.y0+1,wd=c.x1-c.x0+1;if(!loose&&!(hg>=.5*sp&&hg<=1.6*sp&&wd>=.75*sp&&wd<=3.2*sp&&c.cnt>.3*hg*wd))return null;
-    const st=staves.reduce((b,s)=>Math.abs(c.cy-(s.top+2*s.sp))<Math.abs(c.cy-(b.top+2*b.sp))?s:b);if(c.cy<st.top-6*sp||c.cy>st.top+10*sp)return null;
+  /* 各段の始まり（ト音記号・調号）の終わり位置：記号の後の、何もない縦の隙間までを除外する */
+  for(const s0 of staves){const top=Math.round(s0.top),bot=Math.round(s0.top+4*s0.sp);let x0=0;while(x0<w&&!ink[top*w+x0])x0++;s0.x0=x0;let x=Math.round(x0+s0.sp*3.2),gap=0,seen=false,end=x;
+    const colInk=x=>{for(let y=Math.max(0,top-Math.round(s0.sp));y<=Math.min(h-1,bot+Math.round(s0.sp));y++)if(clean[y*w+x])return true;return false};
+    for(;x<Math.min(w,x0+s0.sp*12);x++){if(colInk(x)){if(gap>=s0.sp*.9&&seen)break;seen=true;gap=0;end=x}else gap++}
+    /* 音部記号がない（五線の上下にはみ出す記号がない）段は除外しない */
+    let clef=false;for(let xx=x0;xx<Math.min(w,x0+s0.sp*3.5)&&!clef;xx++){let up=false,dn=false;for(let y=Math.max(0,top-Math.round(s0.sp*1.6));y<top-Math.round(s0.sp*.6);y++)if(ink[y*w+xx])up=true;for(let y=bot+Math.round(s0.sp*.6);y<Math.min(h,bot+Math.round(s0.sp*1.6));y++)if(ink[y*w+xx])dn=true;if(up&&dn)clef=true}
+    s0.sigEnd=clef?end+2:0}
+  const analyze=(c0,loose)=>{let c=c0;
+    /* タイやスラーがつながって横に長いときは、玉の部分（縦に厚い列）だけに絞る */
+    if(c.x1-c.x0+1>sp*1.6){const W0=c.x1-c.x0+1,col=new Array(W0).fill(0);for(let x=c.x0;x<=c.x1;x++)for(let y=c.y0;y<=c.y1;y++)col[x-c.x0]+=fl[y*w+x];const mx=Math.max(...col);
+      let best0=null;for(let a=0;a<W0;a++){if(col[a]<mx*.5)continue;let b=a;while(b+1<W0&&col[b+1]>=mx*.5)b++;const mid=c.x0+(a+b)/2;if(!best0||Math.abs(mid-c0.cx)<Math.abs(best0.mid-c0.cx)||b-a>best0.b-best0.a+sp*.3)best0={a,b,mid};a=b}
+      if(best0&&best0.b-best0.a+1>=sp*.7){const x0=c.x0+best0.a,x1=c.x0+best0.b;let n=0,sx=0,sy=0,y0=1e9,y1=-1;for(let y=c.y0;y<=c.y1;y++)for(let x=x0;x<=x1;x++)if(fl[y*w+x]){n++;sx+=x;sy+=y;if(y<y0)y0=y;if(y>y1)y1=y}
+        if(n)c={x0,x1,y0,y1,cnt:n,cx:sx/n,cy:sy/n}}}
+    const hg=c.y1-c.y0+1,wd=c.x1-c.x0+1;if(!loose&&!(hg>=.5*sp&&hg<=1.6*sp&&wd>=.75*sp&&wd<=3.2*sp&&c.cnt>.3*hg*wd))return null;
+    const st=staves.reduce((b,s)=>Math.abs(c.cy-(s.top+2*s.sp))<Math.abs(c.cy-(b.top+2*b.sp))?s:b);if(c.cy<st.top-6*sp||c.cy>st.top+10*sp)return null;if(st.sigEnd&&c.cx<st.sigEnd)return null;
     let fill=0;for(let yy=-1;yy<=1;yy++)for(let xx=-1;xx<=1;xx++)fill+=clean[(Math.round(c.cy)+yy)*w+Math.round(c.cx)+xx]||0;fill/=9;
     const hw=wd/2,hh=hg/2;let best=null;
-    for(let x=Math.floor(c.cx+hw-stemw-1);x<=Math.ceil(c.cx+hw+1);x++){if(x<0||x>=w)continue;const n=vrun(x,Math.round(c.cy-hh)+1,-1);if(n>sp*1.8&&(!best||n>best.n))best={d:'u',n,x}}
-    for(let x=Math.floor(c.cx-hw-1);x<=Math.ceil(c.cx-hw+stemw+1);x++){if(x<0||x>=w)continue;const n=vrun(x,Math.round(c.cy+hh)-1,1);if(n>sp*1.8&&(!best||n>best.n))best={d:'d',n,x}}
+    for(let x=Math.floor(c.cx+hw-stemw-2);x<=Math.ceil(c.cx+hw+sp*.3);x++){if(x<0||x>=w)continue;const n=vrun(x,Math.round(c.cy-hh)+1,-1);if(n>sp*1.8&&(!best||n>best.n))best={d:'u',n,x}}
+    for(let x=Math.floor(c.cx-hw-sp*.3);x<=Math.ceil(c.cx-hw+stemw+2);x++){if(x<0||x>=w)continue;const n=vrun(x,Math.round(c.cy+hh)-1,1);if(n>sp*1.8&&(!best||n>best.n))best={d:'d',n,x}}
     {const ps0=Math.round((c.cy-st.top)/(st.sp/2));if(!loose&&!best&&(ps0<-3||ps0>11))return null}
+    if(!best&&!loose){const r=wd/hg;if(r<1.1||r>2.2||hg>sp*1.3||fill>=.5)return null}
+    /* 玉は楕円なので四隅が空く：四隅が埋まっているもの（連桁の切れ端・休符など）は除く */
+    if(!c0.cut){const cw=Math.max(1,Math.round(wd*.18)),ch=Math.max(1,Math.round(hg*.18));let full=0;for(const[x0,y0]of[[c.x0,c.y0],[c.x1-cw+1,c.y0],[c.x0,c.y1-ch+1],[c.x1-cw+1,c.y1-ch+1]]){let n=0;for(let y=y0;y<y0+ch;y++)for(let x=x0;x<x0+cw;x++)n+=ho[y*w+x]||0;if(n>=cw*ch*.9)full++}if(full>=3)return null}
     let t=!best?'w':fill<.5?'h':'q';
     if(best&&fill>=.5){const ey=best.d==='u'?Math.round(c.cy-hh+1-best.n):Math.round(c.cy+hh-1+best.n);const y0=best.d==='u'?Math.max(0,ey-Math.round(sp*.3)):Math.max(0,ey-Math.round(sp*1.6)),y1=best.d==='u'?Math.min(h,ey+Math.round(sp*1.6)):Math.min(h,ey+Math.round(sp*.3)),x0=best.x+stemw+1,x1=Math.min(w,best.x+Math.round(sp*1.3));
-      let s=0,nn=0;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){s+=clean[y*w+x];nn++}if(nn&&s/nn>.10)t='8';
+      let s=0,nn=0;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){s+=clean[y*w+x];nn++}if(nn&&s/nn>.10){t='8';
+        /* 旗の数：符尾のすぐ横を縦に見て、離れた黒い部分が2つあれば16分 */
+        {const x=Math.min(w-1,best.x+stemw+Math.round(sp*.45));let segs=0,k=0,inS=false;for(let q=0;q<sp*3.2;q++){const y=best.d==='u'?ey+q:ey-q;if(y<0||y>=h)break;const v=clean[y*w+x];if(v&&!inS){segs++;inS=true}else if(!v)inS=false}if(segs>=3)t='16'}}
       /* 連桁：符尾の先から横に太い線が伸びていれば、連桁はそのまま残して符尾だけつなぎ直す */
       /* 符尾の先から左右に「太さ0.2〜1.0間隔の線」をたどる（斜めの連桁・グループの端にも対応） */
       const dir=best.d==='u'?1:-1,seg=(x,yc)=>{const r=Math.round(sp*.45);let bi=-1,bd=1e9;for(let y=Math.max(0,Math.round(yc)-r);y<=Math.min(h-1,Math.round(yc)+r);y++)if(ink[y*w+x]&&Math.abs(y-yc)<bd){bd=Math.abs(y-yc);bi=y}if(bi<0)return null;let a=bi,b=bi;while(a>0&&ink[(a-1)*w+x])a--;while(b<h-1&&ink[(b+1)*w+x])b++;return{a,b,len:b-a+1}};
-      const side=sx=>{let x=sx>0?best.x+stemw+1:best.x-2,yc=ey+dir*sp*.25,n=0,th=0;for(let i=0;i<Math.round(sp*2.2);i++,x+=sx){if(x<0||x>=w)break;const S=seg(x,yc);if(!n&&i<stemw*2+3&&S&&S.len>sp*1.05)continue;if(!S||S.len<Math.max(sp*.3,stInk+2)||S.len>sp*1.05)break;if(!n)th=S.len;n++;yc=(S.a+S.b)/2}return{n,th}};
-      const L=side(-1),Rr=side(1),B=L.n>=Rr.n?L:Rr;if(B.n>=sp*1.2){const sx=L.n>=Rr.n?-1:1;let last=0;
-        /* 16分などの2本目以降の連桁まで含めて、消さない範囲を決める */
-        for(let k=0;k<Math.round(sp*2.4);k++){const y=ey+dir*k;if(y<0||y>=h)break;let n=0,x=sx>0?best.x+stemw+2:best.x-3;while(x>=0&&x<w&&clean[y*w+x]&&n<sp){n++;x+=sx}if(n>=sp*.8)last=k;else if(k-last>sp*.45)break}
-        t=last>sp*.9?'16':'8';best.bm={x:best.x+stemw/2,y:ey,th:Math.max(2,last+1)}}}
-    let dot=false;{const x0=Math.round(c.cx+hw+2),x1=Math.min(w,Math.round(c.cx+hw+sp*1.1)),y0=Math.round(c.cy-sp*.6),y1=Math.round(c.cy+sp*.6);let s=0,edge=0;for(let y=Math.max(0,y0);y<y1;y++)for(let x=x0;x<x1;x++){s+=clean[y*w+x];if(x>=x1-2&&clean[y*w+x])edge++}dot=s>3&&s<sp*sp*.4&&!edge}
+      const side=sx=>{let x=sx>0?best.x+stemw+1:best.x-2,yc=ey+dir*sp*.25,n=0,th=0;for(let i=0;i<Math.round(sp*2.2);i++,x+=sx){if(x<0||x>=w)break;const S=seg(x,yc);if(!n&&i<stemw*2+3&&S&&S.len>sp*1.9)continue;if(!S||S.len<Math.max(sp*.3,stInk+2)||S.len>sp*1.9)break;if(!n)th=S.len;n++;yc=(S.a+S.b)/2}return{n,th}};
+      const L=side(-1),Rr=side(1),B=L.n>=Rr.n?L:Rr;if(B.n>=sp*1.2){const sx=L.n>=Rr.n?-1:1;
+        /* 連桁の本数：符尾の横の数か所を縦に見て、五線の分を差し引いた太さから数える（2本以上→16分） */
+        const cnt=off=>{const x=Math.round(best.x+(sx>0?stemw:0)+sx*off);if(x<0||x>=w)return null;let n=0,inner=0,k=-Math.round(sp*.3);const K=Math.round(sp*2.6),Y=k=>ey+dir*k,on=k=>{const y=Y(k);return y>=0&&y<h&&ink[y*w+x]};
+          while(k<K){if(!on(k)){k++;continue}if(n&&k-inner>sp*.6)break;let k2=k;while(k2<K&&on(k2))k2++;let len=k2-k;const ya=Math.min(Y(k),Y(k2-1)),yb=Math.max(Y(k),Y(k2-1));
+            for(let j=0;j<5;j++){const ly=st.top+j*st.sp;if(ly>=ya-1&&ly<=yb+1)len-=stInk}if(len>=sp*.28){n+=Math.max(1,Math.round(len/(sp*.52)));inner=k2}else if(n&&len>sp*1.2)break;k=k2}
+          return{n:Math.min(3,n),inner}};
+        const R3=[.45,.8,1.15].map(o=>cnt(sp*o)).filter(r=>r&&r.n);let nb=1,inn=Math.round(sp*.55);if(R3.length){const ns=R3.map(r=>r.n).sort((a,b)=>a-b);nb=ns[ns.length>>1];inn=Math.max(...R3.map(r=>r.inner))}
+        t=nb>=2?'16':'8';best.bm={x:best.x+stemw/2,y:ey,th:Math.max(2,inn+1)}}}
+    let dot=false;{const x0=Math.round(Math.max(c.cx+hw,c.x1)+Math.max(2,sp*.18)),x1=Math.min(w,Math.round(c.cx+hw+sp*1.1)),y0=Math.round(c.cy-sp*.6),y1=Math.round(c.cy+sp*.6);let s=0,edge=0,ya=1e9,yb=-1,xa=1e9,xb=-1;for(let y=Math.max(0,y0);y<y1;y++)for(let x=x0;x<x1;x++){if(!clean[y*w+x])continue;s++;if(x>=x1-2)edge++;if(y<ya)ya=y;if(y>yb)yb=y;if(x<xa)xa=x;if(x>xb)xb=x}
+      /* 付点は小さな丸：横線（加線）や隣の玉・旗の一部は除く */dot=s>3&&s<sp*sp*.4&&!edge&&yb-ya+1>=sp*.22&&xb-xa+1<=sp*.7&&(yb-ya+1)>=(xb-xa+1)*.5}
     const ps=Math.round((c.cy-st.top)/(st.sp/2))||0;if(ps<-7||ps>15)return null;
     // 消去範囲：符頭＋符尾＋旗（表示座標）
     const pd=Math.max(2,Math.round(sp*.2));let bx0=c.x0-pd,bx1=c.x1+pd,by0=c.y0-pd,by1=c.y1+pd;if(best&&best.bm){const B=best.bm;if(best.d==='u'){by0=Math.min(by0,B.y+B.th+1);bx1=Math.max(bx1,best.x+stemw+2)}else{by1=Math.max(by1,B.y-B.th-1);bx0=Math.min(bx0,best.x-2);bx1=Math.max(bx1,best.x+stemw+2)}}
@@ -2191,7 +2226,15 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
       for(const[xa,xb]of[[Math.round(bx0-sp*1.5),Math.round(bx0)-1],[Math.round(bx1)+1,Math.round(bx1+sp*1.5)]])for(let x=Math.max(0,xa);x<=Math.min(w-1,xb);x++)for(let k=-r;k<=r;k++){const y=Math.round(ye)+k;if(y<0||y>=h)continue;const i=(y*w+x)*4;acc[k+r]+=255-(d[i]*.3+d[i+1]*.59+d[i+2]*.11)}
       let sw=0,sy=0;const mx=Math.max(...acc);if(mx>0){for(let k=0;k<acc.length;k++)if(acc[k]>mx*.5){sw+=acc[k];sy+=acc[k]*(k-r)}ly.push([ye/sc,(Math.round(ye)+sy/sw)/sc])}}
     return({ly,x:c.cx/sc,y:(st.top+ps*st.sp/2)/sc,ps,sp:st.sp/sc,t,d:dot,sd:best?best.d:null,...(best&&best.bm?{bm:{x:best.bm.x/sc,y:best.bm.y/sc}}:{}),box:{x:bx0/sc,y:by0/sc,w:(bx1-bx0)/sc,h:(by1-by0)/sc}})};
-  for(const c of comps){const hd=analyze(c,false);if(hd)heads.push(hd)}
+  /* 上下に重なった2つの玉（3度の和音・二重唱）は、一番細い行で上下に分ける */
+  const split=c=>{const hg=c.y1-c.y0+1,wd=c.x1-c.x0+1;if(!(hg>1.55*sp&&hg<=3.1*sp&&wd>=.75*sp&&wd<=2.6*sp))return[c];const rows=[];for(let y=c.y0;y<=c.y1;y++){let n=0;for(let x=c.x0;x<=c.x1;x++)n+=ho[y*w+x];rows.push(n)}
+    let cut=-1,mn=1e9;for(let k=Math.round(hg*.3);k<=Math.round(hg*.7);k++)if(rows[k]<mn){mn=rows[k];cut=k}if(cut<0||mn>Math.max(...rows)*.92)return[c];
+    const part=(y0,y1)=>{let n=0,sx=0,sy=0,a=1e9,b=-1,e=1e9,f=-1;for(let y=y0;y<=y1;y++)for(let x=c.x0;x<=c.x1;x++)if(ho[y*w+x]){n++;sx+=x;sy+=y;if(x<a)a=x;if(x>b)b=x;if(y<e)e=y;if(y>f)f=y}return n?{x0:a,x1:b,y0:e,y1:f,cnt:n,cx:sx/n,cy:sy/n,cut:1}:null};
+    return[part(c.y0,c.y0+cut),part(c.y0+cut+1,c.y1)].filter(Boolean)};
+  for(const c0 of comps)for(const c of split(c0)){const hd=analyze(c,false);if(hd)heads.push(hd)}
+  /* 旗の先などを玉と間違えたもの：別の音符の符尾・旗の範囲の中にあり、和音のように縦に並んでいないものは除く */
+  {const bad=new Set();for(const hd of heads)for(const o of heads){if(o===hd||!o.sd)continue;const B=o.box;if(hd.x>B.x&&hd.x<B.x+B.w&&hd.y>B.y&&hd.y<B.y+B.h&&Math.abs(hd.x-o.x)>o.sp*.25&&Math.hypot(hd.x-o.x,hd.y-o.y)>o.sp*.8){bad.add(hd);break}}
+   for(let i=heads.length-1;i>=0;i--)if(bad.has(heads[i]))heads.splice(i,1)}
   /* 印が付かなかった音符を指で追加するときに使う（今のページだけ保持） */
   SV.omr={key,find:(X,Y)=>{const cx0=Math.round(X*sc),cy0=Math.round(Y*sc),x0=Math.max(0,Math.round(cx0-sp*1.3)),x1=Math.min(w-1,Math.round(cx0+sp*1.3)),y0=Math.max(0,Math.round(cy0-sp*1.1)),y1=Math.min(h-1,Math.round(cy0+sp*1.1)),W=x1-x0+1,H=y1-y0+1;
       /* 加線・符尾などの細い線を除き、指に一番近いかたまりを符頭とみなす（黒い玉→白い玉の順に試す） */
