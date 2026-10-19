@@ -2092,7 +2092,7 @@ const md12=n=>((n%12)+12)%12;
 function tpKey(code){if(!code)return null;const m=/m$/.test(code);const L=m?KEY_MIN_EN:KEY_MAJ_EN;const i=L.indexOf(code);return i<0?null:{i,m}}
 function keyInfo(k){if(!k)return null;const sig=KEY_SIG[k.m?md12(k.i+3):k.i];return{ja:(k.m?KEY_MIN_JA:KEY_MAJ_JA)[k.i]+(k.m?'短調':'長調'),en:(k.m?KEY_MIN_EN:KEY_MAJ_EN)[k.i],sig,sigTxt:sig===0?'調号なし':sig>0?`♯${sig}つ`:`♭${-sig}つ`}}
 function semiTxt(n){return n===0?'元のキー':n>0?`${n}半音上げる`:`${-n}半音下げる`}
-function tpOf(t){const sc=t&&t.score;if(!sc)return{semi:0,key:'',chords:true,notes:true,link:true};const tp=sc.tp||(sc.tp={});for(const[k,v]of Object.entries({semi:0,key:'',chords:true,notes:true,link:true}))if(tp[k]===undefined)tp[k]=v;return tp}
+function tpOf(t){const sc=t&&t.score;if(!sc)return{semi:0,key:'',chords:true,notes:true,link:true};const tp=sc.tp||(sc.tp={});for(const[k,v]of Object.entries({semi:0,key:'',chords:true,notes:true,link:true,printed:true}))if(tp[k]===undefined)tp[k]=v;return tp}
 function tpFlats(tp){const k=tpKey(tp.key);if(k){const nk={i:md12(k.i+tp.semi),m:k.m};const s=keyInfo(nk).sig;if(s<0)return true;if(s>0)return false}return null}
 const NOTE_BASE={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
 function noteIdx(l,acc){let n=NOTE_BASE[l];if(acc==='#'||acc==='♯')n++;else if(acc==='b'||acc==='♭')n--;return md12(n)}
@@ -2115,13 +2115,26 @@ function chordItems(t,list){const tp=tpOf(t);if(!list||!list.length||!tp.chords|
 async function loadChords(o){SV.chords=SV.chords||{};if(SV.chords[o])return SV.chords[o];if(!SV.doc)return[];const page=await SV.doc.getPage(o);return SV.chords[o]=await findChords(page)}
 /* 移調の幅（半音）から、置いた音符を動かす段数 */
 function diatonicSteps(d){const a=Math.abs(d),st=[0,1,1,2,2,3,3,4,5,5,6,6][a%12]+7*Math.floor(a/12);return d<0?-st:st}
-function shiftNotes(t,d){if(!d)return;const e=scEd(t),steps=diatonicSteps(d);if(!steps)return;
-  for(const[o,items]of Object.entries(e.ann||{})){const r=(((e.rot[o]||0)%360)+360)%360;for(const it of items||[]){if(it.k!=='nt'||/^r|sh|fl|na/.test(it.t))continue;
+function shiftNotes(t,steps,all){if(!steps)return;const e=scEd(t);
+  for(const[o,items]of Object.entries(e.ann||{})){const r=(((e.rot[o]||0)%360)+360)%360;for(const it of items||[]){if(it.k!=='nt'||/^r|sh|fl|na/.test(it.t))continue;if(!all&&!it.pr)continue;
     const dy=-steps*it.sp/2,v=r===90?[dy,0]:r===180?[0,-dy]:r===270?[-dy,0]:[0,dy];it.x=+(it.x+v[0]).toFixed(1);it.y=+(it.y+v[1]).toFixed(1);if(it.ps!=null)it.ps-=steps}}}
 function setTpSemi(t,n,opt){opt=opt||{};const tp=tpOf(t);n=Math.max(-12,Math.min(12,Math.round(n)));const d=n-tp.semi;if(!d&&!opt.force)return;
-  if(tp.notes)shiftNotes(t,d);tp.semi=n;saveTrack(t);SV.thumbs&&SV.thumbs.clear();
+  /* 移調前後の音の段の差で動かす（例：+2→+1は同じ段のまま） */shiftNotes(t,diatonicSteps(n)-diatonicSteps(tp.semi),tp.notes);tp.semi=n;saveTrack(t);SV.thumbs&&SV.thumbs.clear();
   const sid=scoreSongId(t);if(tp.link&&sid&&!opt.fromSong&&S.tracks.get(sid)){setKeyFor(sid,n)}
   drawAnnLayer();renderTp();renderTpBadge()}
+/* 「完了」で全ページの印刷された音符を読み取り、移調した位置の音符に置き換える */
+let tpBusy=false;
+async function transposeAllPrinted(t){if(tpBusy||!SV.doc)return;tpBusy=true;const tp=tpOf(t),e=scEd(t),N=scPages(t),back=SV.page,steps=diatonicSteps(tp.semi);let total=0;
+  try{pushUndo(snapEd());e.prDone=e.prDone||[];
+    for(let n=1;n<=N;n++){const o=e.order[n-1];if(e.prDone.includes(o))continue;progress(`全ページの音符を移調しています… ${n}/${N}`);await gotoPage(n);if(curT()!==t)break;
+      const hs=await detectHeads();const a=annOf(SV.o),whs=[],nts=[];
+      for(const hd of hs){if(headOff(hd))continue;const[wh,nt]=headItems(hd);hd.used=true;whs.push(wh);nts.push(nt)}
+      /* 白で消す枠は先（下）に、音符は後（上）に描く：隣の枠で音符が欠けないように */
+      a.unshift(...whs);a.push(...nts);
+      for(const it of nts){const r=(((e.rot[o]||0)%360)+360)%360,dy=-steps*it.sp/2,v=r===90?[dy,0]:r===180?[0,-dy]:r===270?[-dy,0]:[0,dy];it.x=+(it.x+v[0]).toFixed(1);it.y=+(it.y+v[1]).toFixed(1);if(it.ps!=null)it.ps-=steps}
+      e.prDone.push(o);total+=nts.length}
+    SV.sel=null;saveTrack(t);saveEdSoon();await gotoPage(back);progress(null);toast(total?`${total}個の音符を${tp.semi>0?'+':'−'}${Math.abs(tp.semi)}の位置に移調しました（元に戻すで取り消せます）`:'移調する音符が見つかりませんでした')}
+  catch(err){progress(null);toast('移調の途中で問題が起きました')}finally{tpBusy=false}}
 function syncTpFromSong(t){const tp=tpOf(t),sid=scoreSongId(t),s=sid&&S.tracks.get(sid);if(!tp.link||!s)return;const k=Math.round(s.key||0);if(k!==tp.semi)setTpSemi(t,k,{fromSong:true})}
 function renderTpBadge(){const st=$('#svStage'),t=curT();if(!st||!t)return;let b=$('#svTpBadge');const tp=tpOf(t);
   if(!tp.semi){if(b)b.remove();return}if(!b){b=document.createElement('button');b.id='svTpBadge';b.className='sv-tpbadge';b.dataset.act='svTp';st.appendChild(b)}
@@ -2133,16 +2146,18 @@ function renderTp(){const el=$('#svTp'),t=curT();if(!el||!t||!SV.tp)return;const
   const ch=(SV.chords||{})[SV.o];const opts=['',...KEY_MAJ_EN,...KEY_MIN_EN].map(v=>{const kk=tpKey(v),ki=kk&&keyInfo(kk);return`<option value="${v}"${tp.key===v?' selected':''}>${ki?`${ki.ja}（${ki.en}）`:'わからない'}</option>`}).join('');
   el.innerHTML=`<div class="tp-top"><b class="tp-h">移調</b>
      <div class="tp-step"><button class="tp-btn" data-act="tpStep" data-d="-1" aria-label="半音下げる">♭</button><div class="tp-val"><b>${tp.semi>0?'+':tp.semi<0?'−':'±'}${Math.abs(tp.semi)}</b><span>${semiTxt(tp.semi)}</span></div><button class="tp-btn" data-act="tpStep" data-d="1" aria-label="半音上げる">♯</button></div>
-     <button class="btn sm" data-act="tpReset"${tp.semi?'':' disabled'}>元のキーに戻す</button><span class="sv-sp"></span><button class="btn sm primary" data-act="svTp">${IC.check}<span>完了</span></button></div>
+     <button class="btn sm" data-act="tpReset"${tp.semi?'':' disabled'}>元のキーに戻す</button><span class="sv-sp"></span><button class="btn sm primary" data-act="tpDone">${IC.check}<span>完了</span></button></div>
    <div class="tp-key"><label>元のキー<select id="tpKey">${opts}</select></label><span class="tp-arrow">→</span><div class="tp-new">${nk?`<b>${nk.ja}（${nk.en}）</b><span>${nk.sigTxt}${ok&&ok.sig!==nk.sig?`（元は${ok.sigTxt}）`:''}</span>`:'<span class="muted">元のキーを選ぶと、移調後のキーと調号を表示します</span>'}</div></div>
    <div class="tp-map" aria-label="音の読み替え表">${[0,2,4,5,7,9,11].map(i=>`<span><i>${SOL_FLAT[i]}</i>→<b>${sol[md12(i+tp.semi)]}</b></span>`).join('')}</div>
    <div class="tp-opts">
      <label class="sv-switch"><input type="checkbox" id="tpChords"${tp.chords?' checked':''}><i></i><span>コード記号を書き換える</span></label><span class="muted tp-note">${ch==null?'このページを確認中…':ch.length?`このページに${ch.length}個あります`:'このページには文字のコード記号がありません（写真・スキャンの楽譜は書き換えできません）'}</span>
+     <label class="sv-switch"><input type="checkbox" id="tpPrinted"${tp.printed?' checked':''}><i></i><span>楽譜の音符もすべて移調する</span></label><span class="muted tp-note">「完了」で全ページの音符を自動で読み取り、${tp.semi?`${tp.semi>0?'+':'−'}${Math.abs(tp.semi)}の位置に`:'移調した位置に'}書き換えます</span>
      <label class="sv-switch"><input type="checkbox" id="tpNotes"${tp.notes?' checked':''}><i></i><span>自分で置いた音符も動かす</span></label>
      ${song?`<label class="sv-switch"><input type="checkbox" id="tpLink"${tp.link?' checked':''}><i></i><span>曲の音程も一緒に変える（${esc(song.title)}）</span></label>`:''}</div>`;
   $('#tpKey').onchange=e=>{tp.key=e.target.value;saveTrack(t);renderTp();renderTpBadge();drawAnnLayer()};
   $('#tpChords').onchange=e=>{tp.chords=e.target.checked;saveTrack(t);drawAnnLayer()};
   $('#tpNotes').onchange=e=>{tp.notes=e.target.checked;saveTrack(t)};
+  $('#tpPrinted').onchange=e=>{tp.printed=e.target.checked;saveTrack(t);renderTp()};
   const l=$('#tpLink');if(l)l.onchange=e=>{tp.link=e.target.checked;saveTrack(t);if(tp.link&&sid)setKeyFor(sid,tp.semi)}}
 /* ---------- 印刷された音符の検出（画像から符頭を見つける） ---------- */
 function labelCC(bin,w,h){const lab=new Int32Array(w*h);let n=0;const st=[];const comps=[];
@@ -2202,6 +2217,10 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
     const hg=c.y1-c.y0+1,wd=c.x1-c.x0+1;if(!loose&&!(hg>=.5*sp&&hg<=1.6*sp&&wd>=.75*sp&&wd<=3.2*sp&&c.cnt>.3*hg*wd))return null;
     const st=staves.reduce((b,s)=>Math.abs(c.cy-(s.top+2*s.sp))<Math.abs(c.cy-(b.top+2*b.sp))?s:b);if(c.cy<st.top-6*sp||c.cy>st.top+10*sp)return null;if(st.sigEnd&&c.cx<st.sigEnd)return null;
     let fill=0;for(let yy=-1;yy<=1;yy++)for(let xx=-1;xx<=1;xx++)fill+=clean[(Math.round(c.cy)+yy)*w+Math.round(c.cx)+xx]||0;fill/=9;
+    /* 白い玉かどうかを濃さでも確かめる：まん中が輪より明らかに明るければ白い玉（にじんだスキャンでも） */
+    {const L=(x,y)=>{const i=(Math.round(y)*w+Math.round(x))*4;return d[i]*.3+d[i+1]*.59+d[i+2]*.11};let cl=0,n=0;for(let yy=-1;yy<=1;yy++)for(let xx=-1;xx<=1;xx++){cl+=L(c.cx+xx,c.cy+yy);n++}cl/=n;
+     const ring=[];const rx=(c.x1-c.x0)/2,ry=(c.y1-c.y0)/2;for(let k=0;k<16;k++){const a=k/16*Math.PI*2;ring.push(L(c.cx+Math.cos(a)*rx*.8,c.cy+Math.sin(a)*ry*.75))}ring.sort((p,q)=>p-q);const rl=ring.slice(0,8).reduce((p,q)=>p+q,0)/8;
+     c._cl=cl}
     const hw=wd/2,hh=hg/2;let best=null;
     for(let x=Math.floor(c.cx+hw-stemw-2);x<=Math.ceil(c.cx+hw+sp*.3);x++){if(x<0||x>=w)continue;const n=vrun(x,Math.round(c.cy-hh)+1,-1);if(n>sp*1.8&&(!best||n>best.n))best={d:'u',n,x}}
     for(let x=Math.floor(c.cx-hw-sp*.3);x<=Math.ceil(c.cx-hw+stemw+2);x++){if(x<0||x>=w)continue;const n=vrun(x,Math.round(c.cy+hh)-1,1);if(n>sp*1.8&&(!best||n>best.n))best={d:'d',n,x}}
@@ -2237,7 +2256,7 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
     const ly=[];for(let j=0;j<5;j++){const ye=st.top+j*st.sp;if(ye<by0-1||ye>by1+1)continue;const r=Math.max(2,Math.round(st.sp*.3)),acc=new Array(2*r+1).fill(0);
       for(const[xa,xb]of[[Math.round(bx0-sp*1.5),Math.round(bx0)-1],[Math.round(bx1)+1,Math.round(bx1+sp*1.5)]])for(let x=Math.max(0,xa);x<=Math.min(w-1,xb);x++)for(let k=-r;k<=r;k++){const y=Math.round(ye)+k;if(y<0||y>=h)continue;const i=(y*w+x)*4;acc[k+r]+=255-(d[i]*.3+d[i+1]*.59+d[i+2]*.11)}
       let sw=0,sy=0;const mx=Math.max(...acc);if(mx>0){for(let k=0;k<acc.length;k++)if(acc[k]>mx*.5){sw+=acc[k];sy+=acc[k]*(k-r)}ly.push([ye/sc,(Math.round(ye)+sy/sw)/sc])}}
-    return({_sx:best?best.x:null,_c:[c.cx,c.cy,fill],ly,x:c.cx/sc,y:(st.top+ps*st.sp/2)/sc,ps,sp:st.sp/sc,t,d:dot,sd:best?best.d:null,...(best&&best.bm?{bm:{x:best.bm.x/sc,y:best.bm.y/sc}}:{}),box:{x:bx0/sc,y:by0/sc,w:(bx1-bx0)/sc,h:(by1-by0)/sc}})};
+    return({_cl:c._cl,_sx:best?best.x:null,_c:[c.cx,c.cy,fill],ly,x:c.cx/sc,y:(st.top+ps*st.sp/2)/sc,ps,sp:st.sp/sc,t,d:dot,sd:best?best.d:null,...(best&&best.bm?{bm:{x:best.bm.x/sc,y:best.bm.y/sc}}:{}),box:{x:bx0/sc,y:by0/sc,w:(bx1-bx0)/sc,h:(by1-by0)/sc}})};
   /* 上下に重なった2つの玉（3度の和音・二重唱）は、一番細い行で上下に分ける */
   /* くっついた玉を分ける：縦に長ければ一番細い行で、横に長ければ一番細い列で（最大3段まで） */
   const part=(c,x0,x1,y0,y1)=>{let n=0,sx=0,sy=0,a=1e9,b=-1,e=1e9,f=-1;for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(ho[y*w+x]){n++;sx+=x;sy+=y;if(x<a)a=x;if(x>b)b=x;if(y<e)e=y;if(y>f)f=y}return n?{x0:a,x1:b,y0:e,y1:f,cnt:n,cx:sx/n,cy:sy/n,cut:1}:null};
@@ -2294,13 +2313,17 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
         const Y=Math.round(st.top+ps*st.sp/2),hw2=Math.round(sp*.65),hh2=Math.round(sp*.45);let n=0,tot=0,inner=0;for(let y=Y-hh2;y<=Y+hh2;y++)for(let x=cx0-hw2;x<=cx0+hw2;x++){if(x<0||y<0||x>=w||y>=h)continue;tot++;if(ink[y*w+x]){n++;if(Math.abs(x-cx0)<hw2*.4&&Math.abs(y-Y)<hh2*.4)inner++}}
         /* 白い玉（輪の形）のときだけ置く：まわりに黒、まん中が白 */if(!tot||n<tot*.3||inner>2)return null;{let ring=0;for(const[dx,dy]of[[-hw2*.7,0],[hw2*.7,0],[0,-hh2*.8],[0,hh2*.8]]){const x=Math.round(cx0+dx),y=Math.round(Y+dy);let f=0;for(let k=-1;k<=1;k++)if(ink[(y+k)*w+x]||ink[y*w+x+k])f=1;ring+=f}if(ring<4)return null}return{x:cx0/sc,y:Y/sc,ps,sp:st.sp/sc,t:'h',d:false,sd:null,ly:[],box:{x:(cx0-hw2-pd)/sc,y:(Y-hh2-pd)/sc,w:(2*hw2+2*pd)/sc,h:(2*hh2+2*pd)/sc}}};
       const hd=viaPick(pick(mk(clean,true))||pick(mk(ho,false)))||viaTM()||viaSyn();if(hd)hd.manual=true;return fixHead(hd)}};
+  /* ページ全体で比べて、まん中が黒い玉よりはっきり明るいものは白い玉（2分）にする（にじんで中が埋まったスキャン向け） */
+  {const cls=heads.filter(x=>x._cl!=null&&x.t!=='h'&&x.t!=='w').map(x=>x._cl).sort((a,b)=>a-b);if(cls.length>=8){const m=cls[Math.floor(cls.length*.3)];for(const hd of heads){if(hd._cl!=null&&hd.t==='q'&&!hd.bm&&hd._cl>m+38)hd.t='h'}}}
   for(const hd of heads)fixHead(hd);
   {const t=curT();const whs=t?(scEd(t).ann[SV.o]||[]).filter(i=>i.k==='wh'):[];for(const hd of heads){for(const wv of whs){const B=rotRect(g.r,g.W,g.H,wv);if(hd.x>=B.x&&hd.x<=B.x+B.w&&hd.y>=B.y&&hd.y<=B.y+B.h){hd.used=true;break}}}}
   return SV.heads[key]=heads}
 /* 印刷された音符 → 編集できる音符に変換 */
-function adoptHead(hd,quiet){const t=curT();if(!t||!SV.g)return null;const g=SV.g;const snap=snapEd();pushUndo(snap);const a=annOf(SV.o);
-  const B=unrotRect(g.r,g.W,g.H,hd.box),wh={k:'wh',x:+B.x.toFixed(1),y:+B.y.toFixed(1),w:+B.w.toFixed(1),h:+B.h.toFixed(1)};attachStaff(wh,hd.box,hd.ly);
-  const p=unrotPt(g.r,g.W,g.H,hd.x,hd.y),nt={k:'nt',t:hd.t,x:+p[0].toFixed(1),y:+p[1].toFixed(1),sp:+hd.sp.toFixed(2),ps:hd.ps,c:'#14161B'};if(hd.d)nt.d=true;if(hd.sd)nt.sd=hd.sd;if(hd.bm){const q=unrotPt(g.r,g.W,g.H,hd.bm.x,hd.bm.y);nt.bm=[+q[0].toFixed(1),+q[1].toFixed(1)]}
+/* 印刷された音符 → 白で消す枠＋編集できる音符（副作用なし） */
+function headItems(hd){const g=SV.g;const B=unrotRect(g.r,g.W,g.H,hd.box),wh={k:'wh',x:+B.x.toFixed(1),y:+B.y.toFixed(1),w:+B.w.toFixed(1),h:+B.h.toFixed(1)};attachStaff(wh,hd.box,hd.ly);
+  const p=unrotPt(g.r,g.W,g.H,hd.x,hd.y),nt={k:'nt',t:hd.t,x:+p[0].toFixed(1),y:+p[1].toFixed(1),sp:+hd.sp.toFixed(2),ps:hd.ps,c:'#14161B',pr:1};if(hd.d)nt.d=true;if(hd.sd)nt.sd=hd.sd;if(hd.bm){const q=unrotPt(g.r,g.W,g.H,hd.bm.x,hd.bm.y);nt.bm=[+q[0].toFixed(1),+q[1].toFixed(1)]}
+  return[wh,nt]}
+function adoptHead(hd,quiet){const t=curT();if(!t||!SV.g)return null;const snap=snapEd();pushUndo(snap);const a=annOf(SV.o);const[wh,nt]=headItems(hd);
   a.push(wh,nt);SV.sel=a.length-1;hd.used=true;saveEdSoon();drawAnnLayer();renderTools();if(!quiet)toast('音符を動かせるようにしました。ドラッグで移動、下で種類を変更できます');return{i:SV.sel,it:nt,snap}}
 /* 長押しで外した印（誤検出）を覚えておく */
 function headOff(hd){if(hd.used)return true;const t=curT();const L=t&&t.score.edit&&t.score.edit.hid&&t.score.edit.hid[SV.o];if(!L||!L.length)return false;const g=SV.g;for(const[x,y]of L){const p=rotPt(g.r,g.W,g.H,x,y);if(Math.hypot(p[0]-hd.x,p[1]-hd.y)<hd.sp*.7)return true}return false}
@@ -2699,6 +2722,7 @@ document.addEventListener('click',e=>{
     if(act==='svNotes'){if(!SV.doc){toast('楽譜を開いてから使えます');return}if(!SV.edit)setEdit(true);SV.tool='pr';SV.sel=null;setStageTool();renderTools();drawAnnLayer();findHeads();return}
     if(act==='svTp'){if(!SV.doc){toast('楽譜を開いてから使えます');return}setTpOpen(!SV.tp);return}
     if(act==='tpStep'){const t=curT();if(t)setTpSemi(t,tpOf(t).semi+(+a.dataset.d));return}
+    if(act==='tpDone'){setTpOpen(false);const t=curT();if(t&&tpOf(t).printed&&tpOf(t).semi)transposeAllPrinted(t);return}
     if(act==='tpReset'){const t=curT();if(t)setTpSemi(t,0);return}
     if(act==='svMode'){const m=a.dataset.m;SV.lastTool=SV.lastTool||{};SV.lastTool[toolMode(SV.tool)]=SV.tool;SV.tool=m==='page'?'hand':(SV.lastTool[m]||(m==='note'?'pr':'pen'));SV.sel=null;setStageTool();renderTools();drawAnnLayer();if(SV.tool==='pr')findHeads();return}
     if(act==='tipsClose'){const x=$('#svTips');if(x)x.remove();try{localStorage.setItem('crate.scoreTips','1')}catch(_){}return}
