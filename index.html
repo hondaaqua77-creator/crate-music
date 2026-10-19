@@ -1999,9 +1999,9 @@ let glyphIcons={};function glyphIcon(t){if(glyphIcons[t])return glyphIcons[t];co
   ctx.save();const ps=t==='r1'?2:t==='r2'?4:t[0]==='r'?4:t==='sh'||t==='fl'||t==='na'?5:5;ctx.translate(20*z,(10+ps*3.5)*z);drawGlyph(ctx,{t,ps,c:'#14161B'},s);ctx.restore();return glyphIcons[t]=cv.toDataURL()}
 /* 五線の自動検出（表示の向き・ページ全体の座標で返す） */
 async function detectStaves(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${SV.o}|${g.r}`;SV.staves=SV.staves||{};if(SV.staves[key])return SV.staves[key];
-  const page=await SV.doc.getPage(SV.o),F=fullRect(g),sc=Math.min(3,1100/F.w);const r=await renderPageCanvas(page,g,sc,F);try{await r.task.promise}catch(_){return[]}
+  const page=await SV.doc.getPage(SV.o),F=fullRect(g),sc=Math.min(8,2400/Math.max(F.w,F.h));const r=await renderPageCanvas(page,g,sc,F);try{await r.task.promise}catch(_){return[]}
   const w=r.cv.width,h=r.cv.height,d=r.cv.getContext('2d').getImageData(0,0,w,h).data,rows=[];
-  for(let y=0;y<h;y++){let n=0,run=0,best=0;for(let x=0;x<w;x++){const i=(y*w+x)*4;if(d[i]*.3+d[i+1]*.59+d[i+2]*.11<150){n++;run++;if(run>best)best=run}else run=0}rows.push(best)}
+  for(let y=0;y<h;y++){let n=0,run=0,best=0;for(let x=0;x<w;x++){const i=(y*w+x)*4;if(d[i]*.3+d[i+1]*.59+d[i+2]*.11<205){n++;run++;if(run>best)best=run}else run=0}rows.push(best)}
   const lines=[],ths=[];for(let y=0;y<h;y++){if(rows[y]>w*.18){let y2=y;while(y2+1<h&&rows[y2+1]>w*.18)y2++;lines.push((y+y2)/2);ths.push(y2-y+1);y=y2}}
   const st=[];for(let i=0;i+4<lines.length;){const L=lines.slice(i,i+5),df=[1,2,3,4].map(j=>L[j]-L[j-1]),m=df.reduce((a,b)=>a+b)/4;
     if(m>2&&df.every(v=>Math.abs(v-m)<m*.25)){st.push({top:L[0]/sc,sp:m/sc,th:Math.max(.5,ths.slice(i,i+5).reduce((a,b)=>a+b)/5/sc),x0:0,x1:w/sc});i+=5}else i++}
@@ -2119,27 +2119,28 @@ function hOpen(bin,w,h,k){const er=new Uint8Array(w*h),out=new Uint8Array(w*h);
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){let ok=1;for(let d=-k;d<=k;d++){const xx=x+d;if(xx<0||xx>=w||!bin[y*w+xx]){ok=0;break}}er[y*w+x]=ok}
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){let v=0;for(let d=-k;d<=k;d++){const xx=x+d;if(xx>=0&&xx<w&&er[y*w+xx]){v=1;break}}out[y*w+x]=v}return out}
 /* 戻り値：表示座標（ページ全体、回転後）での符頭リスト */
-async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${SV.o}|${g.r}`;SV.heads=SV.heads||{};if(SV.heads[key])return SV.heads[key];
-  const page=await SV.doc.getPage(SV.o),F=fullRect(g),sc=Math.min(2.6,(isMobile()?1200:1500)/Math.max(F.w,F.h));const r=await renderPageCanvas(page,g,sc,F);try{await r.task.promise}catch(_){return[]}
+async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${SV.o}|${g.r}`;SV.heads=SV.heads||{};if(SV.heads[key])return SV.heads[key];{const st0=await detectStaves();if(st0.length)SV.lastSp=st0.reduce((a,b)=>a+b.sp,0)/st0.length}
+  const page=await SV.doc.getPage(SV.o),F=fullRect(g),sc=Math.min(8,Math.max(2.6,16/Math.max(.5,(SV.lastSp||7))),(isMobile()?2200:2600)/Math.max(F.w,F.h));const r=await renderPageCanvas(page,g,sc,F);try{await r.task.promise}catch(_){return[]}
   await new Promise(r=>setTimeout(r,0));const w=r.cv.width,h=r.cv.height,d=r.cv.getContext('2d').getImageData(0,0,w,h).data,ink=new Uint8Array(w*h);
-  for(let i=0;i<w*h;i++)ink[i]=(d[i*4]*.3+d[i*4+1]*.59+d[i*4+2]*.11)<150?1:0;
+  for(let i=0;i<w*h;i++)ink[i]=(d[i*4]*.3+d[i*4+1]*.59+d[i*4+2]*.11)<170?1:0;
   const staves=(await detectStaves()).map(s=>({top:s.top*sc,sp:s.sp*sc,th:(s.th||.8)*sc}));if(!staves.length)return SV.heads[key]=[];
   const clean=ink.slice();
   for(const s of staves)for(let j=0;j<5;j++){const yc=Math.round(s.top+j*s.sp),hh=Math.ceil(s.th/2)+1;for(let x=0;x<w;x++){const up=yc-hh-2,dn=yc+hh+2;if((up<0||!ink[up*w+x])&&(dn>=h||!ink[dn*w+x]))for(let y=Math.max(0,yc-hh);y<=Math.min(h-1,yc+hh);y++)clean[y*w+x]=0}}
   const sp=staves.reduce((a,s)=>a+s.sp,0)/staves.length,stemw=Math.max(1,Math.round(sp*.18));
   let dl=clean;const nd=Math.max(1,Math.round(sp*.12));for(let i=0;i<nd;i++)dl=dil3(dl,w,h);let fl=fillHoles(dl,w,h);for(let i=0;i<nd;i++)fl=ero3(fl,w,h);for(let i=0;i<w*h;i++)if(clean[i])fl[i]=1;const comps=labelCC(hOpen(fl,w,h,stemw),w,h);const heads=[];
   const vrun=(x,y0,dir)=>{let n=0,y=y0;while(y>=0&&y<h&&clean[y*w+x]){n++;y+=dir}return n};
-  for(const c of comps){const hg=c.y1-c.y0+1,wd=c.x1-c.x0+1;if(!(hg>=.6*sp&&hg<=1.6*sp&&wd>=.9*sp&&wd<=2.3*sp&&c.cnt>.3*hg*wd))continue;
+  for(const c of comps){const hg=c.y1-c.y0+1,wd=c.x1-c.x0+1;if(!(hg>=.5*sp&&hg<=1.6*sp&&wd>=.75*sp&&wd<=3.2*sp&&c.cnt>.3*hg*wd))continue;
     const st=staves.reduce((b,s)=>Math.abs(c.cy-(s.top+2*s.sp))<Math.abs(c.cy-(b.top+2*b.sp))?s:b);if(c.cy<st.top-6*sp||c.cy>st.top+10*sp)continue;
     let fill=0;for(let yy=-1;yy<=1;yy++)for(let xx=-1;xx<=1;xx++)fill+=clean[(Math.round(c.cy)+yy)*w+Math.round(c.cx)+xx]||0;fill/=9;
     const hw=wd/2,hh=hg/2;let best=null;
     for(let x=Math.floor(c.cx+hw-stemw-1);x<=Math.ceil(c.cx+hw+1);x++){if(x<0||x>=w)continue;const n=vrun(x,Math.round(c.cy-hh)+1,-1);if(n>sp*1.8&&(!best||n>best.n))best={d:'u',n,x}}
     for(let x=Math.floor(c.cx-hw-1);x<=Math.ceil(c.cx-hw+stemw+1);x++){if(x<0||x>=w)continue;const n=vrun(x,Math.round(c.cy+hh)-1,1);if(n>sp*1.8&&(!best||n>best.n))best={d:'d',n,x}}
+    {const ps0=Math.round((c.cy-st.top)/(st.sp/2));if(!best&&(ps0<-3||ps0>11))continue}
     let t=!best?'w':fill<.5?'h':'q';
     if(best&&fill>=.5){const ey=best.d==='u'?Math.round(c.cy-hh+1-best.n):Math.round(c.cy+hh-1+best.n);const y0=best.d==='u'?Math.max(0,ey-Math.round(sp*.3)):Math.max(0,ey-Math.round(sp*1.6)),y1=best.d==='u'?Math.min(h,ey+Math.round(sp*1.6)):Math.min(h,ey+Math.round(sp*.3)),x0=best.x+stemw+1,x1=Math.min(w,best.x+Math.round(sp*1.3));
       let s=0,nn=0;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){s+=clean[y*w+x];nn++}if(nn&&s/nn>.10)t='8'}
     let dot=false;{const x0=Math.round(c.cx+hw+2),x1=Math.min(w,Math.round(c.cx+hw+sp*1.1)),y0=Math.round(c.cy-sp*.6),y1=Math.round(c.cy+sp*.6);let s=0;for(let y=Math.max(0,y0);y<y1;y++)for(let x=x0;x<x1;x++)s+=clean[y*w+x];dot=s>3&&s<sp*sp*.4}
-    const ps=Math.round((c.cy-st.top)/(st.sp/2))||0;
+    const ps=Math.round((c.cy-st.top)/(st.sp/2))||0;if(ps<-7||ps>15)continue;
     // 消去範囲：符頭＋符尾＋旗（表示座標）
     let bx0=c.x0-2,bx1=c.x1+2,by0=c.y0-2,by1=c.y1+2;if(best){if(best.d==='u'){by0=Math.min(by0,c.cy-hh+1-best.n-2);bx1=Math.max(bx1,best.x+(t==='8'?sp*1.4:stemw+2))}else{by1=Math.max(by1,c.cy+hh-1+best.n+2);bx0=Math.min(bx0,best.x-2);bx1=Math.max(bx1,best.x+(t==='8'?sp*1.2:stemw+2))}}
     if(dot)bx1=Math.max(bx1,c.cx+hw+sp*1.1);
@@ -2504,7 +2505,7 @@ document.addEventListener('click',e=>{
     if(act==='scoreCloseNow'){closeSheet();closeScore();return}
     if(act==='scoreSaveClose'){closeSheet();exportScore();return}
     if(act==='svEdit'){if(!SV.doc){toast('楽譜PDFを取り込んでから使えます');return}setEdit(!SV.edit);return}
-    if(act==='svNotes'){if(!SV.doc){toast('楽譜を開いてから使えます');return}if(SV.edit&&SV.tool==='pr'){setEdit(false);return}if(!SV.edit)setEdit(true);SV.tool='pr';SV.sel=null;setStageTool();renderTools();drawAnnLayer();{const nb=$('#svNoteBtn');if(nb)nb.classList.add('primary')}progress('音符を探しています…');detectHeads().then(hs=>{progress(null);drawAnnLayer();renderTools();toast(hs.length?`${hs.length}個の音符に印を付けました。印を指で動かしてください`:'このページで音符を見つけられませんでした。写真の場合は、明るくまっすぐ撮り直すと見つかりやすくなります')});return}
+    if(act==='svNotes'){if(!SV.doc){toast('楽譜を開いてから使えます');return}if(SV.edit&&SV.tool==='pr'){setEdit(false);return}if(!SV.edit)setEdit(true);SV.tool='pr';SV.sel=null;setStageTool();renderTools();drawAnnLayer();{const nb=$('#svNoteBtn');if(nb)nb.classList.add('primary')}progress('音符を探しています…');detectHeads().then(hs=>{progress(null);{const spx=(SV.lastSp||7)*baseScale()*SV.z;if(hs.length&&spx<10){const{w,h}=stageSize();zoomAt(SV.z*10/spx,w/2,h/3)}}drawAnnLayer();renderTools();toast(hs.length?`${hs.length}個の音符に印を付けました。印をタップしてください`:'このページで音符を見つけられませんでした。写真の場合は、明るくまっすぐ撮り直すと見つかりやすくなります')});return}
     if(act==='svTp'){if(!SV.doc){toast('楽譜を開いてから使えます');return}setTpOpen(!SV.tp);return}
     if(act==='tpStep'){const t=curT();if(t)setTpSemi(t,tpOf(t).semi+(+a.dataset.d));return}
     if(act==='tpReset'){const t=curT();if(t)setTpSemi(t,0);return}
