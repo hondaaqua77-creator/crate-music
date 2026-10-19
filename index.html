@@ -2196,7 +2196,7 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
     {const ps0=Math.round((c.cy-st.top)/(st.sp/2));if(!loose&&!best&&(ps0<-3||ps0>11))return null}
     if(!best&&!loose){const r=wd/hg;if(r<1.1||r>2.2||hg>sp*1.3||fill>=.5)return null}
     /* 玉は楕円なので四隅が空く：四隅が埋まっているもの（連桁の切れ端・休符など）は除く */
-    if(!c0.cut){const cw=Math.max(1,Math.round(wd*.18)),ch=Math.max(1,Math.round(hg*.18));let full=0;for(const[x0,y0]of[[c.x0,c.y0],[c.x1-cw+1,c.y0],[c.x0,c.y1-ch+1],[c.x1-cw+1,c.y1-ch+1]]){let n=0;for(let y=y0;y<y0+ch;y++)for(let x=x0;x<x0+cw;x++)n+=ho[y*w+x]||0;if(n>=cw*ch*.9)full++}if(full>=3)return null}
+    if(!c0.cut&&wd>=sp*1.1){const cw=Math.max(1,Math.round(wd*.18)),ch=Math.max(1,Math.round(hg*.18));let full=0;for(const[x0,y0]of[[c.x0,c.y0],[c.x1-cw+1,c.y0],[c.x0,c.y1-ch+1],[c.x1-cw+1,c.y1-ch+1]]){let n=0;for(let y=y0;y<y0+ch;y++)for(let x=x0;x<x0+cw;x++)n+=ho[y*w+x]||0;if(n>=cw*ch*.9)full++}if(full>=3)return null}
     let t=!best?'w':fill<.5?'h':'q';
     if(best&&fill>=.5){const ey=best.d==='u'?Math.round(c.cy-hh+1-best.n):Math.round(c.cy+hh-1+best.n);const y0=best.d==='u'?Math.max(0,ey-Math.round(sp*.3)):Math.max(0,ey-Math.round(sp*1.6)),y1=best.d==='u'?Math.min(h,ey+Math.round(sp*1.6)):Math.min(h,ey+Math.round(sp*.3)),x0=best.x+stemw+1,x1=Math.min(w,best.x+Math.round(sp*1.3));
       let s=0,nn=0;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){s+=clean[y*w+x];nn++}if(nn&&s/nn>.10){t='8';
@@ -2225,13 +2225,26 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
     const ly=[];for(let j=0;j<5;j++){const ye=st.top+j*st.sp;if(ye<by0-1||ye>by1+1)continue;const r=Math.max(2,Math.round(st.sp*.3)),acc=new Array(2*r+1).fill(0);
       for(const[xa,xb]of[[Math.round(bx0-sp*1.5),Math.round(bx0)-1],[Math.round(bx1)+1,Math.round(bx1+sp*1.5)]])for(let x=Math.max(0,xa);x<=Math.min(w-1,xb);x++)for(let k=-r;k<=r;k++){const y=Math.round(ye)+k;if(y<0||y>=h)continue;const i=(y*w+x)*4;acc[k+r]+=255-(d[i]*.3+d[i+1]*.59+d[i+2]*.11)}
       let sw=0,sy=0;const mx=Math.max(...acc);if(mx>0){for(let k=0;k<acc.length;k++)if(acc[k]>mx*.5){sw+=acc[k];sy+=acc[k]*(k-r)}ly.push([ye/sc,(Math.round(ye)+sy/sw)/sc])}}
-    return({ly,x:c.cx/sc,y:(st.top+ps*st.sp/2)/sc,ps,sp:st.sp/sc,t,d:dot,sd:best?best.d:null,...(best&&best.bm?{bm:{x:best.bm.x/sc,y:best.bm.y/sc}}:{}),box:{x:bx0/sc,y:by0/sc,w:(bx1-bx0)/sc,h:(by1-by0)/sc}})};
+    return({_c:[c.cx,c.cy,fill],ly,x:c.cx/sc,y:(st.top+ps*st.sp/2)/sc,ps,sp:st.sp/sc,t,d:dot,sd:best?best.d:null,...(best&&best.bm?{bm:{x:best.bm.x/sc,y:best.bm.y/sc}}:{}),box:{x:bx0/sc,y:by0/sc,w:(bx1-bx0)/sc,h:(by1-by0)/sc}})};
   /* 上下に重なった2つの玉（3度の和音・二重唱）は、一番細い行で上下に分ける */
   const split=c=>{const hg=c.y1-c.y0+1,wd=c.x1-c.x0+1;if(!(hg>1.55*sp&&hg<=3.1*sp&&wd>=.75*sp&&wd<=2.6*sp))return[c];const rows=[];for(let y=c.y0;y<=c.y1;y++){let n=0;for(let x=c.x0;x<=c.x1;x++)n+=ho[y*w+x];rows.push(n)}
     let cut=-1,mn=1e9;for(let k=Math.round(hg*.3);k<=Math.round(hg*.7);k++)if(rows[k]<mn){mn=rows[k];cut=k}if(cut<0||mn>Math.max(...rows)*.92)return[c];
     const part=(y0,y1)=>{let n=0,sx=0,sy=0,a=1e9,b=-1,e=1e9,f=-1;for(let y=y0;y<=y1;y++)for(let x=c.x0;x<=c.x1;x++)if(ho[y*w+x]){n++;sx+=x;sy+=y;if(x<a)a=x;if(x>b)b=x;if(y<e)e=y;if(y>f)f=y}return n?{x0:a,x1:b,y0:e,y1:f,cnt:n,cx:sx/n,cy:sy/n,cut:1}:null};
     return[part(c.y0,c.y0+cut),part(c.y0+cut+1,c.y1)].filter(Boolean)};
   for(const c0 of comps)for(const c of split(c0)){const hd=analyze(c,false);if(hd)heads.push(hd)}
+  /* テンプレート照合：見つかった黒い玉の平均の形で、五線の各高さを横に探して、取りこぼした玉を拾う（重なった二重唱・つながった玉など） */
+  let TM=null;{const TW=Math.round(sp*1.5)|1,TH=Math.round(sp*1.05)|1,hw=TW>>1,hh=TH>>1,lum=i=>255-(d[i*4]*.3+d[i*4+1]*.59+d[i*4+2]*.11);
+   const mk=list=>{if(list.length<4)return null;const T=new Float32Array(TW*TH);for(const hd of list){const[cx,cy]=hd._c;for(let y=0;y<TH;y++)for(let x=0;x<TW;x++){const X=Math.round(cx)-hw+x,Y=Math.round(cy)-hh+y;if(X>=0&&X<w&&Y>=0&&Y<h)T[y*TW+x]+=lum(Y*w+X)}}
+     let m=0;for(const v of T)m+=v;m/=T.length;let q=0;for(let i=0;i<T.length;i++){T[i]-=m;q+=T[i]*T[i]}q=Math.sqrt(q)||1;for(let i=0;i<T.length;i++)T[i]/=q;return T};
+   const Tf=mk(heads.filter(x=>x._c&&x._c[2]>=.5&&x.sd)),Th=mk(heads.filter(x=>x._c&&x._c[2]<.5&&x.sd));
+   const ncc=(T,X,Y)=>{let s1=0,s2=0,sx=0;for(let y=0;y<TH;y++){const r=(Y-hh+y)*w;for(let x=0;x<TW;x++){const v=lum(r+X-hw+x);s1+=v;s2+=v*v;sx+=v*T[y*TW+x]}}const n=TW*TH,vr=s2-s1*s1/n;return vr>1?sx/Math.sqrt(vr):0};
+   TM={Tf,ncc,TW,TH,hw,hh};const hits=[];for(const st of staves){const xs=Math.max(hw+1,Math.round((st.sigEnd||st.x0||0)+sp*.3));for(let ps=-5;ps<=13;ps++){const Y0=Math.round(st.top+ps*st.sp/2);if(Y0-hh-2<0||Y0+hh+2>=h)continue;
+     for(let X=xs;X<w-hw-1;X+=2)for(const[T,kind]of[[Tf,'f'],[Th,'h']]){if(!T)continue;let v=ncc(T,X,Y0);if(v<.55)continue;let bx=X,by=Y0;for(const[dx,dy]of[[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[1,1]]){const u=ncc(T,X+dx,Y0+dy);if(u>v){v=u;bx=X+dx;by=Y0+dy}}if(v>=(kind==='f'?.82:.88))hits.push({x:bx,y:by,v,kind,st})}}}
+   hits.sort((a,b)=>b.v-a.v);const acc=[];for(const p of hits){if(acc.some(q=>Math.abs(q.x-p.x)<sp*.8&&Math.abs(q.y-p.y)<sp*.7))continue;if(heads.some(q=>Math.abs(q.x*sc-p.x)<sp*.8&&Math.abs(q.y*sc-p.y)<sp*.7))continue;acc.push(p)}
+   for(const p of acc){const c={x0:p.x-hw,x1:p.x+hw,y0:p.y-hh,y1:p.y+hh,cx:p.x,cy:p.y,cnt:TW*TH};let hd=analyze(c,true);
+     if(!hd){const st=p.st,ps=Math.round((p.y-st.top)/(st.sp/2));const pd=Math.max(2,Math.round(sp*.2));hd={x:p.x/sc,y:(st.top+ps*st.sp/2)/sc,ps,sp:st.sp/sc,t:p.kind==='h'?'h':'q',d:false,sd:null,ly:[],box:{x:(p.x-hw-pd)/sc,y:(p.y-hh-pd)/sc,w:(TW+2*pd)/sc,h:(TH+2*pd)/sc}}}
+     else if(p.kind==='h'&&hd.t==='q')hd.t='h';else if(p.kind==='f'&&hd.t==='w')hd.t='q';
+     hd.tm=1;hd.v=+p.v.toFixed(3);heads.push(hd)}}
   /* 旗の先などを玉と間違えたもの：別の音符の符尾・旗の範囲の中にあり、和音のように縦に並んでいないものは除く */
   {const bad=new Set();for(const hd of heads)for(const o of heads){if(o===hd||!o.sd)continue;const B=o.box;if(hd.x>B.x&&hd.x<B.x+B.w&&hd.y>B.y&&hd.y<B.y+B.h&&Math.abs(hd.x-o.x)>o.sp*.25&&Math.hypot(hd.x-o.x,hd.y-o.y)>o.sp*.8){bad.add(hd);break}}
    for(let i=heads.length-1;i>=0;i--)if(bad.has(heads[i]))heads.splice(i,1)}
@@ -2247,15 +2260,22 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
           const seen=new Uint8Array(W*H),st=[sd];seen[sd]=1;let n=0,sx=0,sy=0,a=W,b=0,e=H,f=0;while(st.length){const p=st.pop(),x=p%W,y=(p-x)/W;n++;sx+=x;sy+=y;if(x<a)a=x;if(x>b)b=x;if(y<e)e=y;if(y>f)f=y;
             for(const[q,qx,qy]of[[p-1,x-1,y],[p+1,x+1,y],[p-W,x,y-1],[p+W,x,y+1]])if(qx>=lx&&qx<=hx&&qy>=ly&&qy<=hy&&m[q]&&!seen[q]){seen[q]=1;st.push(q)}}
           return{a,b,e,f,n,cx:sx/n,cy:sy/n,lx,hx,ly,hy}};
-        const sx0=seed%W,sy0=(seed-sx0)/W;let r=grow(sx0,sy0,sp*1.1,sp*.8);if(!r)return null;r=grow(r.cx,r.cy,sp*1.05,sp*.55)||r;
+        const sx0=seed%W,sy0=(seed-sx0)/W;let r=grow(sx0,sy0,sp*1.1,sp*.8);if(!r)return null;if(r.e<=r.ly&&r.f>=r.hy&&r.b-r.a+1<sp*1.0)return null;if(r.f-r.e+1>sp*1.3)r=grow(sx0,(sy0+r.cy)/2,sp*1.05,sp*.5)||r;else r=grow(r.cx,r.cy,sp*1.05,sp*.55)||r;
         if(r.a<=r.lx&&r.b>=r.hx)return null;
         const c={x0:r.a+x0,x1:r.b+x0,y0:r.e+y0,y1:r.f+y0,cnt:r.n,cx:r.cx+x0,cy:r.cy+y0},hg=c.y1-c.y0+1,wd=c.x1-c.x0+1;if(hg<sp*.5||wd<sp*.6||r.n<.4*hg*wd)return null;return c};
-      const c=pick(mk(clean,true))||pick(mk(ho,false));if(!c)return null;
-      const hd=analyze(c,true);if(!hd)return null;
-      /* 符尾のない玉は、五線の中か近く、白い楕円の形のときだけ（休符・♭・文字・タイを除く） */
-      if(!hd.sd){const hg=c.y1-c.y0+1,wd=c.x1-c.x0+1;let fill=0;for(let yy=-1;yy<=1;yy++)for(let xx=-1;xx<=1;xx++)fill+=clean[(Math.round(c.cy)+yy)*w+Math.round(c.cx)+xx]||0;
-        if(hd.ps<-3||hd.ps>11||wd/hg<1.15||wd/hg>2.1||hg>sp*1.25||wd<sp*1.0||fill>=5)return null}
-      hd.manual=true;return hd}};
+      const nearSt=yy=>staves.reduce((b,s)=>Math.abs(yy-(s.top+2*s.sp))<Math.abs(yy-(b.top+2*b.sp))?s:b),pd=Math.max(2,Math.round(sp*.2));
+      /* ①かたまりから　②玉の形（テンプレート）で指の近くを探して　③それでもだめなら指の位置の五線の高さに玉を置く */
+      const viaPick=c=>{if(!c)return null;const hd=analyze(c,true);if(!hd)return null;
+        if(!hd.sd){const hg=c.y1-c.y0+1,wd=c.x1-c.x0+1;let fill=0;for(let yy=-1;yy<=1;yy++)for(let xx=-1;xx<=1;xx++)fill+=clean[(Math.round(c.cy)+yy)*w+Math.round(c.cx)+xx]||0;
+          if(hd.ps<-3||hd.ps>11||wd/hg<1.15||wd/hg>2.1||hg>sp*1.25||wd<sp*1.0||fill>=5)return null}return hd};
+      const viaTM=()=>{if(!TM||!TM.Tf)return null;let bv=0,bp=null;const st=nearSt(cy0);
+        for(let ps=-6;ps<=14;ps++){const Y=Math.round(st.top+ps*st.sp/2);if(Math.abs(Y-cy0)>sp*1.1||Y-TM.hh<1||Y+TM.hh>=h-1)continue;for(let X=Math.max(TM.hw+1,cx0-Math.round(sp));X<=Math.min(w-TM.hw-2,cx0+Math.round(sp));X++){const v=TM.ncc(TM.Tf,X,Y);if(v>bv){bv=v;bp=[X,Y]}}}
+        if(!bp||bv<.7)return null;if(st.sigEnd&&bp[0]<st.sigEnd+sp*1.6)return null;{let a=bp[1],b=bp[1];while(a>0&&clean[(a-1)*w+bp[0]])a--;while(b<h-1&&clean[(b+1)*w+bp[0]])b++;if(b-a+1>sp*1.8)return null}const c={x0:bp[0]-TM.hw,x1:bp[0]+TM.hw,y0:bp[1]-TM.hh,y1:bp[1]+TM.hh,cx:bp[0],cy:bp[1],cnt:TM.TW*TM.TH};let hd=analyze(c,true);if(hd){if(hd.t==='w')hd.t='q';return hd}
+        const s2=nearSt(c.cy),ps=Math.round((c.cy-s2.top)/(s2.sp/2));return{x:c.cx/sc,y:(s2.top+ps*s2.sp/2)/sc,ps,sp:s2.sp/sc,t:'q',d:false,sd:null,ly:[],box:{x:(c.x0-pd)/sc,y:(c.y0-pd)/sc,w:(c.x1-c.x0+2*pd)/sc,h:(c.y1-c.y0+2*pd)/sc}}};
+      const viaSyn=()=>{const st=nearSt(cy0),ps=Math.round((cy0-st.top)/(st.sp/2));if(ps<-4||ps>12)return null;
+        const Y=Math.round(st.top+ps*st.sp/2),hw2=Math.round(sp*.65),hh2=Math.round(sp*.45);let n=0,tot=0,inner=0;for(let y=Y-hh2;y<=Y+hh2;y++)for(let x=cx0-hw2;x<=cx0+hw2;x++){if(x<0||y<0||x>=w||y>=h)continue;tot++;if(ink[y*w+x]){n++;if(Math.abs(x-cx0)<hw2*.4&&Math.abs(y-Y)<hh2*.4)inner++}}
+        /* 白い玉（輪の形）のときだけ置く：まわりに黒、まん中が白 */if(!tot||n<tot*.3||inner>2)return null;{let ring=0;for(const[dx,dy]of[[-hw2*.7,0],[hw2*.7,0],[0,-hh2*.8],[0,hh2*.8]]){const x=Math.round(cx0+dx),y=Math.round(Y+dy);let f=0;for(let k=-1;k<=1;k++)if(ink[(y+k)*w+x]||ink[y*w+x+k])f=1;ring+=f}if(ring<4)return null}return{x:cx0/sc,y:Y/sc,ps,sp:st.sp/sc,t:'h',d:false,sd:null,ly:[],box:{x:(cx0-hw2-pd)/sc,y:(Y-hh2-pd)/sc,w:(2*hw2+2*pd)/sc,h:(2*hh2+2*pd)/sc}}};
+      const hd=viaPick(pick(mk(clean,true))||pick(mk(ho,false)))||viaTM()||viaSyn();if(hd)hd.manual=true;return hd}};
   {const t=curT();const whs=t?(scEd(t).ann[SV.o]||[]).filter(i=>i.k==='wh'):[];for(const hd of heads){for(const wv of whs){const B=rotRect(g.r,g.W,g.H,wv);if(hd.x>=B.x&&hd.x<=B.x+B.w&&hd.y>=B.y&&hd.y<=B.y+B.h){hd.used=true;break}}}}
   return SV.heads[key]=heads}
 /* 印刷された音符 → 編集できる音符に変換 */
@@ -2330,7 +2350,7 @@ function annOf(o){const e=scEd(curT());return e.ann[o]||(e.ann[o]=[])}
 function startOp(e){const b=cl2base(e),k=SV.tool;
   const grab=h=>{SV.sel=h.i;SV.op={k:'drag',i:h.i,orig:JSON.parse(JSON.stringify(h.it)),s:cl2disp(e),snap:snapEd(),moved:false};renderTools();annSoon();return true};
   if(k==='sel'){const h=hitTest(e);if(h)return grab(h);if(SV.sel!=null){SV.sel=null;renderTools();annSoon()}return false}
-  if(k==='pr'){const h=hitTest(e,['nt']);if(h)return grab(h);const hd=hitHead(e);SV.prTap=null;if(hd){const op={k:'pr',hd,s:cl2disp(e),sc:[e.clientX,e.clientY]};op.lp=setTimeout(()=>{if(SV.op===op){SV.op=null;hideHead(hd)}},600);SV.op=op;return true}if(SV.sel!=null){SV.sel=null;renderTools();annSoon()}else SV.prTap={d:cl2disp(e),t:Date.now()};return false}
+  if(k==='pr'){const h=hitTest(e,['nt']);if(h)return grab(h);let hd=hitHead(e);SV.prTap=null;if(hd&&SV.omr&&SV.omr.key===`${SV.o}|${SV.g.r}`){const d0=cl2disp(e),dd=Math.hypot(d0[0]-hd.x,d0[1]-hd.y);if(dd>hd.sp*.45){const f=SV.omr.find(d0[0],d0[1]);if(f&&Math.hypot(d0[0]-f.x,d0[1]-f.y)<dd-hd.sp*.25&&Math.hypot(f.x-hd.x,f.y-hd.y)>hd.sp*.5){(SV.heads[SV.omr.key]||[]).push(f);hd=f}}}if(hd){const op={k:'pr',hd,s:cl2disp(e),sc:[e.clientX,e.clientY]};op.lp=setTimeout(()=>{if(SV.op===op){SV.op=null;hideHead(hd)}},600);SV.op=op;return true}if(SV.sel!=null){SV.sel=null;renderTools();annSoon()}else SV.prTap={d:cl2disp(e),t:Date.now()};return false}
   if(k==='nt'){const h=hitTest(e,['nt']);if(h)return grab(h);const d=cl2disp(e),op={k:'ntadd',s:d};SV.op=op;
     detectStaves().then(st=>{const sn=snapToStaff(d[0],d[1],st),bb=unrotPt(SV.g.r,SV.g.W,SV.g.H,d[0],sn.Y);const snap=snapEd();
       const it={k:'nt',t:SV.ntType,x:+bb[0].toFixed(1),y:+bb[1].toFixed(1),sp:+sn.sp.toFixed(2),ps:sn.ps,c:SV.color.nt};if(SV.ntDot&&!/^r|sh|fl|na/.test(it.t))it.d=true;
@@ -2358,12 +2378,13 @@ function endOp(e){const op=SV.op;SV.op=null;if(!op)return;const o=SV.o;
   else if(op.k==='rg'){if(op.e){const R=bbox(op.s,op.e);if(R.w>3&&R.h>3){pushUndo(snapEd());const a=annOf(o),it={k:'mv',sx:+R.x.toFixed(1),sy:+R.y.toFixed(1),sw:+R.w.toFixed(1),sh:+R.h.toFixed(1),dx:0,dy:0};a.push(it);SV.sel=a.length-1;saveEdSoon();toast('囲んだ部分をドラッグすると動かせます');renderTools();detectStaves().then(()=>{if(SV.o!==o)return;attachStaff(it,rotRect(SV.g.r,SV.g.W,SV.g.H,R));saveEdSoon();drawAnnLayer()})}}drawAnnLayer()}
   else if(op.k==='er'){if(op.hit){pushUndo(op.snap);saveEdSoon();renderTools();undoToast('消しました')}}
   else if(op.k==='tx'){if(!op.moved){const hit=hitTest(e,['tx']);textSheet(hit?hit.it:null,hit?null:cl2base(e))}}}
-function hitTest(e,only){const t=curT(),items=scEd(t).ann[SV.o]||[],g=SV.g,d=cl2disp(e),cs=baseScale()*SV.z,tol=(SV.tool==='pr'||SV.tool==='sel'?16:10)/cs;
+function hitTest(e,only){let ntBest=null;const t=curT(),items=scEd(t).ann[SV.o]||[],g=SV.g,d=cl2disp(e),cs=baseScale()*SV.z,tol=(SV.tool==='pr'||SV.tool==='sel'?16:10)/cs;
   for(let i=items.length-1;i>=0;i--){const it=items[i];if(only&&!only.includes(it.k))continue;
     if(it.k==='pen'||it.k==='mk'){const p=it.p,lim=tol+it.w/2;let pa=rotPt(g.r,g.W,g.H,p[0],p[1]);if(p.length<=2&&Math.hypot(d[0]-pa[0],d[1]-pa[1])<=lim)return{i,it};
       for(let j=2;j<p.length;j+=2){const pb=rotPt(g.r,g.W,g.H,p[j],p[j+1]);if(segDist(d,pa,pb)<=lim)return{i,it};pa=pb}}
+    else if(it.k==='nt'){/* 音符は中心からの距離で、一番近いものを選ぶ（密集した二重唱で隣を選ばないように） */const a=rotPt(g.r,g.W,g.H,it.x,it.y),dd=Math.hypot(d[0]-a[0],d[1]-a[1]);if(dd<=Math.max(it.sp*.75,12/cs)&&(!ntBest||dd<ntBest.dd))ntBest={i,it,dd}}
     else{const B=itemBox(it,g);if(d[0]>=B.x-tol&&d[0]<=B.x+B.w+tol&&d[1]>=B.y-tol&&d[1]<=B.y+B.h+tol)return{i,it}}}
-  return null}
+  return ntBest?{i:ntBest.i,it:ntBest.it}:null}
 function segDist(p,a,b){const dx=b[0]-a[0],dy=b[1]-a[1],L=dx*dx+dy*dy;let u=L?((p[0]-a[0])*dx+(p[1]-a[1])*dy)/L:0;u=Math.max(0,Math.min(1,u));return Math.hypot(p[0]-a[0]-u*dx,p[1]-a[1]-u*dy)}
 function eraseAt(e){const h=hitTest(e);if(!h)return;annOf(SV.o).splice(h.i,1);SV.sel=null;SV.op.hit=true;annSoon()}
 function textSheet(it,at){const k='tx';sheet(`<h2>${it?'文字を修正':'文字を書き込む'}</h2>
