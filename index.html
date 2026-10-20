@@ -843,7 +843,13 @@ button.badge.key:hover{background:var(--accent);color:#fff}
 .p2-ty{display:flex!important;align-items:center;gap:4px;font-size:12.5px!important}.p2-ty img{width:18px;height:22px;filter:invert(1)}.p2-ty.on{background:#fff!important;color:#15171C!important}.p2-ty.on img{filter:none}
 .p2-ic svg{width:18px;height:18px}
 .p2-bar .p2-pl{display:flex;flex-direction:column;gap:0;line-height:1;font-size:14px;padding:0 6px;min-width:42px}.p2-bar .p2-pl small{font-size:9.5px;font-weight:700;opacity:.8;margin-top:2px}.p2-bar .p2-pl.on{background:#fff;color:#15171C}
-.p2-play{display:flex;gap:4px;margin-top:6px}.p2-play button{flex:1;border:0;height:40px;border-radius:10px;background:rgba(255,255,255,.1);color:#fff;font:inherit;font-weight:800;font-size:14px;white-space:nowrap}.p2-play .p2-loop{flex:0 0 52px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;font-size:17px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.22)}.p2-play .p2-loop small{font-size:9px;font-weight:700;opacity:.8;margin-top:2px}.p2-play .p2-loop.on{background:#fff;color:#15171C;box-shadow:none}
+.p2-play{display:flex;gap:4px;margin-top:6px}.p2-play button{flex:1;border:0;height:40px;border-radius:10px;background:rgba(255,255,255,.1);color:#fff;font:inherit;font-weight:800;font-size:14px;white-space:nowrap}.p2-play2{display:flex;gap:4px;margin-top:4px;align-items:center}.p2-play2 button{height:34px;border:0;border-radius:9px;color:#fff;font:inherit;font-weight:800;cursor:pointer}
+.p2-play2 .p2-loop,.p2-play2 .p2-tempo{flex:none!important;flex-direction:row!important;gap:5px;padding:0 10px;font-size:13px!important}.p2-play2 .p2-loop small,.p2-play2 .p2-tempo small{margin:0!important;font-size:10.5px!important}
+.p2-rng{flex:1;min-width:0;font-size:12px;font-weight:700;color:#8EC1FF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:4px}.p2-rng.pick{color:#FFD27A}
+.p2-play2 .p2-loop,.p2-play2 .p2-tempo{background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.22)}.p2-play2 .p2-loop.on{background:#fff;color:#15171C;box-shadow:none}.p2-play2 .p2-tempo.t-slow{color:#9FD3FF}.p2-play2 .p2-tempo.t-fast{color:#FFB38A}
+.p2-pickbar{flex-direction:row!important;align-items:center;gap:10px!important;padding:6px 6px 6px 14px!important;background:#FFD27A!important;color:#15171C!important;font-weight:800;font-size:13.5px}.p2-pickbar button{border:0;background:#15171C;color:#fff;border-radius:9px;height:36px;padding:0 12px;font:inherit;font-weight:800;font-size:13px}
+.p2-rx{width:34px;flex:none;background:rgba(255,255,255,.1)}.p2-play .p2-rbtn.pick{background:#FFD27A;color:#15171C}.p2-play .p2-rbtn:not(.pick):not(.on){box-shadow:inset 0 0 0 1.5px #5B9BFF}
+.p2-play .p2-loop{flex:0 0 52px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;font-size:17px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.22)}.p2-play .p2-loop small{font-size:9px;font-weight:700;opacity:.8;margin-top:2px}.p2-play .p2-loop.on{background:#fff;color:#15171C;box-shadow:none}
 .p2-play button{font-size:13px!important;padding:0 4px}.p2-play .p2-tempo{flex:0 0 58px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;font-size:13px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.22)}.p2-play .p2-tempo small{font-size:9.5px;font-weight:700;opacity:.75}.p2-play .p2-tempo.t-slow{color:#9FD3FF}.p2-play .p2-tempo.t-fast{color:#FFB38A}
 .p2-play button.on{background:#fff;color:#15171C}
 .p2-from{border:0;width:100%;margin-top:6px;height:42px;border-radius:10px;background:rgba(255,255,255,.1);color:#fff;font:inherit;font-weight:800;font-size:14px}.p2-from.on{background:#fff;color:#15171C}
@@ -1919,7 +1925,7 @@ function drawAnn(ctx,items,g,scale,C,src){if(!items)return;const P=(x,y)=>{const
     if(it.k==='wh'){const R=rotRect(g.r,g.W,g.H,it);ctx.fillStyle='#fff';ctx.fillRect((R.x-C.x)*scale,(R.y-C.y)*scale,R.w*scale,R.h*scale);drawStaffSegs(ctx,it,P,scale)}
     else if(it.k==='mv'){drawMv(ctx,it,src,P,scale)}
     else if(it.k==='ks'){drawKs(ctx,it,P,scale,0)}
-    else if(it.k==='nt'){const a=P(it.x,it.y);ctx.translate(a[0],a[1]);const gi=withBeam(it,a,P,it.sp*scale,0);drawGlyph(ctx,SV.hl&&SV.hl.has(it)&&!src?{...gi,c:'#E0263F'}:gi,it.sp*scale)}
+    else if(it.k==='nt'){const a=P(it.x,it.y);ctx.translate(a[0],a[1]);const gi=withBeam(it,a,P,it.sp*scale,0);const live=ctx.canvas&&ctx.canvas.id==='svAn';drawGlyph(ctx,live&&SV.hl&&SV.hl.has(it)?{...gi,c:'#E0263F'}:live&&SV.edit&&SV.rangeSet&&SV.rangeSet.has(it)?{...gi,c:'#2F6FEB'}:gi,it.sp*scale)}
     else if(it.k==='pen'||it.k==='mk'){ctx.strokeStyle=it.c;ctx.lineWidth=it.w*scale;ctx.lineCap='round';ctx.lineJoin='round';if(it.k==='mk'){ctx.globalAlpha=.4;ctx.globalCompositeOperation='multiply'}
       const p=it.p;ctx.beginPath();let a=P(p[0],p[1]);ctx.moveTo(a[0],a[1]);if(p.length<=2)ctx.lineTo(a[0]+.01,a[1]);
       for(let i=2;i<p.length;i+=2){const b=P(p[i],p[i+1]);if(i+2<p.length){const c=P(p[i+2],p[i+3]);ctx.quadraticCurveTo(b[0],b[1],(b[0]+c[0])/2,(b[1]+c[1])/2)}else ctx.lineTo(b[0],b[1])}ctx.stroke()}
@@ -2502,18 +2508,31 @@ function sysStaves(it,items){if(it.sti==null)return null;const N=items.filter(o=
   const clOf=st=>{const o=N.find(o=>o.sti===st&&o.cl);return o?o.cl:null};
   if(it.cl!=='bass'&&clOf(it.sti+1)==='bass')return[it.sti,it.sti+1];if(it.cl==='bass'&&clOf(it.sti-1)&&clOf(it.sti-1)!=='bass')return[it.sti-1,it.sti];return[it.sti]}
 /* mode: 'bar'=この段の小節 / 'both'=両手の小節 / 'from'=ここから段の終わりまで（両手） */
-function playNotes(it,mode){stopPlay();const t=curT();if(!t||!SV.g)return 0;const g=SV.g,items=annOf(SV.o),P=o=>rotPt(g.r,g.W,g.H,o.x,o.y),ix=P(it)[0];
-  const SS=mode==='bar'?[it.sti]:(sysStaves(it,items)||[it.sti]);
-  /* 各段の音符に小節番号をつける */const parts=[];let itMi=null;
+/* その段のまとまり（SS の段）の音符に小節番号をつける。it の小節番号も返す */
+function sysParts(it,items,SS){const g=SV.g,P=o=>rotPt(g.r,g.W,g.H,o.x,o.y),ix=P(it)[0];const parts=[];let itMi=null;
   for(const st of SS){let rep=it;if(st!==it.sti){let bd=1e9;rep=null;for(const o of items)if(o.k==='nt'&&o.sti===st&&o.ps!=null&&NOTE_T.includes(o.t)){const d=Math.abs(P(o)[0]-ix);if(d<bd){bd=d;rep=o}}if(!rep)continue}
     const L=staffNotes(rep,items),has=L.filter(e=>e.o.mi!=null);const miOf=e=>{if(e.o.mi!=null)return e.o.mi;if(!has.length)return 0;let b=has[0];for(const h of has)if(Math.abs(h.x-e.x)<Math.abs(b.x-e.x))b=h;return b.o.mi};
-    const E=L.map(e=>({...e,mi:miOf(e)}));if(st===it.sti||st==null)itMi=E.find(e=>e.o===it).mi;parts.push({E,cl:clefOf(rep,L),sp:rep.sp})}
-  if(itMi==null)return 0;
-  const km=dispKeyMap(t),q=60/tempoBpm();try{toneCtx=toneCtx||new (window.AudioContext||window.webkitAudioContext)();if(toneCtx.state!=='running')toneCtx.resume()}catch(_){return 0}
+    const E=L.map(e=>({...e,mi:miOf(e)}));if(st===it.sti||st==null){const f=E.find(e=>e.o===it);if(f)itMi=f.mi}parts.push({E,cl:clefOf(rep,L),sp:rep.sp})}
+  return{parts,itMi,ix}}
+/* mode: 'bar'=この段の小節 / 'both'=両手の小節 / 'from'=ここから段の終わりまで（両手） / 'range'=選んだ範囲 */
+function playNotes(it,mode){if(mode==='range')return playRange();stopPlay();const t=curT();if(!t||!SV.g)return 0;const items=annOf(SV.o);
+  const SS=mode==='bar'?[it.sti]:(sysStaves(it,items)||[it.sti]);const{parts,itMi,ix}=sysParts(it,items,SS);if(itMi==null)return 0;
   const mis=[...new Set(parts.flatMap(p=>p.E.map(e=>e.mi)))].filter(m=>mode==='from'?m>=itMi:m===itMi).sort((a,b)=>a-b);
+  return playSegs([{parts,mis,cutMi:mode==='from'?itMi:null,cutX:ix}],mode,()=>annOf(SV.o).includes(it)?playNotes(it,mode):0)}
+/* 範囲（はじめの音符の小節 〜 終わりの音符の小節）。段をまたいでもよい */
+function rangeSegs(){const R=SV.range,t=curT();if(!R||!t||!SV.g)return null;const items=annOf(SV.o);if(!items.includes(R.a)||!items.includes(R.b)){SV.range=null;return null}
+  const keyOf=o=>(sysStaves(o,items)||[o.sti])[0],SSof=o=>sysStaves(o,items)||[o.sti];let A=R.a,B=R.b,ka=keyOf(A),kb=keyOf(B);if(ka==null||kb==null)return null;
+  let ma=sysParts(A,items,SSof(A)).itMi,mb=sysParts(B,items,SSof(B)).itMi;if(ma==null||mb==null)return null;if(ka>kb||(ka===kb&&ma>mb)){[A,B,ka,kb,ma,mb]=[B,A,kb,ka,mb,ma]}
+  const keys=[...new Set(items.filter(o=>o.k==='nt'&&o.sti!=null&&NOTE_T.includes(o.t)).map(keyOf))].filter(k=>k>=ka&&k<=kb).sort((x,y)=>x-y);const segs=[];let n=0;
+  for(const k of keys){const rep=k===ka?A:k===kb?B:items.find(o=>o.k==='nt'&&o.sti!=null&&NOTE_T.includes(o.t)&&keyOf(o)===k);if(!rep)continue;const{parts}=sysParts(rep,items,SSof(rep));
+    const mis=[...new Set(parts.flatMap(p=>p.E.map(e=>e.mi)))].filter(m=>(k!==ka||m>=ma)&&(k!==kb||m<=mb)).sort((x,y)=>x-y);if(mis.length){segs.push({parts,mis});n+=mis.length}}
+  return{segs,n}}
+function playRange(){stopPlay();const r=rangeSegs();if(!r||!r.segs.length)return 0;return playSegs(r.segs,'range',()=>playRange())}
+/* 小節ごとに頭をそろえて鳴らす。くり返しがオンなら again() でもう一度 */
+function playSegs(segs,mode,again){const t=curT();const km=dispKeyMap(t),q=60/tempoBpm();try{toneCtx=toneCtx||new (window.AudioContext||window.webkitAudioContext)();if(toneCtx.state!=='running')toneCtx.resume()}catch(_){return 0}
   const t0=toneCtx.currentTime+.08;let T=0,n=0;const hlAt=new Map();
-  for(const m of mis){let len=0;
-    for(const p of parts){let M=p.E.filter(e=>e.mi===m);if(mode==='from'&&m===itMi)M=M.filter(e=>e.x>=ix-p.sp*.7);if(!M.length)continue;
+  for(const sg of segs)for(const m of sg.mis){let len=0;
+    for(const p of sg.parts){let M=p.E.filter(e=>e.mi===m);if(sg.cutMi!=null&&m===sg.cutMi)M=M.filter(e=>e.x>=sg.cutX-p.sp*.7);if(!M.length)continue;
       const C=[];for(const e of M){const c=C[C.length-1];if(c&&e.x-c.x<p.sp*.7)c.L.push(e.o);else C.push({x:e.x,L:[e.o]})}
       let tt=0;const carry={};for(const c of C){let step=1e9;for(const o of c.L){const d=(DUR[o.t]||1)*(o.d?1.5:1);step=Math.min(step,d);if(!NOTE_T.includes(o.t))continue;const pi=pitchIn(o,km,o.cl||p.cl,carry);tone(pi.midi,t0+(T+tt)*q,d*q*.92);n++;const k=Math.round((T+tt)*1000);(hlAt.get(k)||hlAt.set(k,[]).get(k)).push(o)}tt+=step===1e9?1:step}
       len=Math.max(len,tt)}
@@ -2521,7 +2540,7 @@ function playNotes(it,mode){stopPlay();const t=curT();if(!t||!SV.g)return 0;cons
   if(!n)return 0;
   /* 鳴っている音符を赤く：各時刻に鳴り始めた音符を、その音の長さのあいだ光らせる */
   const on=new Set();for(const[k,L]of[...hlAt].sort((a,b)=>a[0]-b[0])){playT.push(setTimeout(()=>{for(const o of L)on.add(o);SV.hl=new Set(on);drawAnnLayer()},k*q+80));for(const o of L){const d=(DUR[o.t]||1)*(o.d?1.5:1);playT.push(setTimeout(()=>{on.delete(o);SV.hl=new Set(on);drawAnnLayer()},(k/1000+d)*q*1000+60))}}
-  /* くり返しがオンなら、同じ範囲をもう一度 */playT.push(setTimeout(()=>{if(loopOn()&&SV.playing===mode&&annOf(SV.o).includes(it)){playNotes(it,mode);return}SV.hl=null;SV.playing=null;drawAnnLayer();renderPopSoon()},T*q*1000+(loopOn()?450:250)));SV.playing=mode;renderPopSoon();return n}
+  /* くり返しがオンなら、同じ範囲をもう一度 */playT.push(setTimeout(()=>{if(loopOn()&&SV.playing===mode&&again()){return}SV.hl=null;SV.playing=null;drawAnnLayer();renderPopSoon()},T*q*1000+(loopOn()?450:250)));SV.playing=mode;renderPopSoon();return n}
 function tone(midi,at,dur){const o=toneCtx.createOscillator(),g=toneCtx.createGain(),f=440*Math.pow(2,(midi-69)/12);o.type='triangle';o.frequency.value=f;
   g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(.2,at+.015);g.gain.setTargetAtTime(.12,at+.05,.15);g.gain.setTargetAtTime(0,at+Math.max(.06,dur-.04),.03);o.connect(g).connect(toneCtx.destination);o.start(at);o.stop(at+dur+.25);playSrc.push(o)}
 let toneCtx=null;function playTone(midi){try{toneCtx=toneCtx||new (window.AudioContext||window.webkitAudioContext)();if(toneCtx.state!=='running')toneCtx.resume();const t0=toneCtx.currentTime,o=toneCtx.createOscillator(),g=toneCtx.createGain(),f=440*Math.pow(2,(midi-69)/12);
@@ -2536,12 +2555,17 @@ let popRaf=0;function renderPopSoon(){if(popRaf)return;popRaf=requestAnimationFr
 function renderPop(){const st=$('#svStage');if(!st)return;let el=$('#svPop');const t=curT();const items=t&&SV.g?(scEd(t).ann[SV.o]||[]):[];const it=SV.edit&&SV.sel!=null?items[SV.sel]:null;
   if(!it||it.k!=='nt'||(SV.op&&(SV.op.k==='drag'||SV.op.k==='pr'))){if(el)el.hidden=true;return}
   if(!el){el=document.createElement('div');el.id='svPop';el.className='sv-pop2';st.appendChild(el);['pointerdown','pointermove','pointerup','touchstart','touchmove'].forEach(n=>el.addEventListener(n,e=>e.stopPropagation()))}
+  /* 範囲選び中に別の音符をタップしたら、そこを範囲の終わりにする */if(SV.rangePick&&it.k==='nt'&&it!==SV.rangePick.a&&items.includes(SV.rangePick.a)){SV.range={a:SV.rangePick.a,b:it};SV.rangePick=null;progress(null);setTimeout(drawAnnLayer)}
+  if(SV.rangePick){el.className='sv-pop2 p2-pickbar';el.innerHTML=`<span>終わりの小節の音符をタップ</span><button data-act="popRange">やめる</button>`;el.hidden=false;el.style.top='10px';el.style.left=Math.max(8,(st.clientWidth-el.offsetWidth)/2)+'px';return}
+  el.className='sv-pop2';
+  const rng=rangeSegs();SV.rangeSet=rng?new Set(rng.segs.flatMap(sg=>sg.parts.flatMap(p=>p.E.filter(e=>sg.mis.includes(e.mi)).map(e=>e.o)))):null;
   const isNote=['w','h','q','8','16','32'].includes(it.t),p=notePitch(it),nSys=isNote?(sysStaves(it,items)||[]).length:0,both=nSys>1,more=!!SV.popMore,accO=!!SV.popAcc&&isNote,curA=it.ac==null?'none':ACC_N[it.ac];
   el.innerHTML=`<div class="p2-bar"><span class="p2-name${SV.prevName?' chg':''}">${p?`${SV.prevName?`<em>${SV.prevName} →</em>`:''}<b>${p.name}</b><small>${p.en}</small>`:`<b>${ntName(it.t)}</b>`}</span>
     <button class="p2-mv" data-act="popMove" data-dy="-1" aria-label="1段上へ">▲</button><button class="p2-mv" data-act="popMove" data-dy="1" aria-label="1段下へ">▼</button>
     <button class="p2-ty${more?' on':''}" data-act="popMore" aria-expanded="${more}"><img src="${glyphIcon(it.t)}" alt=""><span>種類</span></button>${isNote?`<button class="p2-ac${accO?' on':''}" data-act="popAcc" aria-expanded="${accO}" aria-label="臨時記号（♯・♭・♮）を直す" title="臨時記号">♯♭♮</button>`:''}
     <button class="p2-ic" data-act="popClose" aria-label="閉じる">${IC.x}</button></div>
-   ${isNote?`<div class="p2-play">${[['bar','小節','この段のこの小節を再生'],...(both?[['both',nSys>2?'全パート':'両手',nSys>2?'全パートでこの小節を再生':'両手でこの小節を再生']]:[]),['from','ここから',both?'ここから全部の段で終わりまで再生':'ここから段の終わりまで再生']].map(([m,l,al])=>`<button class="${SV.playing===m?'on':''}" data-act="popPlay" data-m="${m}" aria-label="${SV.playing===m?'止める':al}">${SV.playing===m?'■ 止める':'▶ '+l}</button>`).join('')}${(()=>{const T=TEMPOS.find(x=>x[0]===tempoKey());return`<button class="p2-loop${loopOn()?' on':''}" data-act="popLoop" aria-pressed="${loopOn()}" aria-label="くり返し再生（${loopOn()?'オン':'オフ'}）"><span aria-hidden="true">↻</span><small>くり返し</small></button><button class="p2-tempo t-${T[0]}" data-act="popTempo" aria-label="再生の速さ：${T[1]}（タップで切り替え）"><small>速さ</small>${T[1]}</button>`})()}</div>`:''}
+   ${isNote?`<div class="p2-play">${[['bar','小節','この段のこの小節を再生'],...(both?[['both',nSys>2?'全パート':'両手',nSys>2?'全パートでこの小節を再生':'両手でこの小節を再生']]:[]),['from','ここから',both?'ここから全部の段で終わりまで再生':'ここから段の終わりまで再生']].map(([m,l,al])=>`<button class="${SV.playing===m?'on':''}" data-act="popPlay" data-m="${m}" aria-label="${SV.playing===m?'止める':al}">${SV.playing===m?'■ 止める':'▶ '+l}</button>`).join('')}${rng?`<button class="p2-rbtn${SV.playing==='range'?' on':''}" data-act="popPlay" data-m="range" aria-label="${SV.playing==='range'?'止める':`選んだ範囲（${rng.n}小節）を再生`}">${SV.playing==='range'?'■ 止める':'▶ 範囲'}</button>`:`<button class="p2-rbtn${SV.rangePick?' pick':''}" data-act="popRange" aria-label="${SV.rangePick?'範囲選びをやめる':'この小節から範囲を選ぶ'}">${SV.rangePick?'選択中…':'範囲…'}</button>`}</div>
+     <div class="p2-play2">${(()=>{const T=TEMPOS.find(x=>x[0]===tempoKey());return`<button class="p2-loop${loopOn()?' on':''}" data-act="popLoop" aria-pressed="${loopOn()}" aria-label="くり返し再生（${loopOn()?'オン':'オフ'}）"><span aria-hidden="true">↻</span><small>くり返し</small></button><button class="p2-tempo t-${T[0]}" data-act="popTempo" aria-label="再生の速さ：${T[1]}（タップで切り替え）"><small>速さ</small>${T[1]}</button>`})()}${rng?`<span class="p2-rng">範囲 ${rng.n}小節</span><button class="p2-rx" data-act="popRangeClear" aria-label="範囲を解除">✕</button>`:SV.rangePick?`<span class="p2-rng pick">終わりの小節の音符をタップ</span>`:''}</div>`:''}
    ${accO?`<div class="p2-acc">${[['sh','♯','シャープ'],['fl','♭','フラット'],['na','♮','ナチュラル'],['none','なし','臨時記号なし']].map(([v,l,al])=>`<button class="${curA===v?'on':''}" data-act="selAcc" data-a="${v}" aria-label="${al}">${l}</button>`).join('')}</div>`:''}
    ${more?`<div class="p2-more"><div class="pop-nts">${NT.filter(([tt])=>!['sh','fl','na'].includes(tt)).map(([tt,l])=>`<button class="${it.t===tt?'on':''}" data-act="selType" data-t="${tt}" title="${l}" aria-label="${l}に置き換え"><img src="${glyphIcon(tt)}" alt=""></button>`).join('')}</div>
      <div class="pop-ft"><button data-act="popMove" data-dx="-1" aria-label="左へ">◀</button><button data-act="popMove" data-dx="1" aria-label="右へ">▶</button><button class="${it.d?'on':''}" data-act="selDot"${isNote?'':' disabled'}>付点</button><button data-act="selStem"${isNote&&it.t!=='w'?'':' disabled'}>棒の向き ${({u:'↑',d:'↓'})[it.sd]||'自動'}</button><button class="p2-del" data-act="selDel" aria-label="消す">${IC.trash}消す</button></div></div>`:''}`;
@@ -2920,6 +2944,8 @@ document.addEventListener('click',e=>{
     if(act==='ntDot'){SV.ntDot=!SV.ntDot;renderTools();return}
     if(act==='popClose'){stopPlay();SV.sel=null;SV.popMore=false;SV.popAcc=false;drawAnnLayer();renderTools();return}
     if(act==='popMore'){SV.popMore=!SV.popMore;if(SV.popMore)SV.popAcc=false;renderPop();return}
+    if(act==='popRange'){const it=SV.sel!=null&&annOf(SV.o)[SV.sel];if(SV.rangePick){SV.rangePick=null}else if(it){SV.rangePick={a:it}}renderPop();return}
+    if(act==='popRangeClear'){if(SV.playing==='range')stopPlay();SV.range=null;SV.rangePick=null;SV.rangeSet=null;drawAnnLayer();renderPop();return}
     if(act==='popLoop'){SV.loop=!loopOn();try{localStorage.setItem('crate.loop',SV.loop?'1':'0')}catch(_){}renderPop();return}
     if(act==='popTempo'){const i=TEMPOS.findIndex(x=>x[0]===tempoKey()),n=TEMPOS[(i+1)%TEMPOS.length];SV.tempo=n[0];try{localStorage.setItem('crate.tempo',n[0])}catch(_){}const m=SV.playing,it=SV.sel!=null&&annOf(SV.o)[SV.sel];if(m&&it)playNotes(it,m);else renderPop();return}
     if(act==='popPlay'){const it=SV.sel!=null&&annOf(SV.o)[SV.sel];const m=a.dataset.m;if(SV.playing===m){stopPlay();return}if(it&&!playNotes(it,m))toast('鳴らせる音符がありません');return}
