@@ -843,7 +843,8 @@ button.badge.key:hover{background:var(--accent);color:#fff}
 .p2-ty{display:flex!important;align-items:center;gap:4px;font-size:12.5px!important}.p2-ty img{width:18px;height:22px;filter:invert(1)}.p2-ty.on{background:#fff!important;color:#15171C!important}.p2-ty.on img{filter:none}
 .p2-ic svg{width:18px;height:18px}
 .p2-bar .p2-pl{display:flex;flex-direction:column;gap:0;line-height:1;font-size:14px;padding:0 6px;min-width:42px}.p2-bar .p2-pl small{font-size:9.5px;font-weight:700;opacity:.8;margin-top:2px}.p2-bar .p2-pl.on{background:#fff;color:#15171C}
-.p2-play{display:flex;gap:4px;margin-top:6px}.p2-play button{flex:1;border:0;height:40px;border-radius:10px;background:rgba(255,255,255,.1);color:#fff;font:inherit;font-weight:800;font-size:14px;white-space:nowrap}.p2-play button.on{background:#fff;color:#15171C}
+.p2-play{display:flex;gap:4px;margin-top:6px}.p2-play button{flex:1;border:0;height:40px;border-radius:10px;background:rgba(255,255,255,.1);color:#fff;font:inherit;font-weight:800;font-size:14px;white-space:nowrap}.p2-play .p2-tempo{flex:0 0 66px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;font-size:13px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.22)}.p2-play .p2-tempo small{font-size:9.5px;font-weight:700;opacity:.75}.p2-play .p2-tempo.t-slow{color:#9FD3FF}.p2-play .p2-tempo.t-fast{color:#FFB38A}
+.p2-play button.on{background:#fff;color:#15171C}
 .p2-from{border:0;width:100%;margin-top:6px;height:42px;border-radius:10px;background:rgba(255,255,255,.1);color:#fff;font:inherit;font-weight:800;font-size:14px}.p2-from.on{background:#fff;color:#15171C}
 .p2-bar .p2-ac{font-size:16px;letter-spacing:-1px}.p2-bar .p2-ac.on{background:#fff;color:#15171C}
 .p2-acc{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:6px}.p2-acc button{border:0;background:rgba(255,255,255,.1);color:#fff;border-radius:10px;height:44px;font:inherit;font-weight:800;font-size:20px}.p2-acc button:last-child{font-size:14px}.p2-acc button.on{background:var(--accent)}
@@ -2455,6 +2456,10 @@ function notePitch(it){if(!it||it.ps==null||!NOTE_T.includes(it.t))return null;c
   const p=pitchIn(it,km,cl,carry),acc=p.a,AS=['𝄫','♭','','♯','𝄪'][acc+2]||'';return{name:SOL7[p.l]+AS,en:LET7[p.l]+AS+(p.oct),midi:p.midi}}
 /* 小節（またはその音符から段の終わりまで）を鳴らす。鳴っている音符を赤く光らせる */
 let playT=[],playSrc=[];function stopPlay(){playT.forEach(clearTimeout);playT=[];playSrc.forEach(o=>{try{o.stop()}catch(_){}});playSrc=[];if(SV.hl){SV.hl=null;drawAnnLayer()}if(SV.playing){SV.playing=null;renderPopSoon()}}
+/* 再生の速さ（ゆっくり・ふつう・速く）。この端末に覚えておく */
+const TEMPOS=[['slow','ゆっくり',60],['mid','ふつう',96],['fast','速く',132]];
+function tempoKey(){if(SV.tempo)return SV.tempo;let k='mid';try{k=localStorage.getItem('crate.tempo')||'mid'}catch(_){}SV.tempo=TEMPOS.some(x=>x[0]===k)?k:'mid';return SV.tempo}
+function tempoBpm(){return(TEMPOS.find(x=>x[0]===tempoKey())||TEMPOS[1])[2]}
 /* 同じまとまりの段（両手）。古いデータは「ト音の下にヘ音」の並びで判断 */
 function sysStaves(it,items){if(it.sti==null)return null;const N=items.filter(o=>o.k==='nt'&&o.sti!=null);
   if(it.sy!=null&&N.some(o=>o.sy!=null))return[...new Set(N.filter(o=>o.sy===it.sy).map(o=>o.sti))].sort((a,b)=>a-b);
@@ -2468,7 +2473,7 @@ function playNotes(it,mode){stopPlay();const t=curT();if(!t||!SV.g)return 0;cons
     const L=staffNotes(rep,items),has=L.filter(e=>e.o.mi!=null);const miOf=e=>{if(e.o.mi!=null)return e.o.mi;if(!has.length)return 0;let b=has[0];for(const h of has)if(Math.abs(h.x-e.x)<Math.abs(b.x-e.x))b=h;return b.o.mi};
     const E=L.map(e=>({...e,mi:miOf(e)}));if(st===it.sti||st==null)itMi=E.find(e=>e.o===it).mi;parts.push({E,cl:clefOf(rep,L),sp:rep.sp})}
   if(itMi==null)return 0;
-  const km=dispKeyMap(t),q=60/96;try{toneCtx=toneCtx||new (window.AudioContext||window.webkitAudioContext)();if(toneCtx.state!=='running')toneCtx.resume()}catch(_){return 0}
+  const km=dispKeyMap(t),q=60/tempoBpm();try{toneCtx=toneCtx||new (window.AudioContext||window.webkitAudioContext)();if(toneCtx.state!=='running')toneCtx.resume()}catch(_){return 0}
   const mis=[...new Set(parts.flatMap(p=>p.E.map(e=>e.mi)))].filter(m=>mode==='from'?m>=itMi:m===itMi).sort((a,b)=>a-b);
   const t0=toneCtx.currentTime+.08;let T=0,n=0;const hlAt=new Map();
   for(const m of mis){let len=0;
@@ -2500,7 +2505,7 @@ function renderPop(){const st=$('#svStage');if(!st)return;let el=$('#svPop');con
     <button class="p2-mv" data-act="popMove" data-dy="-1" aria-label="1段上へ">▲</button><button class="p2-mv" data-act="popMove" data-dy="1" aria-label="1段下へ">▼</button>
     <button class="p2-ty${more?' on':''}" data-act="popMore" aria-expanded="${more}"><img src="${glyphIcon(it.t)}" alt=""><span>種類</span></button>${isNote?`<button class="p2-ac${accO?' on':''}" data-act="popAcc" aria-expanded="${accO}" aria-label="臨時記号">♯♭</button>`:''}
     <button class="p2-ic" data-act="popClose" aria-label="閉じる">${IC.x}</button></div>
-   ${isNote?`<div class="p2-play">${[['bar','小節','この段のこの小節を再生'],...(both?[['both',nSys>2?'全パート':'両手',nSys>2?'全パートでこの小節を再生':'両手でこの小節を再生']]:[]),['from','ここから',both?'ここから全部の段で終わりまで再生':'ここから段の終わりまで再生']].map(([m,l,al])=>`<button class="${SV.playing===m?'on':''}" data-act="popPlay" data-m="${m}" aria-label="${SV.playing===m?'止める':al}">${SV.playing===m?'■ 止める':'▶ '+l}</button>`).join('')}</div>`:''}
+   ${isNote?`<div class="p2-play">${[['bar','小節','この段のこの小節を再生'],...(both?[['both',nSys>2?'全パート':'両手',nSys>2?'全パートでこの小節を再生':'両手でこの小節を再生']]:[]),['from','ここから',both?'ここから全部の段で終わりまで再生':'ここから段の終わりまで再生']].map(([m,l,al])=>`<button class="${SV.playing===m?'on':''}" data-act="popPlay" data-m="${m}" aria-label="${SV.playing===m?'止める':al}">${SV.playing===m?'■ 止める':'▶ '+l}</button>`).join('')}${(()=>{const T=TEMPOS.find(x=>x[0]===tempoKey());return`<button class="p2-tempo t-${T[0]}" data-act="popTempo" aria-label="再生の速さ：${T[1]}（タップで切り替え）"><small>速さ</small>${T[1]}</button>`})()}</div>`:''}
    ${accO?`<div class="p2-acc">${[['sh','♯','シャープ'],['fl','♭','フラット'],['na','♮','ナチュラル'],['none','なし','臨時記号なし']].map(([v,l,al])=>`<button class="${curA===v?'on':''}" data-act="selAcc" data-a="${v}" aria-label="${al}">${l}</button>`).join('')}</div>`:''}
    ${more?`<div class="p2-more"><div class="pop-nts">${NT.map(([tt,l])=>`<button class="${it.t===tt?'on':''}" data-act="selType" data-t="${tt}" title="${l}" aria-label="${l}に置き換え"><img src="${glyphIcon(tt)}" alt=""></button>`).join('')}</div>
      <div class="pop-ft"><button data-act="popMove" data-dx="-1" aria-label="左へ">◀</button><button data-act="popMove" data-dx="1" aria-label="右へ">▶</button><button class="${it.d?'on':''}" data-act="selDot"${isNote?'':' disabled'}>付点</button><button data-act="selStem"${isNote&&it.t!=='w'?'':' disabled'}>棒 ${({u:'↑',d:'↓'})[it.sd]||'自動'}</button><button class="p2-del" data-act="selDel" aria-label="消す">${IC.trash}消す</button></div></div>`:''}`;
@@ -2875,6 +2880,7 @@ document.addEventListener('click',e=>{
     if(act==='ntDot'){SV.ntDot=!SV.ntDot;renderTools();return}
     if(act==='popClose'){stopPlay();SV.sel=null;SV.popMore=false;SV.popAcc=false;drawAnnLayer();renderTools();return}
     if(act==='popMore'){SV.popMore=!SV.popMore;if(SV.popMore)SV.popAcc=false;renderPop();return}
+    if(act==='popTempo'){const i=TEMPOS.findIndex(x=>x[0]===tempoKey()),n=TEMPOS[(i+1)%TEMPOS.length];SV.tempo=n[0];try{localStorage.setItem('crate.tempo',n[0])}catch(_){}const m=SV.playing,it=SV.sel!=null&&annOf(SV.o)[SV.sel];if(m&&it)playNotes(it,m);else renderPop();return}
     if(act==='popPlay'){const it=SV.sel!=null&&annOf(SV.o)[SV.sel];const m=a.dataset.m;if(SV.playing===m){stopPlay();return}if(it&&!playNotes(it,m))toast('鳴らせる音符がありません');return}
     if(act==='popAcc'){SV.popAcc=!SV.popAcc;if(SV.popAcc)SV.popMore=false;renderPop();return}
     if(act==='selAcc'){const t=curT(),it=SV.sel!=null&&annOf(SV.o)[SV.sel];if(!t||!it||it.k!=='nt')return;const pp=notePitch(it);pushUndo(snapEd());setAcc(t,it,a.dataset.a);saveEdSoon();drawAnnLayer();renderTools();renderPop();showNoteName(pp,it);return}
