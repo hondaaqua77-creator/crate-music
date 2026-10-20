@@ -1001,6 +1001,21 @@ body.selmode .main{padding-bottom:calc(var(--player-h) + 120px)}
 .tp-opts{display:flex;flex-direction:column;gap:7px}.tp-note{font-size:11.5px;margin:-4px 0 2px 44px}
 .sv-tpbadge{position:absolute;left:12px;bottom:12px;z-index:4;border:0;background:var(--ink);color:#fff;border-radius:10px;padding:6px 11px;display:flex;flex-direction:column;align-items:flex-start;line-height:1.25;box-shadow:0 6px 16px -8px rgba(0,0,0,.5);cursor:pointer}
 .sv-tpbadge b{font-size:13px}.sv-tpbadge span{font-size:11px;opacity:.8}
+/* 移調ボタン：移調中は「+2」を表示 */
+.sv-tpbtn .tp-n{font-size:12px;font-weight:800;background:var(--accent);color:#fff;border-radius:6px;padding:1px 5px;margin-left:2px;line-height:1.4}.sv-tpbtn.primary .tp-n{background:#fff;color:var(--ink)}
+/* 移調パネル（1行目に操作をまとめ、細かい設定は折りたたむ） */
+.tp-top{gap:10px 12px}.tp-kl{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700}.tp-kl select{padding:7px 8px;font-size:13.5px;max-width:150px;border-radius:9px}
+.tp-kl.need select{border:2px solid var(--accent);background:#FFF4F5}.tp-go{min-height:40px;padding-inline:14px}
+.tp-row2{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.tp-new{display:flex;flex-direction:row;align-items:baseline;gap:4px 8px;flex-wrap:wrap;font-size:13px;min-height:20px;flex:1;min-width:150px}.tp-new b{font-size:14px}.tp-new span{color:var(--muted);font-size:12px}.tp-new .tp-arrow{color:var(--muted);font-size:14px}
+.tp-warn{color:var(--muted)!important;font-weight:600;font-size:12px!important;white-space:nowrap}
+.tp-moreb{align-self:flex-start;border:0;background:none;font:inherit;font-size:13px;font-weight:700;color:var(--ink);padding:4px 0;cursor:pointer;display:flex;align-items:baseline;gap:8px}.tp-moreb small{font-weight:500;color:var(--muted);font-size:11.5px}
+.tp-reset{align-self:flex-start}
+/* 音符の操作バー：選択中の臨時記号は白で反転（赤は操作ボタンだけ）、再生の行は区切る */
+.p2-acc button.on{background:#fff!important;color:#15171C!important}
+.p2-play{border-top:1px solid rgba(255,255,255,.12);padding-top:6px}
+.p2-bar .p2-ac{font-size:13.5px!important;letter-spacing:-.5px}
+@media (max-width:760px){.tp-map{flex-wrap:wrap;gap:4px}.tp-map span{padding:3px 7px;font-size:12px}.tp-h{display:none}.tp-val{min-width:78px}.tp-kl>span{display:none}.tp-kl select{max-width:132px}.tp-top{gap:8px}
+  .sv-bar .sv-savebtn{display:none!important}.sv-bar .sv-tpbtn span.tp-l.tp-l{display:inline!important;font-size:13px;font-weight:700}.sv-bar .sv-tpbtn span.tp-ic{display:none}.sv-bar .sv-tpbtn.has-n .tp-ic{display:inline}}
 @media (max-width:760px){.tp-btn{width:40px;height:40px;font-size:20px}.sv-tp{gap:8px;padding-top:8px}.sv-bar .sv-pg .cbtn{width:30px!important;height:36px!important}.sv-bar .sv-pg{gap:0}.sv-tpbtn{padding-inline:9px!important}.tp-top .btn.primary span{display:inline}.tp-val{min-width:96px}.tp-note{margin-left:0}}
 @media (max-width:380px){.sv-tl2 button{font-size:11px!important;letter-spacing:-.02em;padding:0 2px!important;gap:3px!important}}
 </style>
@@ -1466,7 +1481,7 @@ function renderPlayer(){const t=S.tracks.get(S.queue[S.qi]);
   const sm=$('#seekMarks');if(sm)sm.innerHTML=t&&t.mods&&t.mods.length&&t.duration?t.mods.map(m=>`<i style="left:${m.t/t.duration*100}%" title="${fmt(m.t)}から転調 ${keyTxt(m.d)}"></i>`).join(''):'';
   const pk=$('#pKey');if(pk)pk.innerHTML=t?keyCtlHTML(t,false):'';
   {const hs=!!(t&&t.score&&!t.sample),b1=$('#bScore'),b2=$('#pScore');if(b1){b1.hidden=!hs;b1.dataset.id=t?t.id:'';b1.firstElementChild.innerHTML=IC.score}if(b2){b2.hidden=!hs;b2.dataset.id=t?t.id:'';b2.innerHTML=IC.score+'<span>楽譜</span>'}}
-  const bk=$('#bKey');if(bk){const k=t?(t.key||0)+segD(t,audio.currentTime):0,sp=t&&t.speed?t.speed:1,on=!!k||sp!==1;bk.innerHTML=on?`<span class="mk-i">${k?keyTxt(k):'±0'}</span><span class="mk-v">${Math.round(sp*100)}%</span>`:`<span class="mk-i">♯♭</span><span class="mk-v">調整</span>`;bk.classList.toggle('on',on);bk.disabled=!t;bk.setAttribute('aria-label','速度・音程の調整')}
+  const bk=$('#bKey');if(bk){const k=t?(t.key||0)+segD(t,audio.currentTime):0,sp=t&&t.speed?t.speed:1,on=!!k||sp!==1;bk.innerHTML=on?`<span class="mk-i">${k?keyTxt(k):'±0'}</span><span class="mk-v">${Math.round(sp*100)}%</span>`:`<span class="mk-i">音程</span><span class="mk-v">速さ</span>`;bk.classList.toggle('on',on);bk.disabled=!t;bk.setAttribute('aria-label','速度・音程の調整')}
   const bn=$('#bNowP');if(!bn.innerHTML)bn.innerHTML=IC.panel;bn.classList.toggle('on',S.np);renderNow(t);
   $('#pTitle').textContent=t?t.title:'曲を選ぶと再生します';$('#pArtist').textContent=t?t.artist:'—';
   $('#pStars').innerHTML=t?stars(t.rating):'';const ne=$('#bNowEdit');ne.hidden=!t||!!t.sample;if(!ne.innerHTML)ne.innerHTML=IC.memo;
@@ -1873,7 +1888,7 @@ async function removeScore(id){const t=S.tracks.get(id);if(!t)return;await tx('b
 const SV={id:null,doc:null,page:1,o:1,z:1,x:0,y:0,pw:0,ph:0,task:null,rz:null,lastUser:0,noFile:false,
   edit:false,tool:'pr',color:{pen:'#14161B',mk:'#FFD60A',tx:'#E5484D',nt:'#14161B'},size:{pen:1,mk:1,tx:1},g:null,C:{x:0,y:0,w:0,h:0},rs:1,op:null,undo:[],redo:[],cropMode:false,cropR:null,cropAll:false,thumbs:new Map(),sel:null,ntType:'q',ntDot:false,staves:{},lastSp:7};
 /* 元の音符に印を付ける（細かい楽譜は自動で拡大） */
-function findHeads(){const o=SV.o;const cached=(SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`];if(!cached)progress('音符を探しています…');detectHeads().then(hs=>{progress(null);if(SV.o!==o||!SV.edit)return;{const spx=(SV.lastSp||7)*baseScale()*SV.z;if(hs.length&&spx<10){const{w,h}=stageSize();zoomAt(SV.z*10/spx,w/2,h/3)}}drawAnnLayer();renderTools();const nn=hs.filter(x=>!headOff(x)).length;if(!cached)toast(hs.length?`${nn}個の音符に印を付けました。印のない音符もタップすると追加できます`:'このページで音符を見つけられませんでした。写真の場合は、明るくまっすぐ撮り直すと見つかりやすくなります')})}
+function findHeads(){const o=SV.o;const cached=(SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`];if(!cached)progress('音符を探しています…');detectHeads().then(hs=>{progress(null);if(SV.o!==o||!SV.edit)return;{const spx=(SV.lastSp||7)*baseScale()*SV.z;if(hs.length&&spx<10){const{w,h}=stageSize();/* 拡大しても段の左端（音部記号・調号）が見えるよう、ページの左端を基準にする */zoomAt(SV.z*10/spx,Math.max(0,SV.x),Math.max(0,SV.y));saveViewSoon(true)}}drawAnnLayer();renderTools();const nn=hs.filter(x=>!headOff(x)).length;if(!cached)toast(hs.length?`${nn}個の音符に印を付けました。印のない音符もタップすると追加できます`:'このページで音符を見つけられませんでした。写真の場合は、明るくまっすぐ撮り直すと見つかりやすくなります')})}
 const PEN_W=[0.9,1.8,3.6],MK_W=[7,12,20],TX_S=[11,16,26],TXF='"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif';
 const INK={nt:['#14161B','#E5484D','#2F6FEB','#1F9D55'],pen:['#14161B','#E5484D','#2F6FEB','#1F9D55'],mk:['#FFD60A','#FF8FB1','#7CD4FF','#9BE37B'],tx:['#14161B','#E5484D','#2F6FEB','#1F9D55']};
 function scEd(t){const sc=t.score;if(!sc.edit)sc.edit={};const e=sc.edit;
@@ -1923,7 +1938,7 @@ function scoreShell(t){const sc=t.score;
    <div class="sv-pg"><button class="cbtn" data-act="scorePage" data-d="-1" aria-label="前のページ">${IC.chevl}</button><span id="svPage">1 / ${scPages(t)}</span><button class="cbtn" data-act="scorePage" data-d="1" aria-label="次のページ">${IC.chev}</button></div>
    <div class="sv-zoom"><button class="cbtn" data-act="scoreZoom" data-d="-1" aria-label="縮小" title="縮小">${IC.zoomout}</button><span id="svZoom">100%</span><button class="cbtn" data-act="scoreZoom" data-d="1" aria-label="拡大" title="拡大">${IC.zoomin}</button></div>
    <button class="btn sm sv-editbtn" id="svEditBtn" data-act="svEdit" aria-pressed="false" title="音符を動かす・書き込む・ページを整える">${IC.pen}<span>編集</span></button>
-   <button class="btn sm sv-tpbtn" id="svTpBtn" data-act="svTp" aria-pressed="false" title="楽譜を移調する"><span class="tp-ic">♯♭</span><span>移調</span></button>
+   <button class="btn sm sv-tpbtn" id="svTpBtn" data-act="svTp" aria-pressed="false" title="楽譜を移調する"><span class="tp-ic">♯♭</span><span class="tp-l">移調</span><b class="tp-n" hidden></b></button>
    <button class="btn sm sv-savebtn" data-act="svExport" title="書き込みごとPDFで保存">${IC.dl}<span>PDF保存</span></button>
    <button class="cbtn" data-act="scoreMenu" data-id="${t.id}" aria-label="楽譜のメニュー">${IC.dots}</button></div>
   <div class="sv-stage" id="svStage" tabindex="0" aria-label="楽譜。左右にスワイプでページ送り、ピンチやCtrl＋ホイールで拡大縮小"><canvas id="svCv"></canvas><canvas id="svAn" aria-hidden="true"></canvas><button class="sv-edge l" data-act="scorePage" data-d="-1" aria-label="前のページ"><span class="sv-arw">${IC.chevl}</span></button><button class="sv-edge r" data-act="scorePage" data-d="1" aria-label="次のページ"><span class="sv-arw">${IC.chev}</span></button></div>
@@ -1958,7 +1973,7 @@ async function drawPage(){if(!SV.doc||!SV.g)return;const o=SV.o,g=SV.g,C=SV.C;co
 let annRaf=0;function annSoon(){if(annRaf)return;annRaf=requestAnimationFrame(()=>{annRaf=0;drawAnnLayer()})}
 function drawAnnLayer(){try{renderPopSoon()}catch(_){}const an=$('#svAn'),cv=$('#svCv'),t=S.tracks.get(SV.id);if(!an||!cv||!t||!SV.g)return;if(an.width!==cv.width||an.height!==cv.height){an.width=cv.width;an.height=cv.height}
   const ctx=an.getContext('2d'),items=scEd(t).ann[SV.o]||[],s=SV.rs,C=SV.C;ctx.clearRect(0,0,an.width,an.height);drawAnn(ctx,chordItems(t,(SV.chords||{})[SV.o]),SV.g,s,C,cv);drawAnn(ctx,items,SV.g,s,C,cv);drawHeadMarks(ctx);
-  const it=SV.sel!=null&&items[SV.sel];if(it&&SV.edit){const B=itemBox(it,SV.g),p=5;ctx.save();ctx.setLineDash([6,4]);ctx.strokeStyle='#E5484D';ctx.lineWidth=2;ctx.strokeRect((B.x-C.x)*s-p,(B.y-C.y)*s-p,B.w*s+2*p,B.h*s+2*p);ctx.restore()}
+  const it=SV.sel!=null&&items[SV.sel];if(it&&SV.edit){const B=itemBox(it,SV.g),p=5;ctx.save();const dp=Math.max(1,Math.min(3,devicePixelRatio||1));ctx.setLineDash([7*dp,4*dp]);ctx.strokeStyle='#E5484D';ctx.lineWidth=2.2*dp;ctx.strokeRect((B.x-C.x)*s-p*dp,(B.y-C.y)*s-p*dp,B.w*s+2*p*dp,B.h*s+2*p*dp);ctx.restore()}
   const op=SV.op;if(!op)return;if(op.k==='pen'||op.k==='mk')drawAnn(ctx,[op],SV.g,s,C);
   else if((op.k==='wh'||op.k==='rg')&&op.e){const R=bbox(op.s,op.e),D=rotRect(SV.g.r,SV.g.W,SV.g.H,R);ctx.save();if(op.k==='wh'){ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillRect((D.x-C.x)*s,(D.y-C.y)*s,D.w*s,D.h*s)}else{ctx.fillStyle='rgba(47,111,235,.08)';ctx.fillRect((D.x-C.x)*s,(D.y-C.y)*s,D.w*s,D.h*s)}
     ctx.setLineDash([6,4]);ctx.strokeStyle=op.k==='wh'?'#E5484D':'#2F6FEB';ctx.lineWidth=1.5;ctx.strokeRect((D.x-C.x)*s,(D.y-C.y)*s,D.w*s,D.h*s);ctx.restore()}}
@@ -1968,8 +1983,8 @@ async function gotoPage(n){if(!SV.doc)return;const t=S.tracks.get(SV.id);if(!t)r
   const v=!SV.cropMode&&t.score.view&&t.score.view[o];SV.z=v&&v.z?v.z:1;placeFromView(v);if(SV.cropMode){fitMode('p',true)}applyXform();
   $('#svPage').textContent=`${n} / ${N}`;{const st=$('#svStage');if(st){st.classList.toggle('first',n===1);st.classList.toggle('last',n===N)}}if(t.score.page!==n){t.score.page=n;clearTimeout(SV.pgT);SV.pgT=setTimeout(()=>{if(S.tracks.get(t.id)===t)saveTrack(t)},600)}renderTurnBar();if(SV.edit)renderTools();
   const an=$('#svAn');if(an){an.getContext('2d').clearRect(0,0,an.width,an.height)}await drawPage();if(SV.edit&&SV.tool==='pr'&&SV.o===o)findHeads();renderTpBadge();{const tp=tpOf(t);if((tp.semi&&tp.chords)||SV.tp)loadChords(o).then(()=>{if(SV.o===o){drawAnnLayer();renderTp()}})}}
-let svSaveT;function saveViewSoon(){if(SV.cropMode)return;clearTimeout(svSaveT);svSaveT=setTimeout(()=>{const t=S.tracks.get(SV.id);if(!t||!t.score)return;const{w,h}=stageSize(),cs=baseScale()*SV.z;
-  t.score.view=t.score.view||{};t.score.view[SV.o]={z:+SV.z.toFixed(3),cx:+((w/2-SV.x)/(SV.pw*cs)).toFixed(4),cy:+((h/2-SV.y)/(SV.ph*cs)).toFixed(4)};saveTrack(t)},400)}
+let svSaveT;function saveViewSoon(now){if(SV.cropMode)return;clearTimeout(svSaveT);const f=()=>{const t=S.tracks.get(SV.id);if(!t||!t.score)return;const{w,h}=stageSize(),cs=baseScale()*SV.z;
+  t.score.view=t.score.view||{};t.score.view[SV.o]={z:+SV.z.toFixed(3),cx:+((w/2-SV.x)/(SV.pw*cs)).toFixed(4),cy:+((h/2-SV.y)/(SV.ph*cs)).toFixed(4)};saveTrack(t)};if(now)f();else svSaveT=setTimeout(f,400)}
 function zoomAt(nz,px,py){nz=Math.max(.25,Math.min(6,nz));const cs0=baseScale()*SV.z,cs1=baseScale()*nz;const ux=(px-SV.x)/cs0,uy=(py-SV.y)/cs0;SV.z=nz;SV.x=px-ux*cs1;SV.y=py-uy*cs1;clampPos();applyXform();redrawSoon();saveViewSoon();SV.lastUser=Date.now()}
 function fitMode(m,quiet){const{w,h}=stageSize();if(m==='p'){SV.z=Math.min((h-24)/(SV.ph*baseScale()),1)}else SV.z=1;placeFromView(null);if(m==='p')SV.y=Math.max(0,(h-SV.ph*baseScale()*SV.z)/2);applyXform();if(!quiet){redrawSoon();saveViewSoon()}}
 function cl2disp(e){const r=$('#svStage').getBoundingClientRect(),cs=baseScale()*SV.z;return[(e.clientX-r.left-SV.x)/cs+SV.C.x,(e.clientY-r.top-SV.y)/cs+SV.C.y]}
@@ -2173,31 +2188,38 @@ async function transposeAllPrinted(t){if(tpBusy||!SV.doc)return;tpBusy=true;cons
       a.unshift(...whs);a.push(...nts);
       for(const it of nts){const r=(((e.rot[o]||0)%360)+360)%360,dy=-steps*it.sp/2,v=r===90?[dy,0]:r===180?[0,-dy]:r===270?[-dy,0]:[0,dy];it.x=+(it.x+v[0]).toFixed(1);it.y=+(it.y+v[1]).toFixed(1);if(it.ps!=null)it.ps-=steps}
       if(needN)e.prDone.push(o);total+=nts.length}
-    respell(t);SV.sel=null;saveTrack(t);saveEdSoon();await gotoPage(back);progress(null);const nk=k0&&keyInfo({i:md12(k0.i+tp.semi),m:k0.m});toast((total?`${total}個の音符を${tp.semi>0?'+':'−'}${Math.abs(tp.semi)}の位置に移調しました。`:'')+(nk&&ksN?`調号を${nk.sigTxt}（${nk.ja}）に書き換えました。`:k0?'':'「元のキー」を選ぶと調号も書き換えます。')+'元に戻すで取り消せます')}
+    respell(t);SV.sel=null;saveTrack(t);saveEdSoon();await gotoPage(back);progress(null);const nk=k0&&keyInfo({i:md12(k0.i+tp.semi),m:k0.m});const sg=`${tp.semi>0?'+':'−'}${Math.abs(tp.semi)}`;undoToast(total?`${total}音を${sg}移調${nk&&ksN?`・${nk.ja}（${nk.sigTxt}）`:''}`:`${sg}移調しました`)}
   catch(err){progress(null);toast('移調の途中で問題が起きました')}finally{tpBusy=false}}
 function syncTpFromSong(t){const tp=tpOf(t),sid=scoreSongId(t),s=sid&&S.tracks.get(sid);if(!tp.link||!s)return;const k=Math.round(s.key||0);if(k!==tp.semi)setTpSemi(t,k,{fromSong:true})}
-function renderTpBadge(){const st=$('#svStage'),t=curT();if(!st||!t)return;let b=$('#svTpBadge');const tp=tpOf(t);
-  if(!tp.semi){if(b)b.remove();return}if(!b){b=document.createElement('button');b.id='svTpBadge';b.className='sv-tpbadge';b.dataset.act='svTp';st.appendChild(b)}
-  const k=tpKey(tp.key),nk=k&&keyInfo({i:md12(k.i+tp.semi),m:k.m});b.innerHTML=`<b>移調 ${tp.semi>0?'+':'−'}${Math.abs(tp.semi)}</b>${nk?`<span>${nk.ja}（${nk.en}）</span>`:''}`}
+/* そのキーの音階を、調に合った書き方（ミ♭・ファ♯など）で */
+function scaleNames(k){const nm=(k.m?KEY_MIN_EN:KEY_MAJ_EN)[md12(k.i)],L0=LET_I[nm[0]],S=k.m?[0,2,3,5,7,8,10]:[0,2,4,5,7,9,11];
+  return S.map((iv,j)=>{const L=(L0+j)%7,a=((md12(k.i+iv)-SEMI_L[L]+18)%12)-6;return SOL7[L]+(['𝄫','♭','','♯','𝄪'][a+2]||'')})}
+/* 移調の状態は上の「移調」ボタンの中に出す（楽譜の上には重ねない） */
+function renderTpBadge(){const t=curT(),old=$('#svTpBadge');if(old)old.remove();const b=$('#svTpBtn');if(!b||!t)return;const tp=tpOf(t),n=b.querySelector('.tp-n');if(!n)return;
+  const k=tpKey(tp.key),nk=k&&tp.semi&&keyInfo({i:md12(k.i+tp.semi),m:k.m});n.hidden=!tp.semi;n.textContent=tp.semi?`${tp.semi>0?'+':'−'}${Math.abs(tp.semi)}`:'';b.classList.toggle('has-n',!!tp.semi);
+  b.title=tp.semi?`移調 ${n.textContent}${nk?`（${nk.ja}）`:''}`:'楽譜を移調する';b.setAttribute('aria-label',b.title)}
 function setTpOpen(on){SV.tp=on;if(on&&SV.edit)setEdit(false);const el=$('#svTp');if(!el)return;el.hidden=!on;const b=$('#svTpBtn');if(b){b.classList.toggle('primary',on);b.setAttribute('aria-pressed',on)}
   if(on){const t=curT();syncTpFromSong(t);renderTp();loadChords(SV.o).then(()=>{renderTp();drawAnnLayer()})}renderTurnBar();requestAnimationFrame(onScoreResize)}
 function renderTp(){const el=$('#svTp'),t=curT();if(!el||!t||!SV.tp)return;const tp=tpOf(t),k=tpKey(tp.key),ok=k&&keyInfo(k),nk=k&&keyInfo({i:md12(k.i+tp.semi),m:k.m});
   const fl=tpFlats(tp),useFlat=fl===true||(fl==null&&tp.semi<0),sol=useFlat?SOL_FLAT:SOL_SHARP,sid=scoreSongId(t),song=sid&&S.tracks.get(sid);
-  const ch=(SV.chords||{})[SV.o];const opts=['',...KEY_MAJ_EN,...KEY_MIN_EN].map(v=>{const kk=tpKey(v),ki=kk&&keyInfo(kk);return`<option value="${v}"${tp.key===v?' selected':''}>${ki?`${ki.ja}（${ki.en}）`:'わからない'}</option>`}).join('');
+  const ch=(SV.chords||{})[SV.o];const opts=['',...KEY_MAJ_EN,...KEY_MIN_EN].map(v=>{const kk=tpKey(v),ki=kk&&keyInfo(kk);return`<option value="${v}"${tp.key===v?' selected':''}>${ki?`${ki.ja}（${ki.en}）`:'元のキー？'}</option>`}).join('');
+  const sc0=k&&scaleNames(k),sc1=k&&scaleNames({i:md12(k.i+tp.semi),m:k.m}),more=!!SV.tpMore;
   el.innerHTML=`<div class="tp-top"><b class="tp-h">移調</b>
      <div class="tp-step"><button class="tp-btn" data-act="tpStep" data-d="-1" aria-label="半音下げる">♭</button><div class="tp-val"><b>${tp.semi>0?'+':tp.semi<0?'−':'±'}${Math.abs(tp.semi)}</b><span>${semiTxt(tp.semi)}</span></div><button class="tp-btn" data-act="tpStep" data-d="1" aria-label="半音上げる">♯</button></div>
-     <button class="btn sm" data-act="tpReset"${tp.semi?'':' disabled'}>元のキーに戻す</button><span class="sv-sp"></span><button class="btn sm primary" data-act="tpDone">${IC.check}<span>完了</span></button></div>
-   <div class="tp-key"><label>元のキー<select id="tpKey">${opts}</select></label><span class="tp-arrow">→</span><div class="tp-new">${nk?`<b>${nk.ja}（${nk.en}）</b><span>${nk.sigTxt}${ok&&ok.sig!==nk.sig?`（元は${ok.sigTxt}）`:''}</span>`:'<span class="muted">元のキーを選ぶと、移調後のキーと調号を表示します</span>'}</div></div>
-   <div class="tp-map" aria-label="音の読み替え表">${[0,2,4,5,7,9,11].map(i=>`<span><i>${SOL_FLAT[i]}</i>→<b>${sol[md12(i+tp.semi)]}</b></span>`).join('')}</div>
-   <div class="tp-opts">
+     <span class="sv-sp"></span><button class="btn sm primary tp-go" data-act="tpDone">${IC.check}<span>決定</span></button></div>
+   <div class="tp-row2"><label class="tp-kl${k?'':' need'}"><span>元のキー</span><select id="tpKey">${opts}</select></label><div class="tp-new">${nk?(tp.semi?`<span class="tp-arrow">→</span><b>${nk.ja}（${nk.en}）</b><span>${nk.sigTxt}${ok&&ok.sig!==nk.sig?`（元は${ok.sigTxt}）`:''}</span>`:`<b>${ok.ja}（${ok.en}）</b><span>${ok.sigTxt}・♭♯で半音ずつ動かします</span>`):`<span class="tp-warn">← 選ぶと調号も書き換えます</span>`}</div></div>
+   ${tp.semi?`<div class="tp-map" aria-label="音の読み替え表">${(sc0?sc0.map((a,j)=>[a,sc1[j]]):[0,2,4,5,7,9,11].map(i=>[SOL_FLAT[i],sol[md12(i+tp.semi)]])).map(([a,b])=>`<span><i>${a}</i>→<b>${b}</b></span>`).join('')}</div>`:''}
+   <button class="tp-moreb" data-act="tpMore" aria-expanded="${more}">${more?'▾':'▸'} 詳しい設定${more?'':`<small>${[tp.printed?'印刷の音符も移調':'印刷の音符はそのまま',tp.chords?'コード記号も':''].filter(Boolean).join('・')}</small>`}</button>
+   ${more?`<div class="tp-opts">
+     <label class="sv-switch"><input type="checkbox" id="tpPrinted"${tp.printed?' checked':''}><i></i><span>印刷された音符もすべて移調する</span></label><span class="muted tp-note">「決定」で全ページの音符を読み取り、移調した位置に書き換えます${k?'（調号・臨時記号も新しいキーに）':''}</span>
      <label class="sv-switch"><input type="checkbox" id="tpChords"${tp.chords?' checked':''}><i></i><span>コード記号を書き換える</span></label><span class="muted tp-note">${ch==null?'このページを確認中…':ch.length?`このページに${ch.length}個あります`:'このページには文字のコード記号がありません（写真・スキャンの楽譜は書き換えできません）'}</span>
-     <label class="sv-switch"><input type="checkbox" id="tpPrinted"${tp.printed?' checked':''}><i></i><span>楽譜の音符もすべて移調する</span></label><span class="muted tp-note">「完了」で全ページの音符を自動で読み取り、${tp.semi?`${tp.semi>0?'+':'−'}${Math.abs(tp.semi)}の位置に`:'移調した位置に'}書き換えます${tpKey(tp.key)?'（調号も新しいキーに書き換え）':'。「元のキー」を選ぶと調号も書き換えます'}</span>
      <label class="sv-switch"><input type="checkbox" id="tpNotes"${tp.notes?' checked':''}><i></i><span>自分で置いた音符も動かす</span></label>
-     ${song?`<label class="sv-switch"><input type="checkbox" id="tpLink"${tp.link?' checked':''}><i></i><span>曲の音程も一緒に変える（${esc(song.title)}）</span></label>`:''}</div>`;
+     ${song?`<label class="sv-switch"><input type="checkbox" id="tpLink"${tp.link?' checked':''}><i></i><span>曲の音程も一緒に変える（${esc(song.title)}）</span></label>`:''}
+     ${tp.semi?`<button class="btn sm tp-reset" data-act="tpReset">元のキー（±0）に戻す</button>`:''}</div>`:''}`;
   $('#tpKey').onchange=e=>{tp.key=e.target.value;respell(t);saveTrack(t);saveEdSoon();renderTp();renderTpBadge();drawAnnLayer()};
-  $('#tpChords').onchange=e=>{tp.chords=e.target.checked;saveTrack(t);drawAnnLayer()};
-  $('#tpNotes').onchange=e=>{tp.notes=e.target.checked;saveTrack(t)};
-  $('#tpPrinted').onchange=e=>{tp.printed=e.target.checked;saveTrack(t);renderTp()};
+  const _q=id=>$(id)||{};_q('#tpChords').onchange=e=>{tp.chords=e.target.checked;saveTrack(t);drawAnnLayer()};
+  _q('#tpNotes').onchange=e=>{tp.notes=e.target.checked;saveTrack(t)};
+  _q('#tpPrinted').onchange=e=>{tp.printed=e.target.checked;saveTrack(t);renderTp()};
   const l=$('#tpLink');if(l)l.onchange=e=>{tp.link=e.target.checked;saveTrack(t);if(tp.link&&sid)setKeyFor(sid,tp.semi)}}
 /* ---------- 印刷された音符の検出（画像から符頭を見つける） ---------- */
 function labelCC(bin,w,h){const lab=new Int32Array(w*h);let n=0;const st=[];const comps=[];
@@ -2250,7 +2272,11 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
     s0.sigEnd=clef||bassL?end+2:0;
     /* 調号の場所：音部記号の後ろの、記号ごとの縦の列のかたまり（♭・♯ 1つずつ） */
     if(clef||bassL){let ce=-1,gp=0;for(let xx=Math.round(x0+s0.sp*1.8);xx<Math.min(w,x0+s0.sp*5);xx++){if(colInk(xx))gp=0;else if(++gp>=Math.max(2,s0.sp*.18)){ce=xx-gp+1;break}}
-      const runs=[];if(ce>0){let xx=ce,cur=null;for(;xx<=s0.sigEnd;xx++){const on=colInk(xx);if(on&&!cur)cur={a:xx};if(!on&&cur){cur.b=xx-1;if(cur.b-cur.a+1>=s0.sp*.35)runs.push(cur);cur=null}}if(cur){cur.b=xx-1;if(cur.b-cur.a+1>=s0.sp*.35)runs.push(cur)}}
+      /* 調号の記号：音部記号の後ろに、幅の狭い記号（♯・♭）が近い間隔で並ぶ。音部記号との間が広い楽譜もある */
+      const runs=[];if(ce>0){const lim=Math.min(w-1,ce+Math.round(s0.sp*12)),raw=[];let xx=ce;while(xx<lim){while(xx<lim&&!colInk(xx))xx++;if(xx>=lim)break;const a=xx;while(xx<lim&&colInk(xx))xx++;
+          const r={a,b:xx-1},p=raw[raw.length-1];/* 線を消した時に切れた細いかけらは前の記号につなげる */if(p&&(r.b-r.a+1<s0.sp*.3||p.b-p.a+1<s0.sp*.3)&&r.a-p.b<=s0.sp*.35&&r.b-p.a<s0.sp*.95)p.b=r.b;else raw.push(r)}
+        let last=ce;for(const r of raw){const gap=r.a-last,wd=r.b-r.a+1;if(runs.length>=7||gap>s0.sp*(runs.length?.75:1.5)||wd<s0.sp*.3||wd>s0.sp*.95)break;runs.push(r);last=r.b+1}
+        if(runs.length)s0.sigEnd=Math.max(s0.sigEnd,runs[runs.length-1].b+2)}
       /* ト音記号は上の線からつながって上へ1.5間ほど伸びる。ヘ音記号は伸びない（縦線・括弧は長すぎるので除く） */let upX=0;{const lim=Math.round(s0.sp*2.8),T0=Math.max(1,top-Math.round(s0.th||2)-1),XA=Math.max(1,Math.round(x0+s0.sp*.15)),XB=Math.min(w-2,Math.round(x0+s0.sp*3.2)),YL=Math.max(0,T0-lim-2),seen=new Set();
         for(let sx=XA;sx<=XB;sx++){const k0=T0*w+sx;if(!ink[k0]||seen.has(k0))continue;const q=[k0];seen.add(k0);let mn=T0,mx=sx,mnx=sx;
           while(q.length){const k=q.pop(),y=(k/w)|0,x=k%w;if(y<mn)mn=y;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const yy=y+dy,xx=x+dx;if(yy<YL||yy>T0||xx<XA-Math.round(s0.sp*.5)||xx>XB+Math.round(s0.sp*.5))continue;const kk=yy*w+xx;if(ink[kk]&&!seen.has(kk)){seen.add(kk);q.push(kk)}}}
@@ -2503,12 +2529,12 @@ function renderPop(){const st=$('#svStage');if(!st)return;let el=$('#svPop');con
   const isNote=['w','h','q','8','16','32'].includes(it.t),p=notePitch(it),nSys=isNote?(sysStaves(it,items)||[]).length:0,both=nSys>1,more=!!SV.popMore,accO=!!SV.popAcc&&isNote,curA=it.ac==null?'none':ACC_N[it.ac];
   el.innerHTML=`<div class="p2-bar"><span class="p2-name${SV.prevName?' chg':''}">${p?`${SV.prevName?`<em>${SV.prevName} →</em>`:''}<b>${p.name}</b><small>${p.en}</small>`:`<b>${ntName(it.t)}</b>`}</span>
     <button class="p2-mv" data-act="popMove" data-dy="-1" aria-label="1段上へ">▲</button><button class="p2-mv" data-act="popMove" data-dy="1" aria-label="1段下へ">▼</button>
-    <button class="p2-ty${more?' on':''}" data-act="popMore" aria-expanded="${more}"><img src="${glyphIcon(it.t)}" alt=""><span>種類</span></button>${isNote?`<button class="p2-ac${accO?' on':''}" data-act="popAcc" aria-expanded="${accO}" aria-label="臨時記号">♯♭</button>`:''}
+    <button class="p2-ty${more?' on':''}" data-act="popMore" aria-expanded="${more}"><img src="${glyphIcon(it.t)}" alt=""><span>種類</span></button>${isNote?`<button class="p2-ac${accO?' on':''}" data-act="popAcc" aria-expanded="${accO}" aria-label="臨時記号（♯・♭・♮）を直す" title="臨時記号">♯♭♮</button>`:''}
     <button class="p2-ic" data-act="popClose" aria-label="閉じる">${IC.x}</button></div>
    ${isNote?`<div class="p2-play">${[['bar','小節','この段のこの小節を再生'],...(both?[['both',nSys>2?'全パート':'両手',nSys>2?'全パートでこの小節を再生':'両手でこの小節を再生']]:[]),['from','ここから',both?'ここから全部の段で終わりまで再生':'ここから段の終わりまで再生']].map(([m,l,al])=>`<button class="${SV.playing===m?'on':''}" data-act="popPlay" data-m="${m}" aria-label="${SV.playing===m?'止める':al}">${SV.playing===m?'■ 止める':'▶ '+l}</button>`).join('')}${(()=>{const T=TEMPOS.find(x=>x[0]===tempoKey());return`<button class="p2-tempo t-${T[0]}" data-act="popTempo" aria-label="再生の速さ：${T[1]}（タップで切り替え）"><small>速さ</small>${T[1]}</button>`})()}</div>`:''}
    ${accO?`<div class="p2-acc">${[['sh','♯','シャープ'],['fl','♭','フラット'],['na','♮','ナチュラル'],['none','なし','臨時記号なし']].map(([v,l,al])=>`<button class="${curA===v?'on':''}" data-act="selAcc" data-a="${v}" aria-label="${al}">${l}</button>`).join('')}</div>`:''}
-   ${more?`<div class="p2-more"><div class="pop-nts">${NT.map(([tt,l])=>`<button class="${it.t===tt?'on':''}" data-act="selType" data-t="${tt}" title="${l}" aria-label="${l}に置き換え"><img src="${glyphIcon(tt)}" alt=""></button>`).join('')}</div>
-     <div class="pop-ft"><button data-act="popMove" data-dx="-1" aria-label="左へ">◀</button><button data-act="popMove" data-dx="1" aria-label="右へ">▶</button><button class="${it.d?'on':''}" data-act="selDot"${isNote?'':' disabled'}>付点</button><button data-act="selStem"${isNote&&it.t!=='w'?'':' disabled'}>棒 ${({u:'↑',d:'↓'})[it.sd]||'自動'}</button><button class="p2-del" data-act="selDel" aria-label="消す">${IC.trash}消す</button></div></div>`:''}`;
+   ${more?`<div class="p2-more"><div class="pop-nts">${NT.filter(([tt])=>!['sh','fl','na'].includes(tt)).map(([tt,l])=>`<button class="${it.t===tt?'on':''}" data-act="selType" data-t="${tt}" title="${l}" aria-label="${l}に置き換え"><img src="${glyphIcon(tt)}" alt=""></button>`).join('')}</div>
+     <div class="pop-ft"><button data-act="popMove" data-dx="-1" aria-label="左へ">◀</button><button data-act="popMove" data-dx="1" aria-label="右へ">▶</button><button class="${it.d?'on':''}" data-act="selDot"${isNote?'':' disabled'}>付点</button><button data-act="selStem"${isNote&&it.t!=='w'?'':' disabled'}>棒の向き ${({u:'↑',d:'↓'})[it.sd]||'自動'}</button><button class="p2-del" data-act="selDel" aria-label="消す">${IC.trash}消す</button></div></div>`:''}`;
   el.hidden=false;
   const B=itemBox(it,SV.g),cs=baseScale()*SV.z,sw=st.clientWidth,sh=st.clientHeight,pw=el.offsetWidth,ph=el.offsetHeight;
   const nx=SV.x+(B.x+B.w/2-SV.C.x)*cs,ny=SV.y+(B.y-SV.C.y)*cs,nb=SV.y+(B.y+B.h-SV.C.y)*cs;
@@ -2621,7 +2647,7 @@ function renderTools(){const el=$('#svTools');if(!el||!SV.edit)return;const t=cu
   else if(INK[k])opts=`<div class="sv-opts">${inkOpts(k)}<span class="sv-div"></span>${[0,1,2].map(i=>`<button class="sv-sz${SV.size[k]===i?' on':''}" data-act="svSize" data-s="${i}" title="${['細','中','太'][i]}" aria-label="${['細','中','太'][i]}"><i style="--d:${k==='tx'?6+i*4:k==='mk'?7+i*4:3+i*3}px"></i></button>`).join('')}</div>`;
   const tools=mode==='page'?`<div class="sv-tl2 pg"><button class="lbl" data-act="svRotate">${IC.rotate}<span>回転</span></button><button class="lbl" data-act="svCrop">${IC.crop}<span>余白を切る</span></button><button class="lbl" data-act="svPages">${IC.pages}<span>並べ替え・削除</span></button><button class="lbl" data-act="svClearPage"${n?'':' disabled'}>${IC.trash}<span>書き込み消去</span></button></div>`
     :`<div class="sv-tl2" role="toolbar" aria-label="道具">${MODE_TOOLS[mode].map(([id,l,ic])=>`<button class="${k===id?'on':''}" data-act="svTool" data-t="${id}" aria-pressed="${k===id}">${ic}<span>${l}</span></button>`).join('')}</div>`;
-  const prN=SV.tool==='pr'?((SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`]||[]).filter(x=>!headOff(x)).length:0;const hint=sel?(sel.k==='nt'?'音符の下のバーで ▲▼・種類を変更。指でドラッグしても動かせます':sel.k==='mv'?'ドラッグで移動。下で別の音符に変える／白で消す':'ドラッグで移動、または削除'):(k==='pr'&&(SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`]?`${prN}個の音符に印を付けました。タップで動かす・追加／長押しで外す`:TOOL_HINT[k]||'');
+  const prN=SV.tool==='pr'?((SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`]||[]).filter(x=>!headOff(x)).length:0;const hint=sel?(sel.k==='nt'?'▲▼で高さを変更できます':sel.k==='mv'?'ドラッグで移動。下で別の音符に変える／白で消す':'ドラッグで移動、または削除'):(k==='pr'&&(SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`]?(prN?`${prN}個の音符に印。タップで選ぶ・空いた所をタップで追加`:'音符をタップすると印が付きます（長押しで外す）'):TOOL_HINT[k]||'');
   el.innerHTML=`<div class="sv-trow sv-top"><div class="sv-modes" role="tablist" aria-label="編集の種類">${MODES.map(([m,l,ic])=>`<button role="tab" class="${mode===m?'on':''}" aria-selected="${mode===m}" data-act="svMode" data-m="${m}">${ic}<span>${l}</span></button>`).join('')}</div><span class="sv-sp"></span>
      <button class="cbtn" data-act="svUndo"${SV.undo.length?'':' disabled'} aria-label="元に戻す" title="元に戻す（Ctrl+Z）">${IC.undo}</button><button class="cbtn sv-redo" data-act="svRedo"${SV.redo.length?'':' disabled'} aria-label="やり直す" title="やり直す（Ctrl+Shift+Z）">${IC.undo}</button></div>
    <div class="sv-trow sv-mid">${tools}</div>
@@ -2708,7 +2734,10 @@ function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropE
       try{const bytes=await buildEditedPdf(t,{ann:$('#pdfAnn').checked});file=new File([bytes],safeName($('#pdfName').value),{type:'application/pdf'});
         SV.savedSig=snapEd();go.disabled=false;go.innerHTML=`${IC.check}保存する`;msg.textContent=`PDFができました（${Math.max(1,Math.round(bytes.length/1024))}KB）。「保存する」を押してください。`;if(!isMobile())save()}
       catch(err){console.error(err);go.disabled=false;go.innerHTML=`${IC.dl}PDFを作成`;msg.textContent='PDFを作成できませんでした。このPDFは保護されている可能性があります。'}}})}
-function scoreMenu(btn,id){openActMenu(btn,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['scoreHelp','使い方を見る',IC.help],['svTp','移調',IC.note],...(curT()&&curT().scoreOnly?[['scoreRename','楽譜の名前を変更',IC.pen],['songPick',curT().score&&curT().score.song?'一緒に再生する曲を変更':'一緒に再生する曲を選ぶ',IC.note]]:[]),['svEdit',SV.edit?'書き込みを終える':'書き込む',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','PDFで保存',IC.dl],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']])}
+/* メニューは「表示」「楽譜」「やり直し」「ヘルプ」「削除」の順。上のボタンと同じ機能（編集・移調）は置かない */
+function scoreMenu(btn,id){const t=curT();openActMenu(btn,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],['scoreResetView','このページの表示位置をリセット',IC.undo],'-',
+  ['svExport','書き込みごとPDFで保存',IC.dl],...(t&&t.scoreOnly?[['scoreRename','楽譜の名前を変更',IC.pen],...(t.score&&t.score.song?[['songPick','一緒に再生する曲を変更',IC.note]]:[])]:[]),['scoreReplace','楽譜PDFを差し替える',IC.score],['svPages','ページの並べ替え・回転・削除',IC.pages],'-',
+  ['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],...(t&&hasEdits(t)?[['svEditReset','書き込みをすべて取り消す',IC.undo]]:[]),'-',['scoreHelp','使い方を見る',IC.help],'-',['scoreDelete','楽譜を削除',IC.trash,'danger']])}
 function smartSheet(){const tagsUsed=[...new Set(all().flatMap(t=>t.tags||[]))],genres=[...new Set(all().map(t=>t.genre).filter(Boolean))],artists=[...new Set(all().map(t=>t.artist).filter(Boolean))];
   const opt=(l,ph)=>`<option value="">${ph}</option>`+l.sort((a,b)=>a.localeCompare(b,'ja')).map(x=>`<option>${esc(x)}</option>`).join('');
   sheet(`<h2>条件で自動プレイリスト</h2><p style="margin:0;color:var(--muted);font-size:13px">条件に合う曲が自動で集まります。曲の評価やタグを変えると中身も変わります。</p>
@@ -2870,6 +2899,7 @@ document.addEventListener('click',e=>{
     if(act==='svNotes'){if(!SV.doc){toast('楽譜を開いてから使えます');return}if(!SV.edit)setEdit(true);SV.tool='pr';SV.sel=null;setStageTool();renderTools();drawAnnLayer();findHeads();return}
     if(act==='svTp'){if(!SV.doc){toast('楽譜を開いてから使えます');return}setTpOpen(!SV.tp);return}
     if(act==='tpStep'){const t=curT();if(t)setTpSemi(t,tpOf(t).semi+(+a.dataset.d));return}
+    if(act==='tpMore'){SV.tpMore=!SV.tpMore;renderTp();requestAnimationFrame(onScoreResize);return}
     if(act==='tpDone'){setTpOpen(false);const t=curT();if(t&&tpOf(t).printed&&tpOf(t).semi)transposeAllPrinted(t);return}
     if(act==='tpReset'){const t=curT();if(t)setTpSemi(t,0);return}
     if(act==='svMode'){const m=a.dataset.m;SV.lastTool=SV.lastTool||{};SV.lastTool[toolMode(SV.tool)]=SV.tool;SV.tool=m==='page'?'hand':(SV.lastTool[m]||(m==='note'?'pr':'pen'));SV.sel=null;setStageTool();renderTools();drawAnnLayer();if(SV.tool==='pr')findHeads();return}
@@ -2920,7 +2950,7 @@ document.addEventListener('click',e=>{
     if(act==='scoreZoom'){const{w,h}=stageSize();zoomAt(SV.z*(+a.dataset.d>0?1.2:1/1.2),w/2,h/2);return}
     if(act==='scoreFit'){fitMode(a.dataset.m);return}
     if(act==='scoreFitW'){fitMode('w');return}if(act==='scoreFitP'){fitMode('p');return}
-    if(act==='scoreMenu'){openActMenu(a,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],'-',['scoreReplace','楽譜PDFを差し替える',IC.score],['scoreResetView','このページの表示位置をリセット',IC.undo],['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],'-',['scoreHelp','使い方を見る',IC.help],['svTp','移調',IC.note],...(curT()&&curT().scoreOnly?[['scoreRename','楽譜の名前を変更',IC.pen],['songPick',curT().score&&curT().score.song?'一緒に再生する曲を変更':'一緒に再生する曲を選ぶ',IC.note]]:[]),['svEdit',SV.edit?'書き込みを終える':'書き込む',IC.pen],['svPages','ページ整理（並べ替え・回転・削除）',IC.pages],['svExport','PDFで保存',IC.dl],...(curT()&&hasEdits(curT())?[['svEditReset','編集をすべて取り消す',IC.undo]]:[]),'-',['scoreDelete','楽譜を削除',IC.trash,'danger']]);return}
+    if(act==='scoreMenu'){scoreMenu(a);return}
     if(act==='scoreReplace'){pickScore(SV.id||id);return}
     if(act==='scoreDelete'){const sid=SV.id;sheet(`<h2>楽譜を削除しますか？</h2><p style="margin:0;color:var(--muted)">この曲に取り込んだ楽譜PDFと、表示位置・ページめくり位置の設定が消えます。元のPDFファイルは消えません。</p><div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">キャンセル</button><button class="btn danger" data-act="scoreDelGo" data-id="${sid}">削除する</button></span></div>`);return}
     if(act==='scoreDelGo'){closeSheet();removeScore(id);return}
@@ -3019,8 +3049,10 @@ document.addEventListener('keydown',e=>{const tag=(document.activeElement||{}).t
 
 let toastT;function toast(msg){progress(msg);clearTimeout(toastT);toastT=setTimeout(()=>progress(null),3600)}
 /* 取り消しボタン付きのお知らせ */
-function undoToast(msg){progress(msg);const el=$('#prog');if(el){el.classList.add('has-undo');const b=document.createElement('button');b.className='prog-undo';b.dataset.act='svUndo';b.textContent='元に戻す';el.appendChild(b)}clearTimeout(toastT);toastT=setTimeout(()=>progress(null),5000)}
-function progress(msg){let el=$('#prog');if(!msg){el&&el.remove();return}if(!el){el=document.createElement('div');el.id='prog';el.className='progress';el.setAttribute('role','status');document.body.appendChild(el)}el.className='progress';el.textContent=msg}
+function undoToast(msg){progress(msg);const el=$('#prog');if(el){el.classList.add('has-undo');const b=document.createElement('button');b.className='prog-undo';b.dataset.act='svUndo';b.textContent='元に戻す';el.appendChild(b);placeProg()}clearTimeout(toastT);toastT=setTimeout(()=>progress(null),6000)}
+function progress(msg){let el=$('#prog');if(!msg){el&&el.remove();return}if(!el){el=document.createElement('div');el.id='prog';el.className='progress';el.setAttribute('role','status');document.body.appendChild(el)}el.className='progress';el.textContent=msg;placeProg()}
+/* 楽譜を開いているときは、楽譜の表示エリアの下端に出す（タイトルや1段目を隠さない） */
+function placeProg(){const el=$('#prog');if(!el)return;el.style.top='';el.style.bottom='';if(!document.body.classList.contains('score-open'))return;const st=$('#svStage');if(!st)return;const r=st.getBoundingClientRect();requestAnimationFrame(()=>{if(!el.isConnected)return;el.style.bottom='auto';el.style.top=Math.max(r.top+8,r.bottom-el.offsetHeight-12)+'px'})}
 
 /* ---------- 起動 ---------- */
 (async()=>{
