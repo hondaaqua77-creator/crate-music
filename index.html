@@ -1182,6 +1182,7 @@ const IC={
  rep1:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/><path d="M11 10h1v5" stroke-width="1.8"/></svg>',
  dots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>',
  up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 15l6-6 6 6"/></svg>',
+ share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>',
  down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>',
  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg>',
  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
@@ -2018,7 +2019,7 @@ function scoreShell(t){const sc=t.score;
    <div class="sv-zoom"><button class="cbtn" data-act="scoreZoom" data-d="-1" aria-label="縮小" title="縮小">${IC.zoomout}</button><span id="svZoom">100%</span><button class="cbtn" data-act="scoreZoom" data-d="1" aria-label="拡大" title="拡大">${IC.zoomin}</button></div>
    <button class="btn sm sv-editbtn" id="svEditBtn" data-act="svEdit" aria-pressed="false" title="音符を動かす・書き込む・ページを整える">${IC.pen}<span>編集</span></button>
    <button class="btn sm sv-tpbtn" id="svTpBtn" data-act="svTp" aria-pressed="false" title="楽譜を移調する"><span class="tp-ic">♯♭</span><span class="tp-l">移調</span><b class="tp-n" hidden></b></button>
-   <button class="btn sm sv-savebtn" data-act="svExport" title="書き込みごとPDFで保存">${IC.dl}<span>PDF保存</span></button>
+   <button class="btn sm sv-savebtn" data-act="svExport" title="PDFで保存・送る">${IC.dl}<span>PDF保存</span></button>
    <button class="cbtn" data-act="scoreMenu" data-id="${t.id}" aria-label="楽譜のメニュー">${IC.dots}</button></div>
   <div class="sv-stage" id="svStage" tabindex="0" aria-label="楽譜。左右にスワイプでページ送り、ピンチやCtrl＋ホイールで拡大縮小"><canvas id="svCv"></canvas><canvas id="svAn" aria-hidden="true"></canvas><button class="sv-edge l" data-act="scorePage" data-d="-1" aria-label="前のページ"><span class="sv-arw">${IC.chevl}</span></button><button class="sv-edge r" data-act="scorePage" data-d="1" aria-label="次のページ"><span class="sv-arw">${IC.chev}</span></button></div>
   <div class="sv-turn" id="svTurn"></div><div class="sv-tools" id="svTools" hidden></div><div class="sv-tp" id="svTp" hidden></div>`}
@@ -2920,26 +2921,38 @@ function labelPng(txt){const px=64,c=document.createElement('canvas'),g=c.getCon
 function tpFileTag(t){const tp=tpOf(t);if(!tp.semi)return'';const k=tpKey(tp.key);const sg=(tp.semi>0?'+':'−')+Math.abs(tp.semi);if(!k)return`移調${sg}`;const nk=keyInfo({i:md12(k.i+tp.semi),m:k.m});return`${nk&&nk.ja?nk.ja:'移調'}(${sg})`}
 function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropExit();
   const e=scEd(t),nAnn=Object.values(e.ann||{}).reduce((a,v)=>a+(v?v.length:0),0),def=`${t.title||(t.score.name||'楽譜').replace(/\.pdf$/i,'')}_${tpFileTag(t)||'楽譜'}`;
-  sheet(`<h2>楽譜をPDFで保存</h2>
+  sheet(`<h2>楽譜をPDFで保存・送る</h2>
    <div class="fields"><label class="full">ファイル名<input id="pdfName" value="${esc(def)}" autocomplete="off"></label></div>
    <div class="pdfsum"><div><b>${scPages(t)}</b><span>ページ</span></div><div><b>${nAnn}</b><span>書き込み・音符</span></div><div><b>${Object.values(e.rot).filter(Boolean).length+Object.keys(e.crop).length}</b><span>回転・トリミング</span></div></div>
    <label class="sv-auto"><input type="checkbox" id="pdfAnn" checked><span>書き込み・音符・白塗りを含める</span></label>
    ${tpLabel(t)?`<label class="sv-auto"><input type="checkbox" id="pdfKey" checked><span>1ページ目の右上に調を書き入れる：<b>${esc(tpLabel(t))}</b></span></label>`:''}
-   <p class="muted" id="pdfMsg" style="margin:0;font-size:12.5px">${isMobile()?'作成後に「保存する」を押すと共有画面が開きます。「\"ファイル\"に保存」を選ぶと端末に保存されます。':'作成後に「保存する」を押すと、ダウンロードフォルダに保存されます。'}元のPDFは変わりません。</p>
-   <div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">閉じる</button><button class="btn primary" id="pdfGo">${IC.dl}PDFを作成</button></span></div>`,root=>{
-    let file=null;const go=$('#pdfGo'),msg=$('#pdfMsg');
+   <p class="muted" id="pdfMsg" style="margin:0;font-size:12.5px">PDFを準備しています…</p>
+   <div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">閉じる</button><button class="btn" id="pdfShare" hidden>${IC.share}送る</button><button class="btn primary" id="pdfGo" disabled>${IC.dl}保存する</button></span></div>`,root=>{
+    /* 開いたらすぐ裏でPDFを作っておく：「送る」「保存する」を1回押すだけで済むように（共有画面はタップ直後でないと開けないため） */
+    let file=null,job=0;const go=$('#pdfGo'),sh=$('#pdfShare'),msg=$('#pdfMsg');
+    const canShareFile=f=>{try{return!!(navigator.share&&navigator.canShare&&navigator.canShare({files:[f]}))}catch(_){return false}};
+    const shareText=()=>{const k=tpLabel(t);return k?`${k}の楽譜です。`:'楽譜を送ります。'};
+    const ready=()=>{const kb=Math.max(1,Math.round(file.size/1024));go.disabled=false;sh.disabled=false;sh.hidden=!canShareFile(file);/* スマホは「送る」を主役に */const sp=!sh.hidden&&isMobile();sh.classList.toggle('primary',sp);go.classList.toggle('primary',!sp);
+      msg.textContent=sh.hidden?`PDFができました（${kb}KB）。${isMobile()?'「保存する」で共有画面が開きます。「"ファイル"に保存」を選ぶと端末に保存されます。':'「保存する」でダウンロードフォルダに保存されます。'}元のPDFは変わりません。`
+        :`PDFができました（${kb}KB）。「送る」でLINE・メール・AirDropなどにそのまま送れます。${isMobile()?'「保存する」は「"ファイル"に保存」を選んでください。':'「保存する」はダウンロードフォルダに保存します。'}`};
+    const build=async()=>{const my=++job;file=null;go.disabled=true;sh.disabled=true;msg.textContent='PDFを準備しています…';
+      try{const bytes=await buildEditedPdf(t,{ann:$('#pdfAnn').checked,keyLabel:!!($('#pdfKey')&&$('#pdfKey').checked)});if(my!==job)return;
+        file=new File([bytes],safeName($('#pdfName').value),{type:'application/pdf'});SV.savedSig=snapEd();ready()}
+      catch(err){if(my!==job)return;console.error(err);msg.textContent='PDFを作成できませんでした。このPDFは保護されている可能性があります。'}};
+    const rename=()=>{if(file){file=new File([file],safeName($('#pdfName').value),{type:'application/pdf'})}};
     const save=async()=>{if(!file)return;
-      if(isMobile()&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:file.name});msg.textContent=`「${file.name}」を保存しました。`;return}catch(err){if(err&&err.name==='AbortError')return}}
+      if(isMobile()&&canShareFile(file)){try{await navigator.share({files:[file],title:file.name});msg.textContent=`「${file.name}」を保存しました。`;return}catch(err){if(err&&err.name==='AbortError')return}}
       const u=URL.createObjectURL(file);const a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);
       msg.innerHTML=`「${esc(file.name)}」を保存しました。${isMobile()?'':'ダウンロードフォルダを確認してください。'} <a href="${u}" target="_blank" rel="noopener">開いて確認</a>`;toast('PDFを保存しました')};
-    root.querySelectorAll('#pdfName,#pdfAnn,#pdfKey').forEach(x=>x.addEventListener('input',()=>{file=null;go.innerHTML=`${IC.dl}PDFを作成`;go.classList.add('primary')}));
-    go.onclick=async()=>{if(file){save();return}go.disabled=true;go.textContent='作成中…';
-      try{const bytes=await buildEditedPdf(t,{ann:$('#pdfAnn').checked,keyLabel:!!($('#pdfKey')&&$('#pdfKey').checked)});file=new File([bytes],safeName($('#pdfName').value),{type:'application/pdf'});
-        SV.savedSig=snapEd();go.disabled=false;go.innerHTML=`${IC.check}保存する`;msg.textContent=`PDFができました（${Math.max(1,Math.round(bytes.length/1024))}KB）。「保存する」を押してください。`;if(!isMobile())save()}
-      catch(err){console.error(err);go.disabled=false;go.innerHTML=`${IC.dl}PDFを作成`;msg.textContent='PDFを作成できませんでした。このPDFは保護されている可能性があります。'}}})}
+    const send=async()=>{if(!file)return;rename();
+      try{await navigator.share({files:[file],title:file.name,text:shareText()});msg.textContent=`「${file.name}」を送りました。`;toast('楽譜を送りました')}
+      catch(err){if(err&&err.name==='AbortError')return;/* 文章つきで送れないアプリ向けに、ファイルだけでもう一度 */try{await navigator.share({files:[file]});msg.textContent=`「${file.name}」を送りました。`}catch(e2){if(!e2||e2.name!=='AbortError')msg.textContent='送れませんでした。「保存する」で保存してから、アプリで添付してください。'}}};
+    $('#pdfName').addEventListener('input',rename);
+    root.querySelectorAll('#pdfAnn,#pdfKey').forEach(x=>x.addEventListener('change',build));
+    go.onclick=()=>{rename();save()};sh.onclick=send;build()})}
 /* メニューは「表示」「楽譜」「やり直し」「ヘルプ」「削除」の順。上のボタンと同じ機能（編集・移調）は置かない */
 function scoreMenu(btn,id){const t=curT();openActMenu(btn,[['scoreFitW','横幅に合わせる',IC.fitw],['scoreFitP','ページ全体を表示',IC.fitp],['scoreResetView','このページの表示位置をリセット',IC.undo],'-',
-  ['svExport','書き込みごとPDFで保存',IC.dl],...(t&&t.scoreOnly?[['scoreRename','楽譜の名前を変更',IC.pen],...(t.score&&t.score.song?[['songPick','一緒に再生する曲を変更',IC.note]]:[])]:[]),['scoreReplace','楽譜PDFを差し替える',IC.score],['svPages','ページの並べ替え・回転・削除',IC.pages],'-',
+  ['svExport','PDFで保存・送る',IC.dl],...(t&&t.scoreOnly?[['scoreRename','楽譜の名前を変更',IC.pen],...(t.score&&t.score.song?[['songPick','一緒に再生する曲を変更',IC.note]]:[])]:[]),['scoreReplace','楽譜PDFを差し替える',IC.score],['svPages','ページの並べ替え・回転・削除',IC.pages],'-',
   ['scoreTurnClear','ページめくり位置をすべて解除',IC.flag],...(t&&hasEdits(t)?[['svEditReset','書き込みをすべて取り消す',IC.undo]]:[]),'-',['scoreHelp','使い方を見る',IC.help],'-',['scoreDelete','楽譜を削除',IC.trash,'danger']])}
 function smartSheet(){const tagsUsed=[...new Set(all().flatMap(t=>t.tags||[]))],genres=[...new Set(all().map(t=>t.genre).filter(Boolean))],artists=[...new Set(all().map(t=>t.artist).filter(Boolean))];
   const opt=(l,ph)=>`<option value="">${ph}</option>`+l.sort((a,b)=>a.localeCompare(b,'ja')).map(x=>`<option>${esc(x)}</option>`).join('');
