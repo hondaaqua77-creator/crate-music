@@ -1182,6 +1182,7 @@ const IC={
  rep1:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/><path d="M11 10h1v5" stroke-width="1.8"/></svg>',
  dots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>',
  up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 15l6-6 6 6"/></svg>',
+ stop:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>',
  share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>',
  down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>',
  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg>',
@@ -2364,7 +2365,7 @@ function renderTp(){const el=$('#svTp'),t=curT();if(!el||!t||!SV.tp)return;const
      <div class="tp-step"><button class="tp-btn" data-act="tpStep" data-d="-1" aria-label="半音下げる">♭</button><div class="tp-val"><b>${SEM>0?'+':SEM<0?'−':'±'}${Math.abs(SEM)}</b><span>${semiTxt(SEM)}</span></div><button class="tp-btn" data-act="tpStep" data-d="1" aria-label="半音上げる">♯</button></div>
      <span class="sv-sp"></span>${RG?'':`<button class="btn sm primary tp-go" data-act="tpDone">${IC.check}<span>決定</span></button>`}</div>
    <div class="tp-scope" role="radiogroup" aria-label="移調する範囲"><button role="radio" aria-checked="${!RG}" class="${RG?'':'on'}" data-act="tpScope" data-s="all">楽譜全体</button><button role="radio" aria-checked="${RG}" class="${RG?'on':''}" data-act="tpScope" data-s="rg">区画を選ぶ</button>
-    ${RG?`<span class="tp-rgh">${rc?`<b>選んだ${rc.row?'段':'区画'}：${rc.sm>0?'+':rc.sm<0?'−':'±'}${Math.abs(rc.sm)}</b>　♭♯を押すとすぐ書き換わります。枠の中をなぞると移動、角や辺の○をなぞると大きさを変えられます`:`五線をタップで1段、指でなぞると四角で選べます${rgN.length?`（${rgN.length}か所 書き換え済み）`:''}`}</span>${rgN.length?`<span class="tp-rgdel">${rc?`<button class="btn sm" data-act="tpRgUndo" aria-label="選んだ区画を消して元の音に戻す">${IC.x}この区画を消す</button>`:''}${rgN.length>1||!rc?`<button class="btn sm" data-act="tpRgAll" aria-label="このページの区画をすべて消して元の音に戻す">${IC.trash}区画をすべて消す（${rgN.length}）</button>`:''}</span>`:''}`:''}</div>
+    ${RG?`<span class="tp-rgh">${rc?`<b>選んだ${rc.row?'段':'区画'}：${rc.sm>0?'+':rc.sm<0?'−':'±'}${Math.abs(rc.sm)}</b>　♭♯を押すとすぐ書き換わります。枠の中をなぞると移動、角や辺の○をなぞると大きさを変えられます`:`五線をタップで1段、指でなぞると四角で選べます${rgN.length?`（${rgN.length}か所 書き換え済み）`:''}`}</span>${rgN.length?`<span class="tp-rgdel">${rc?`<button class="btn sm${SV.playing==='rgn'?' on':' primary'}" data-act="tpRgPlay" aria-label="${SV.playing==='rgn'?'再生を止める':'この区画だけを再生する'}">${SV.playing==='rgn'?`${IC.stop}止める`:`${IC.play}この区画を聴く`}</button>`:''}${rc?`<button class="btn sm" data-act="tpRgUndo" aria-label="選んだ区画を消して元の音に戻す">${IC.x}この区画を消す</button>`:''}${rgN.length>1||!rc?`<button class="btn sm" data-act="tpRgAll" aria-label="このページの区画をすべて消して元の音に戻す">${IC.trash}区画をすべて消す（${rgN.length}）</button>`:''}</span>`:''}`:''}</div>
    <div class="tp-row2"><label class="tp-kl${k?'':' need'}"><span>元のキー${tp.keyAuto&&k?'<small style="font-weight:500;color:var(--muted)">（読み取り）</small>':''}</span><select id="tpKey">${opts}</select></label><div class="tp-new">${nk?(SEM?`<span class="tp-arrow">→</span><b>${nk.ja}（${nk.en}）</b><span>${nk.sigTxt}${ok&&ok.sig!==nk.sig?`（元は${ok.sigTxt}）`:''}</span>`:`<b>${ok.ja}（${ok.en}）</b><span>${ok.sigTxt}・♭♯で半音ずつ動かします</span>`):`<span class="tp-warn">← 選ぶと調号も書き換えます</span>`}</div></div>
    ${SEM?`<div class="tp-map" aria-label="音の読み替え表">${(sc0?sc0.map((a,j)=>[a,sc1[j]]):[0,2,4,5,7,9,11].map(i=>[SOL_FLAT[i],sol[md12(i+SEM)]])).map(([a,b])=>`<span><i>${a}</i>→<b>${b}</b></span>`).join('')}</div>`:''}
    ${RG?'':`<button class="tp-moreb" data-act="tpMore" aria-expanded="${more}">${more?'▾':'▸'} 詳しい設定${more?'':`<small>${[tp.printed?'印刷の音符も移調':'印刷の音符はそのまま',tp.chords?'コード記号も':''].filter(Boolean).join('・')}</small>`}</button>
@@ -2669,7 +2670,7 @@ function notePitch(it){if(!it||it.ps==null||!NOTE_T.includes(it.t))return null;c
   for(const e of M){if(e.o===it)break;if(NOTE_T.includes(e.o.t)&&e.o.ac!=null&&e.o.ps!=null)pitchIn(e.o,km,clefOf(e.o,L),carry)}
   const p=pitchIn(it,km,cl,carry),acc=p.a,AS=['𝄫','♭','','♯','𝄪'][acc+2]||'';return{name:SOL7[p.l]+AS,en:LET7[p.l]+AS+(p.oct),midi:p.midi}}
 /* 小節（またはその音符から段の終わりまで）を鳴らす。鳴っている音符を赤く光らせる */
-let playT=[],playSrc=[];function stopPlay(){playT.forEach(clearTimeout);playT=[];playSrc.forEach(o=>{try{o.stop()}catch(_){}});playSrc=[];if(SV.hl){SV.hl=null;drawAnnLayer()}if(SV.playing){SV.playing=null;renderPopSoon()}}
+let playT=[],playSrc=[];function stopPlay(){playT.forEach(clearTimeout);playT=[];playSrc.forEach(o=>{try{o.stop()}catch(_){}});playSrc=[];if(SV.hl){SV.hl=null;drawAnnLayer()}if(SV.playing){const m=SV.playing;SV.playing=null;renderPopSoon();if(m==='rgn'&&SV.tp)setTimeout(renderTp)}}
 /* 再生の速さ（ゆっくり・ふつう・速く）。この端末に覚えておく */
 const TEMPOS=[['slow','ゆっくり',60],['mid','ふつう',96],['fast','速く',132]];
 function tempoKey(){if(SV.tempo)return SV.tempo;let k='mid';try{k=localStorage.getItem('crate.tempo')||'mid'}catch(_){}SV.tempo=TEMPOS.some(x=>x[0]===k)?k:'mid';return SV.tempo}
@@ -2700,6 +2701,15 @@ function rangeSegs(){const R=SV.range,t=curT();if(!R||!t||!SV.g)return null;cons
   for(const k of keys){const rep=k===ka?A:k===kb?B:items.find(o=>o.k==='nt'&&o.sti!=null&&NOTE_T.includes(o.t)&&keyOf(o)===k);if(!rep)continue;const{parts}=sysParts(rep,items,SSof(rep));
     const mis=[...new Set(parts.flatMap(p=>p.E.map(e=>e.mi)))].filter(m=>(k!==ka||m>=ma)&&(k!==kb||m<=mb)).sort((x,y)=>x-y);if(mis.length){segs.push({parts,mis});n+=mis.length}}
   return{segs,n}}
+/* 区画の中の音符だけを鳴らす（段ごと・小節ごとに頭をそろえる。区画の外の段・音符は鳴らさない） */
+function rgnSegs(reg){const t=curT(),g=SV.g;if(!t||!g||!reg)return[];const items=annOf(SV.o),P=o=>rotPt(g.r,g.W,g.H,o.x,o.y),inR=o=>{const q=P(o);return rgIn(reg,q[0],q[1])};
+  const ins=items.filter(o=>o.k==='nt'&&o.sti!=null&&NOTE_T.includes(o.t)&&o.ps!=null&&inR(o));if(!ins.length)return[];
+  const keyOf=o=>(sysStaves(o,items)||[o.sti])[0],groups=new Map();for(const o of ins){const k=keyOf(o);(groups.get(k)||groups.set(k,[]).get(k)).push(o)}
+  const segs=[];for(const k of[...groups.keys()].sort((a,b)=>a-b)){const L=groups.get(k),SS=[...new Set(L.map(o=>o.sti))].sort((a,b)=>a-b),rep=L.reduce((a,b)=>P(a)[0]<=P(b)[0]?a:b);
+    const{parts}=sysParts(rep,items,SS);const ps=parts.map(p=>({...p,E:p.E.filter(e=>inR(e.o))})).filter(p=>p.E.length);if(!ps.length)continue;
+    const mis=[...new Set(ps.flatMap(p=>p.E.map(e=>e.mi)))].sort((a,b)=>a-b);segs.push({parts:ps,mis})}
+  return segs}
+function playRgn(){stopPlay();const segs=rgnSegs(rgCur());if(!segs.length){toast('この区画には鳴らせる音符がありません');return 0}const n=playSegs(segs,'rgn',()=>playRgn());renderTp();return n}
 function playRange(){stopPlay();const r=rangeSegs();if(!r||!r.segs.length)return 0;return playSegs(r.segs,'range',()=>playRange())}
 /* 小節ごとに頭をそろえて鳴らす。くり返しがオンなら again() でもう一度 */
 function playSegs(segs,mode,again){const t=curT();const km=dispKeyMap(t),q=60/tempoBpm();try{toneCtx=toneCtx||new (window.AudioContext||window.webkitAudioContext)();if(toneCtx.state!=='running')toneCtx.resume()}catch(_){return 0}
@@ -2713,7 +2723,7 @@ function playSegs(segs,mode,again){const t=curT();const km=dispKeyMap(t),q=60/te
   if(!n)return 0;
   /* 鳴っている音符を赤く：各時刻に鳴り始めた音符を、その音の長さのあいだ光らせる */
   const on=new Set();for(const[k,L]of[...hlAt].sort((a,b)=>a[0]-b[0])){playT.push(setTimeout(()=>{for(const o of L)on.add(o);SV.hl=new Set(on);drawAnnLayer()},k*q+80));for(const o of L){const d=(DUR[o.t]||1)*(o.d?1.5:1);playT.push(setTimeout(()=>{on.delete(o);SV.hl=new Set(on);drawAnnLayer()},(k/1000+d)*q*1000+60))}}
-  /* くり返しがオンなら、同じ範囲をもう一度 */playT.push(setTimeout(()=>{if(loopOn()&&SV.playing===mode&&again()){return}SV.hl=null;SV.playing=null;drawAnnLayer();renderPopSoon()},T*q*1000+(loopOn()?450:250)));SV.playing=mode;renderPopSoon();return n}
+  /* くり返しがオンなら、同じ範囲をもう一度 */playT.push(setTimeout(()=>{if(loopOn()&&SV.playing===mode&&again()){return}SV.hl=null;SV.playing=null;drawAnnLayer();renderPopSoon();if(mode==='rgn'&&SV.tp)renderTp()},T*q*1000+(loopOn()?450:250)));SV.playing=mode;renderPopSoon();return n}
 function tone(midi,at,dur){const o=toneCtx.createOscillator(),g=toneCtx.createGain(),f=440*Math.pow(2,(midi-69)/12);o.type='triangle';o.frequency.value=f;
   g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(.2,at+.015);g.gain.setTargetAtTime(.12,at+.05,.15);g.gain.setTargetAtTime(0,at+Math.max(.06,dur-.04),.03);o.connect(g).connect(toneCtx.destination);o.start(at);o.stop(at+dur+.25);playSrc.push(o)}
 let toneCtx=null;function playTone(midi){try{toneCtx=toneCtx||new (window.AudioContext||window.webkitAudioContext)();if(toneCtx.state!=='running')toneCtx.resume();const t0=toneCtx.currentTime,o=toneCtx.createOscillator(),g=toneCtx.createGain(),f=440*Math.pow(2,(midi-69)/12);
@@ -3178,6 +3188,7 @@ document.addEventListener('click',e=>{
     if(act==='svTp'){if(!SV.doc){toast('楽譜を開いてから使えます');return}setTpOpen(!SV.tp);return}
     if(act==='tpStep'){const t=curT();if(SV.tpScope==='rg'){SV.rgSemi=Math.max(-12,Math.min(12,(SV.rgSemi||0)+(+a.dataset.d)));const reg=rgCur();if(reg&&t){reg.sm=SV.rgSemi;rgCommit(t,reg)}else renderTp();return}if(t)setTpSemi(t,tpOf(t).semi+(+a.dataset.d));return}
     if(act==='tpScope'){SV.tpScope=a.dataset.s;if(SV.tpScope==='rg'){const c=rgCur();SV.rgSemi=c?c.sm:0;rgPickStart()}else rgPickStop();renderTp();drawAnnLayer();requestAnimationFrame(onScoreResize);return}
+    if(act==='tpRgPlay'){if(SV.playing==='rgn'){stopPlay();renderTp()}else playRgn();return}
     if(act==='tpRgAll'){const t=curT();if(t)rgClearAll(t);return}
     if(act==='tpRgUndo'){const t=curT(),reg=rgCur();if(t&&reg){reg.sm=0;reg.drop=true;SV.rgSemi=0;rgCommit(t,reg,'選んだ区画を消して、元の音に戻しました')}return}
     if(act==='tpMore'){SV.tpMore=!SV.tpMore;renderTp();requestAnimationFrame(onScoreResize);return}
