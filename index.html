@@ -2900,12 +2900,23 @@ async function buildEditedPdf(t,opt){opt=opt||{};const L=await loadPdfLib();cons
   for(let i=0;i<e.order.length;i++){const o=e.order[i],pg=pages[i];out.addPage(pg);const jp=await SV.doc.getPage(o),vpI=jp.getViewport({scale:1}),r=(((e.rot[o]||0)%360)+360)%360,T=((jp.rotate||0)+r)%360;
     pg.setRotation(L.degrees(T));const n=e.crop[o];
     if(n){const W=vpI.width,H=vpI.height,a=vpI.convertToPdfPoint(n.x*W,n.y*H),b=vpI.convertToPdfPoint((n.x+n.w)*W,(n.y+n.h)*H);pg.setCropBox(Math.min(a[0],b[0]),Math.min(a[1],b[1]),Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1]))}
+    if(i===0&&opt.keyLabel){const txt=tpLabel(t);if(txt){/* 見えている範囲（トリミング後）の右上の余白に、ページの向きに合わせて置く */const lp=await labelPng(txt),im=await out.embedPng(lp.buf),cb=pg.getCropBox(),X0=cb.x,Y0=cb.y,X1=cb.x+cb.width,Y1=cb.y+cb.height,dw=(T%180)?cb.height:cb.width,dh=(T%180)?cb.width:cb.height,
+        lh=Math.max(9,Math.min(15,dh*.017)),lw=lh*lp.w/lp.h,mx=dw*.045,my=dh*.022;
+      /* 表示上の右上の角から (mx,my) 内側。回転 T（時計回り）ぶんを戻して元のページの座標にする */
+      let x,y,rot=T;if(T===0){x=X1-mx-lw;y=Y1-my-lh}else if(T===90){x=X0+my+lh;y=Y1-mx-lw}else if(T===180){x=X0+mx+lw;y=Y0+my+lh}else{x=X1-my-lh;y=Y0+mx+lw}
+      pg.drawImage(im,{x,y,width:lw,height:lh,rotate:L.degrees(rot)})}}
     let items=opt.ann===false?null:e.ann[o];{const tp=tpOf(t);if(tp.semi&&tp.chords){const ci=chordItems(t,await findChords(jp));if(ci.length)items=[...ci,...(items||[])]}}if(items&&items.length){for(const w of items){/* 白塗りと調号の白枠はベクターで描く（画像で描くと縁が灰色の線に見えるため） */if(w.k!=='wh'&&!(w.k==='ks'&&ksSig(w)!=null))continue;const a=vpI.convertToPdfPoint(w.x,w.y),b=vpI.convertToPdfPoint(w.x+w.w,w.y+w.h);pg.drawRectangle({x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),width:Math.abs(a[0]-b[0]),height:Math.abs(a[1]-b[1]),color:L.rgb(1,1,1)});for(const[x1,y1,x2,y2]of(w.sl||[])){const p=vpI.convertToPdfPoint(x1,y1),q=vpI.convertToPdfPoint(x2,y2);pg.drawLine({start:{x:p[0],y:p[1]},end:{x:q[0],y:q[1]},thickness:w.th||.8,color:w.lc!=null?L.rgb(w.lc/255,w.lc/255,w.lc/255):L.rgb(.1,.1,.1)})}}const img=await out.embedPng(await overlayPng(jp,items,T,{noWh:true}));const v=jp.view;pg.drawImage(img,{x:v[0],y:v[1],width:v[2]-v[0],height:v[3]-v[1]})}}
   return out.save()}
 const isMobile=()=>/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 function safeName(n){n=String(n||'').replace(/[\\/:*?"<>|\n\r]+/g,' ').trim()||'楽譜';return /\.pdf$/i.test(n)?n:n+'.pdf'}
 /* PDF保存：①名前と内容を決めて作成 → ②「保存する」で端末に保存（スマホは共有画面から「ファイルに保存」） */
 /* 移調した楽譜は、ファイル名に「新しい調（+2）」を付ける */
+/* 1ページ目に書き入れる調の表記：「ニ長調（原調：ハ長調 +2）」 */
+function tpLabel(t){const tp=tpOf(t);if(!tp.semi)return'';const k=tpKey(tp.key),sg=(tp.semi>0?'+':'−')+Math.abs(tp.semi);if(!k)return`移調 ${sg}`;const ok=keyInfo(k),nk=keyInfo({i:md12(k.i+tp.semi),m:k.m});return`${nk.ja}（原調：${ok.ja} ${sg}）`}
+/* 文字を画像にしてPDFに貼る（日本語フォントをPDFに埋め込まずに済む） */
+function labelPng(txt){const px=64,c=document.createElement('canvas'),g=c.getContext('2d'),F=`700 ${px}px "Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif`;g.font=F;const w=Math.ceil(g.measureText(txt).width)+px*.9,h=Math.ceil(px*1.55);c.width=w;c.height=h;
+  g.fillStyle='#fff';g.fillRect(0,0,w,h);g.strokeStyle='#14161B';g.lineWidth=px*.06;const r=px*.28,b=g.lineWidth/2;g.beginPath();g.roundRect?g.roundRect(b,b,w-2*b,h-2*b,r):g.rect(b,b,w-2*b,h-2*b);g.stroke();
+  g.font=F;g.fillStyle='#14161B';g.textBaseline='middle';g.fillText(txt,px*.45,h/2+px*.04);return new Promise(r2=>c.toBlob(b2=>b2.arrayBuffer().then(a=>r2({buf:new Uint8Array(a),w,h})),'image/png'))}
 function tpFileTag(t){const tp=tpOf(t);if(!tp.semi)return'';const k=tpKey(tp.key);const sg=(tp.semi>0?'+':'−')+Math.abs(tp.semi);if(!k)return`移調${sg}`;const nk=keyInfo({i:md12(k.i+tp.semi),m:k.m});return`${nk&&nk.ja?nk.ja:'移調'}(${sg})`}
 function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropExit();
   const e=scEd(t),nAnn=Object.values(e.ann||{}).reduce((a,v)=>a+(v?v.length:0),0),def=`${t.title||(t.score.name||'楽譜').replace(/\.pdf$/i,'')}_${tpFileTag(t)||'楽譜'}`;
@@ -2913,6 +2924,7 @@ function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropE
    <div class="fields"><label class="full">ファイル名<input id="pdfName" value="${esc(def)}" autocomplete="off"></label></div>
    <div class="pdfsum"><div><b>${scPages(t)}</b><span>ページ</span></div><div><b>${nAnn}</b><span>書き込み・音符</span></div><div><b>${Object.values(e.rot).filter(Boolean).length+Object.keys(e.crop).length}</b><span>回転・トリミング</span></div></div>
    <label class="sv-auto"><input type="checkbox" id="pdfAnn" checked><span>書き込み・音符・白塗りを含める</span></label>
+   ${tpLabel(t)?`<label class="sv-auto"><input type="checkbox" id="pdfKey" checked><span>1ページ目の右上に調を書き入れる：<b>${esc(tpLabel(t))}</b></span></label>`:''}
    <p class="muted" id="pdfMsg" style="margin:0;font-size:12.5px">${isMobile()?'作成後に「保存する」を押すと共有画面が開きます。「\"ファイル\"に保存」を選ぶと端末に保存されます。':'作成後に「保存する」を押すと、ダウンロードフォルダに保存されます。'}元のPDFは変わりません。</p>
    <div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">閉じる</button><button class="btn primary" id="pdfGo">${IC.dl}PDFを作成</button></span></div>`,root=>{
     let file=null;const go=$('#pdfGo'),msg=$('#pdfMsg');
@@ -2920,9 +2932,9 @@ function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropE
       if(isMobile()&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:file.name});msg.textContent=`「${file.name}」を保存しました。`;return}catch(err){if(err&&err.name==='AbortError')return}}
       const u=URL.createObjectURL(file);const a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);
       msg.innerHTML=`「${esc(file.name)}」を保存しました。${isMobile()?'':'ダウンロードフォルダを確認してください。'} <a href="${u}" target="_blank" rel="noopener">開いて確認</a>`;toast('PDFを保存しました')};
-    root.querySelectorAll('#pdfName,#pdfAnn').forEach(x=>x.addEventListener('input',()=>{file=null;go.innerHTML=`${IC.dl}PDFを作成`;go.classList.add('primary')}));
+    root.querySelectorAll('#pdfName,#pdfAnn,#pdfKey').forEach(x=>x.addEventListener('input',()=>{file=null;go.innerHTML=`${IC.dl}PDFを作成`;go.classList.add('primary')}));
     go.onclick=async()=>{if(file){save();return}go.disabled=true;go.textContent='作成中…';
-      try{const bytes=await buildEditedPdf(t,{ann:$('#pdfAnn').checked});file=new File([bytes],safeName($('#pdfName').value),{type:'application/pdf'});
+      try{const bytes=await buildEditedPdf(t,{ann:$('#pdfAnn').checked,keyLabel:!!($('#pdfKey')&&$('#pdfKey').checked)});file=new File([bytes],safeName($('#pdfName').value),{type:'application/pdf'});
         SV.savedSig=snapEd();go.disabled=false;go.innerHTML=`${IC.check}保存する`;msg.textContent=`PDFができました（${Math.max(1,Math.round(bytes.length/1024))}KB）。「保存する」を押してください。`;if(!isMobile())save()}
       catch(err){console.error(err);go.disabled=false;go.innerHTML=`${IC.dl}PDFを作成`;msg.textContent='PDFを作成できませんでした。このPDFは保護されている可能性があります。'}}})}
 /* メニューは「表示」「楽譜」「やり直し」「ヘルプ」「削除」の順。上のボタンと同じ機能（編集・移調）は置かない */
