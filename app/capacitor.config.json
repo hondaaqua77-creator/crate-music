@@ -1,0 +1,11 @@
+{
+  "appId": "com.hondaatsushi.crate",
+  "appName": "CRATE",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#FFFFFF",
+    "limitsNavigationsToAppBoundDomains": false,
+    "scrollEnabled": false
+  }
+}

@@ -1149,7 +1149,7 @@ body.has-wall .row,body.has-wall .trow{background:color-mix(in srgb,var(--bg) 62
 
 <script src="vendor/jsmediatags.min.js"></script>
 <script>
-if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+if(!window.CRATE_NATIVE&&'serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 </script>
 <script>
 (()=>{

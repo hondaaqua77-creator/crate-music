@@ -1,0 +1,15 @@
+{
+  "name": "crate-ios",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CRATE iOS app (Capacitor wrapper around the web app at the repo root)",
+  "scripts": {
+    "copy-web": "node scripts/copy-web.mjs",
+    "sync": "npm run copy-web && npx cap sync ios"
+  },
+  "dependencies": {
+    "@capacitor/cli": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/ios": "^8.5.3"
+  }
+}
