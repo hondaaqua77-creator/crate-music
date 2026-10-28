@@ -2954,6 +2954,12 @@ async function buildEditedPdf(t,opt){opt=opt||{};const L=await loadPdfLib();cons
       pg.drawImage(im,{x,y,width:lw,height:lh,rotate:L.degrees(rot)})}}
     let items=opt.ann===false?null:e.ann[o];{const tp=tpOf(t);if(tp.semi&&tp.chords){const ci=chordItems(t,await findChords(jp));if(ci.length)items=[...ci,...(items||[])]}}if(items&&items.length){for(const w of items){/* 白塗りと調号の白枠はベクターで描く（画像で描くと縁が灰色の線に見えるため） */if(w.k!=='wh'&&!(w.k==='ks'&&ksSig(w)!=null))continue;const a=vpI.convertToPdfPoint(w.x,w.y),b=vpI.convertToPdfPoint(w.x+w.w,w.y+w.h);pg.drawRectangle({x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),width:Math.abs(a[0]-b[0]),height:Math.abs(a[1]-b[1]),color:L.rgb(1,1,1)});for(const[x1,y1,x2,y2]of(w.sl||[])){const p=vpI.convertToPdfPoint(x1,y1),q=vpI.convertToPdfPoint(x2,y2);pg.drawLine({start:{x:p[0],y:p[1]},end:{x:q[0],y:q[1]},thickness:w.th||.8,color:w.lc!=null?L.rgb(w.lc/255,w.lc/255,w.lc/255):L.rgb(.1,.1,.1)})}}const img=await out.embedPng(await overlayPng(jp,items,T,{noWh:true}));const v=jp.view;pg.drawImage(img,{x:v[0],y:v[1],width:v[2]-v[0],height:v[3]-v[1]})}}
   return out.save()}
+/* iPhoneアプリ（Capacitor）として動いているか。保存・共有はアプリの共有画面を使う */
+const isNative=()=>!!(window.CRATE_NATIVE||(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()));
+const blobB64=b=>new Promise((ok,ng)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=ng;r.readAsDataURL(b)});
+async function nativeShareFile(blob,name,opt){opt=opt||{};const C=window.Capacitor||{},P=C.Plugins||{},reg=n=>P[n]||(C.registerPlugin?C.registerPlugin(n):null),FS=reg('Filesystem'),SH=reg('Share');if(!FS||!SH)throw new Error('native plugins missing');
+  const path=`share/${name}`;await FS.writeFile({path,data:await blobB64(blob),directory:'CACHE',recursive:true});const{uri}=await FS.getUri({path,directory:'CACHE'});
+  try{await SH.share({title:opt.title||name,text:opt.text,files:[uri],dialogTitle:opt.title||name})}catch(e){if(/cancel/i.test(String(e&&e.message||e)))return false;throw e}return true}
 const isMobile=()=>/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 function safeName(n){n=String(n||'').replace(/[\\/:*?"<>|\n\r]+/g,' ').trim()||'楽譜';return /\.pdf$/i.test(n)?n:n+'.pdf'}
 /* PDF保存：①名前と内容を決めて作成 → ②「保存する」で端末に保存（スマホは共有画面から「ファイルに保存」） */
@@ -2976,21 +2982,23 @@ function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropE
    <div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">閉じる</button><button class="btn" id="pdfShare" hidden>${IC.share}送る</button><button class="btn primary" id="pdfGo" disabled>${IC.dl}保存する</button></span></div>`,root=>{
     /* 開いたらすぐ裏でPDFを作っておく：「送る」「保存する」を1回押すだけで済むように（共有画面はタップ直後でないと開けないため） */
     let file=null,job=0;const go=$('#pdfGo'),sh=$('#pdfShare'),msg=$('#pdfMsg');
-    const canShareFile=f=>{try{return!!(navigator.share&&navigator.canShare&&navigator.canShare({files:[f]}))}catch(_){return false}};
+    const canShareFile=f=>{if(isNative())return true;try{return!!(navigator.share&&navigator.canShare&&navigator.canShare({files:[f]}))}catch(_){return false}};
     const shareText=()=>{const k=tpLabel(t);return k?`${k}の楽譜です。`:'楽譜を送ります。'};
-    const ready=()=>{const kb=Math.max(1,Math.round(file.size/1024));go.disabled=false;sh.disabled=false;sh.hidden=!canShareFile(file);/* スマホは「送る」を主役に */const sp=!sh.hidden&&isMobile();sh.classList.toggle('primary',sp);go.classList.toggle('primary',!sp);
+    const ready=()=>{const kb=Math.max(1,Math.round(file.size/1024));go.disabled=false;sh.disabled=false;sh.hidden=!canShareFile(file);/* スマホは「送る」を主役に */const sp=!sh.hidden&&(isMobile()||isNative());sh.classList.toggle('primary',sp);go.classList.toggle('primary',!sp);
       msg.textContent=sh.hidden?`PDFができました（${kb}KB）。${isMobile()?'「保存する」で共有画面が開きます。「"ファイル"に保存」を選ぶと端末に保存されます。':'「保存する」でダウンロードフォルダに保存されます。'}元のPDFは変わりません。`
-        :`PDFができました（${kb}KB）。「送る」でLINE・メール・AirDropなどにそのまま送れます。${isMobile()?'「保存する」は「"ファイル"に保存」を選んでください。':'「保存する」はダウンロードフォルダに保存します。'}`};
+        :`PDFができました（${kb}KB）。「送る」でLINE・メール・AirDropなどにそのまま送れます。${isMobile()||isNative()?'「保存する」は共有画面で「"ファイル"に保存」を選んでください。':'「保存する」はダウンロードフォルダに保存します。'}`};
     const build=async()=>{const my=++job;file=null;go.disabled=true;sh.disabled=true;msg.textContent='PDFを準備しています…';
       try{const bytes=await buildEditedPdf(t,{ann:$('#pdfAnn').checked,keyLabel:!!($('#pdfKey')&&$('#pdfKey').checked)});if(my!==job)return;
         file=new File([bytes],safeName($('#pdfName').value),{type:'application/pdf'});SV.savedSig=snapEd();ready()}
       catch(err){if(my!==job)return;console.error(err);msg.textContent='PDFを作成できませんでした。このPDFは保護されている可能性があります。'}};
     const rename=()=>{if(file){file=new File([file],safeName($('#pdfName').value),{type:'application/pdf'})}};
     const save=async()=>{if(!file)return;
+      if(isNative()){try{if(await nativeShareFile(file,file.name))msg.textContent=`共有画面で「"ファイル"に保存」を選ぶと、「${file.name}」が保存されます。`}catch(err){console.error(err);msg.textContent='保存できませんでした。もう一度お試しください。'}return}
       if(isMobile()&&canShareFile(file)){try{await navigator.share({files:[file],title:file.name});msg.textContent=`「${file.name}」を保存しました。`;return}catch(err){if(err&&err.name==='AbortError')return}}
       const u=URL.createObjectURL(file);const a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);
       msg.innerHTML=`「${esc(file.name)}」を保存しました。${isMobile()?'':'ダウンロードフォルダを確認してください。'} <a href="${u}" target="_blank" rel="noopener">開いて確認</a>`;toast('PDFを保存しました')};
     const send=async()=>{if(!file)return;rename();
+      if(isNative()){try{if(await nativeShareFile(file,file.name,{text:shareText()})){msg.textContent=`「${file.name}」を送りました。`;toast('楽譜を送りました')}}catch(err){console.error(err);msg.textContent='送れませんでした。もう一度お試しください。'}return}
       try{await navigator.share({files:[file],title:file.name,text:shareText()});msg.textContent=`「${file.name}」を送りました。`;toast('楽譜を送りました')}
       catch(err){if(err&&err.name==='AbortError')return;/* 文章つきで送れないアプリ向けに、ファイルだけでもう一度 */try{await navigator.share({files:[file]});msg.textContent=`「${file.name}」を送りました。`}catch(e2){if(!e2||e2.name!=='AbortError')msg.textContent='送れませんでした。「保存する」で保存してから、アプリで添付してください。'}}};
     $('#pdfName').addEventListener('input',rename);
@@ -3028,7 +3036,7 @@ function removeSamples(silent){for(const t of all())if(t.sample)S.tracks.delete(
 /* ---------- 使い方・設定・バックアップ ---------- */
 function modeText(){return S.cloudState==='on'?{t:'PC・スマホで同期中',d:'評価・メモ・カテゴリ・プレイリストは、同じアカウントで開いた他の端末にも自動で反映されます。'}
   :S.cloudState==='checking'?{t:'同期を確認中…',d:''}
-  :{t:'この端末に保存（オフライン対応）',d:'曲と整理の内容はすべてこの端末のブラウザ内に保存され、外部のサーバーには一切送信されません。他の端末へ移すときは「バックアップを書き出す」を使ってください。'}}
+  :{t:'この端末に保存（オフライン対応）',d:`曲と整理の内容はすべてこの端末の${isNative()?'アプリ':'ブラウザ'}内に保存され、外部のサーバーには一切送信されません。他の端末へ移すときは「バックアップを書き出す」を使ってください。`}}
 function welcomeSheet(){const m=modeText();
   sheet(`<div class="welcome"><div class="brand big"><i>${IC.disc}</i><div>CRAT<b>E</b><small>PERSONAL MUSIC LIBRARY</small></div></div>
    <p class="lead">手持ちの音楽ファイルを取り込んで、整理・プレイリスト作成・再生ができる自分専用の音楽ライブラリです。</p>
@@ -3049,7 +3057,7 @@ const isStandalone=()=>{try{return matchMedia('(display-mode: standalone)').matc
 async function refreshProt(tryPersist){let persisted=false;
   try{persisted=!!(await navigator.storage?.persisted?.())}catch(_){}
   if(!persisted&&tryPersist){try{persisted=!!(await navigator.storage?.persist?.())}catch(_){}}
-  S.prot={persisted,standalone:isStandalone(),ios:isIOS(),supported:!!navigator.storage?.persist};
+  S.prot={persisted,standalone:isStandalone(),ios:isIOS(),supported:!!navigator.storage?.persist};if(isNative()){S.prot.ok=true;S.prot.native=true;render();return true}
   S.prot.ok=persisted||(S.prot.ios&&S.prot.standalone);render();return S.prot.ok}
 function protBannerHTML(){const real=all().some(t=>!t.sample);if(!real||!S.prot||S.prot.ok)return'';
   let dis=0;try{dis=+localStorage.getItem('crate.protDismiss')||0}catch(_){}if(Date.now()-dis<3*864e5)return'';
@@ -3118,7 +3126,7 @@ async function settingsSheet(){const m=modeText();let used='確認できませ�
   const real=all().filter(t=>!t.sample),noFile=real.filter(t=>!t.local&&!t.assetId).length;
   sheet(`<h2>設定・データ</h2>
    <div class="sec"><h5>保存の状態</h5><div class="kv"><span>モード</span><b><span class="dot${S.cloudState==='on'?' on':''}"></span>${esc(m.t)}</b><span>曲数</span><b class="mono">${real.length}曲${noFile?`（うち${noFile}曲はこの端末にファイルなし）`:''}</b><span>端末の使用量</span><b class="mono">${esc(used)}</b></div><p class="muted" style="margin:8px 0 0">${esc(m.d)}</p></div>
-   <div class="sec"><h5>曲の保護</h5><div class="pstat sm ${S.prot&&S.prot.ok?'ok':'ng'}">${S.prot&&S.prot.ok?IC.check:IC.lock}<div><b>${S.prot&&S.prot.ok?'保護されています（自動で消えません）':'まだ保護されていません'}</b><span>${S.prot&&S.prot.ok?'取り込んだ曲はブラウザに自動で削除されません。':'ブラウザが曲を自動で削除する場合があります。'}</span></div><button class="btn" data-act="protInfo">${S.prot&&S.prot.ok?'詳しく':'保護する'}</button></div></div>
+   ${isNative()?'':`<div class="sec"><h5>曲の保護</h5><div class="pstat sm ${S.prot&&S.prot.ok?'ok':'ng'}">${S.prot&&S.prot.ok?IC.check:IC.lock}<div><b>${S.prot&&S.prot.ok?'保護されています（自動で消えません）':'まだ保護されていません'}</b><span>${S.prot&&S.prot.ok?'取り込んだ曲はブラウザに自動で削除されません。':'ブラウザが曲を自動で削除する場合があります。'}</span></div><button class="btn" data-act="protInfo">${S.prot&&S.prot.ok?'詳しく':'保護する'}</button></div></div>`}
    <div class="sec"><h5>このアプリについて</h5><div class="actions" style="flex-wrap:wrap">${[['support/','サポート・お問い合わせ'],['support/privacy.html','プライバシーポリシー'],['support/terms.html','利用規約']].map(([u,l])=>`<a class="btn" style="text-decoration:none" href="https://hondaaqua77-creator.github.io/crate-music/${u}" target="_blank" rel="noopener">${l}</a>`).join('')}</div></div>
    <div class="sec"><h5>デザイン・壁紙</h5><div class="actions"><button class="btn" data-act="design">${IC.pen}デザインと壁紙を選ぶ</button><span class="muted" style="font-size:12.5px">いま：${esc(themeName())}${S.wall?'・壁紙あり':''}</span></div></div>
    <div class="sec"><h5>再生</h5><p class="muted" style="margin:0">曲が終わると自動で止まります。▶を押すと次の曲を再生します。</p>
@@ -3132,6 +3140,7 @@ async function settingsSheet(){const m=modeText();let used='確認できませ�
       $('#wipeGo').onclick=wipeAll;$('#wipeNo').onclick=settingsSheet}})}
 function backupData(){return{app:'CRATE',version:1,exportedAt:new Date().toISOString(),tracks:all().filter(t=>!t.sample).map(local),playlists:S.playlists.filter(p=>!p.sample),cats:S.cats.filter(c=>!c.sample),artistImgs:S.artistImgs}}
 async function exportBackup(){const msg=$('#bkMsg');const data=JSON.stringify(backupData());const d=new Date(),name=`crate-backup-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+  if(isNative()){try{const ok=await nativeShareFile(new Blob([data],{type:'application/json'}),name,{title:'CRATEのバックアップ'});if(ok){try{localStorage.setItem('crate.lastBackup',String(Date.now()))}catch(_){}if(msg)msg.textContent=`共有画面で「"ファイル"に保存」を選ぶと、「${name}」が保存されます。iCloud Driveに保存すると機種変更のときも安心です。`}}catch(e){if(msg)msg.textContent='書き出せませんでした。もう一度お試しください。'}return}
   try{const u=URL.createObjectURL(new Blob([data],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);
     try{localStorage.setItem('crate.lastBackup',String(Date.now()))}catch(_){}
     if(msg)msg.textContent=`「${name}」を書き出しました。ダウンロードフォルダ（iPhoneは「ファイル」アプリ）に保存されます。`}catch(e){if(msg)msg.textContent='書き出せませんでした。もう一度お試しください。'}}
