@@ -47,6 +47,8 @@ jobs:
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
       TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      ADMOB_APP_ID: ${{ secrets.ADMOB_APP_ID }}
+      ADMOB_INTERSTITIAL_ID: ${{ secrets.ADMOB_INTERSTITIAL_ID }}
     steps:
       - name: Check Apple secrets
         run: |
@@ -61,6 +63,14 @@ jobs:
         run: |
           npm ci
           npm run sync
+      - name: Use production AdMob app ID (if registered)
+        run: |
+          if [ -n "$ADMOB_APP_ID" ]; then
+            /usr/libexec/PlistBuddy -c "Set :GADApplicationIdentifier $ADMOB_APP_ID" app/ios/App/App/Info.plist
+            echo "production AdMob app ID set"
+          else
+            echo "::warning::ADMOB_APP_ID が未登録のため、テスト広告のままビルドします"
+          fi
       - name: Write App Store Connect API key
         run: |
           mkdir -p "$RUNNER_TEMP/keys"

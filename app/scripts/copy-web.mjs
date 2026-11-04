@@ -12,5 +12,16 @@ for (const f of ['index.html', 'manifest.webmanifest']) cpSync(join(root, f), jo
 for (const d of ['icons', 'vendor']) cpSync(join(root, d), join(out, d), { recursive: true });
 // Mark the build as the native app (the page reads window.CRATE_NATIVE).
 const p = join(out, 'index.html');
-writeFileSync(p, readFileSync(p, 'utf8').replace('<head>', '<head>\n<script>window.CRATE_NATIVE=true</script>'));
+let html = readFileSync(p, 'utf8').replace('<head>', '<head>\n<script>window.CRATE_NATIVE=true</script>');
+// Production ads: the release build passes the AdMob ad unit ID (GitHub secret ADMOB_INTERSTITIAL_ID).
+// Without it the app keeps Google's test ads, so test builds can never show real ads.
+const adId = process.env.ADMOB_INTERSTITIAL_ID;
+if (adId) {
+  if (!/^ca-app-pub-\d+\/\d+$/.test(adId)) throw new Error('ADMOB_INTERSTITIAL_ID has the wrong form');
+  const from = "const AD_CFG={test:true,interstitial:'ca-app-pub-3940256099942544/4411468910'";
+  if (!html.includes(from)) throw new Error('AD_CFG not found in index.html');
+  html = html.replace(from, `const AD_CFG={test:false,interstitial:'${adId}'`);
+  console.log('using production AdMob ad unit');
+}
+writeFileSync(p, html);
 console.log('copied web app to', out);

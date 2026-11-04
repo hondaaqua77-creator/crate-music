@@ -8,10 +8,12 @@
     "sync": "npm run copy-web && npx cap sync ios"
   },
   "dependencies": {
+    "@capacitor-community/admob": "^8.3.0",
     "@capacitor/cli": "^8.5.3",
     "@capacitor/core": "^8.5.3",
     "@capacitor/filesystem": "^8.1.5",
     "@capacitor/ios": "^8.5.3",
-    "@capacitor/share": "^8.0.3"
+    "@capacitor/share": "^8.0.3",
+    "@capgo/native-purchases": "^8.9.6"
   }
 }
