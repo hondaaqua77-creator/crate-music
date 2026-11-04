@@ -86,10 +86,9 @@ CRATE は印刷された楽譜（PDF・写真）を読み込み、♭／♯ボ�
 | ASC_ISSUER_ID | 同じ画面の発行者ID | 本田さん |
 | ASC_KEY_P8 | ダウンロードした .p8 ファイルの中身（全文） | 本田さん。チャットには貼らない |
 | APPLE_TEAM_ID | メンバーシップ詳細の「チームID」（10文字） | 本田さん |
-| ADMOB_APP_ID | AdMobのアプリID（ca-app-pub-…~…） | 本田さん（AdMob登録後） |
-| ADMOB_INTERSTITIAL_ID | AdMobのインタースティシャル広告ユニットID（ca-app-pub-…/…） | 本田さん（AdMob登録後） |
 
-ADMOB_* が未登録の間は、TestFlight版もGoogleのテスト広告のまま（本番広告は出ない）。
+AdMob（登録済み・2026-11-04）：アプリID `ca-app-pub-6323228654710695~1395552037`、インタースティシャル「PDF書き出し後」`ca-app-pub-6323228654710695/8096516749`。
+公開値なので Secrets ではなく ios.yml の testflight ジョブに直接設定済み。TestFlight／配信版は本番広告、シミュレータ用ビルドはテスト広告。
 
 ## 8. TestFlight へのアップロード
 
