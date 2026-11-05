@@ -76,17 +76,16 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/keys"
           printf '%s' "$ASC_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
-      - name: Archive (signed automatically with the API key)
+      - name: Archive (unsigned; signed for App Store at export)
         working-directory: app/ios/App
         run: |
           xcodebuild -project App.xcodeproj -scheme App -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/CRATE.xcarchive" \
-            DEVELOPMENT_TEAM="$TEAM_ID" CODE_SIGN_STYLE=Automatic \
-            CURRENT_PROJECT_VERSION=${{ github.run_number }} \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" \
-            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$TEAM_ID" CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
             archive | tail -40
+          # Archive unsigned (no development devices needed); the export step signs it
+          # for App Store distribution with the API key.
       - name: Upload to App Store Connect (TestFlight)
         run: |
           cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
