@@ -1,5 +1,15 @@
 # App Store Connect 入力シート（CRATE）
 
+## 登録状況（2026-11-05）
+
+| 項目 | 値 |
+|---|---|
+| Apple Developer Program | 承認済み（個人、チームID 9YK6TS56W7、更新日 2027-11-05） |
+| アプリID | com.hondaatsushi.crate（登録済み） |
+| App Store Connect のアプリ | 「CRATE - 楽譜移調」Apple ID 6830933661、SKU CRATE-IOS-001（作成済み） |
+| App内課金 | 広告なし版 com.hondaatsushi.crate.noads（非消耗型、¥1,200、表示名・説明・審査メモ入力済み、Apple ID 6830933954） |
+| 残り | 有料App契約・口座・税務（本田さん）、APIキー→Secrets 3件、課金の審査用スクリーンショット（TestFlight後） |
+
 Apple Developer Program の承認後、この順に入力する。値はそのまま貼り付けられる。
 
 ## 1. アプリの作成（マイApp →「＋」→ 新規App）
@@ -85,7 +95,7 @@ CRATE は印刷された楽譜（PDF・写真）を読み込み、♭／♯ボ�
 | ASC_KEY_ID | App Store Connect APIキーのキーID | 本田さん（ユーザとアクセス → 統合 → App Store Connect API、権限「App Manager」） |
 | ASC_ISSUER_ID | 同じ画面の発行者ID | 本田さん |
 | ASC_KEY_P8 | ダウンロードした .p8 ファイルの中身（全文） | 本田さん。チャットには貼らない |
-| APPLE_TEAM_ID | メンバーシップ詳細の「チームID」（10文字） | 本田さん |
+| APPLE_TEAM_ID | 9YK6TS56W7（公開値のため ios.yml に設定済み。登録不要） | — |
 
 AdMob（登録済み・2026-11-04）：アプリID `ca-app-pub-6323228654710695~1395552037`、インタースティシャル「PDF書き出し後」`ca-app-pub-6323228654710695/8096516749`。
 公開値なので Secrets ではなく ios.yml の testflight ジョブに直接設定済み。TestFlight／配信版は本番広告、シミュレータ用ビルドはテスト広告。
