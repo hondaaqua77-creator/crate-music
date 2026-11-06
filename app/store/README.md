@@ -72,7 +72,7 @@ Apple Developer Program の承認後、この順に入力する。値はその�
 | コンテンツの権利 | 他者のコンテンツを含まない（サンプル楽譜は著作権切れの曲を自前で浄書） |
 | 広告の有無 | はい（含む） |
 | サポートURL | https://hondaaqua77-creator.github.io/crate-music/support/ |
-| サポート用メール | crate.scoreapp@gmail.com（2026-11-06 作成、honda.aqua77@gmail.com へ転送） |
+| サポート用メール | crate.scoreapp@gmail.com（2026-11-06 作成。転送は未設定。問い合わせはこのアカウントに直接ログインして確認） |
 | マーケティングURL | https://hondaaqua77-creator.github.io/crate-music/ |
 | カテゴリ | ミュージック（サブ：教育） |
 | 著作権 | © 2026 Atsushi Honda |
