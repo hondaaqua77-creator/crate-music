@@ -8,7 +8,10 @@
 | アプリID | com.hondaatsushi.crate（登録済み） |
 | App Store Connect のアプリ | 「CRATE 移調できる楽譜アプリ」Apple ID 6830933661、SKU CRATE-IOS-001（作成済み） |
 | App内課金 | 広告なし版 com.hondaatsushi.crate.noads（非消耗型、¥1,200、表示名・説明・審査メモ入力済み、Apple ID 6830933954） |
-| 残り | 有料App契約・口座・税務（本田さん）、APIキー→Secrets 3件、課金の審査用スクリーンショット（TestFlight後） |
+| 契約・口座・税務 | すべて有効（2026-11-06 確認） |
+| TestFlight | ビルド18 ベータ版審査通過・テスト中。公開リンク https://testflight.apple.com/join/s5b3c6F8 |
+| 課金の審査用スクリーンショット | 登録済み（app/store/iap/noads_review.png、Actions → Store screenshots → target=iap で再登録可） |
+| 残り | 本田さんの「審査に出して」で本審査に提出 |
 
 Apple Developer Program の承認後、この順に入力する。値はそのまま貼り付けられる。
 
