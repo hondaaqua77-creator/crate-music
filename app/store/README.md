@@ -11,7 +11,7 @@
 | 契約・口座・税務 | すべて有効（2026-11-06 確認） |
 | TestFlight | ビルド18 ベータ版審査通過・テスト中。公開リンク https://testflight.apple.com/join/s5b3c6F8 |
 | 課金の審査用スクリーンショット | 登録済み（app/store/iap/noads_review.png、Actions → Store screenshots → target=iap で再登録可） |
-| 残り | 本田さんの「審査に出して」で本審査に提出 |
+| 本審査 | 2026-11-06 10:50 提出（iOS 1.0 ビルド18 ＋ 広告なし版）。コンテンツ配信権「いいえ」、課金の配信可否は全175地域 |
 
 Apple Developer Program の承認後、この順に入力する。値はそのまま貼り付けられる。
 
