@@ -2,6 +2,12 @@
 name: Store screenshots
 on:
   workflow_dispatch:
+    inputs:
+      target:
+        description: 'store = App Store screenshots / iap = 広告なし版の審査用スクリーンショット'
+        default: store
+        type: choice
+        options: [store, iap]
 jobs:
   upload:
     runs-on: ubuntu-latest
@@ -18,4 +24,8 @@ jobs:
       - name: Upload screenshots
         run: |
           python3 -m pip install --quiet pyjwt cryptography
-          python3 app/scripts/asc-screenshots.py
+          if [ "${{ inputs.target }}" = "iap" ]; then
+            python3 app/scripts/asc-iap-screenshot.py
+          else
+            python3 app/scripts/asc-screenshots.py
+          fi
