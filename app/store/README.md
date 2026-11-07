@@ -11,7 +11,9 @@
 | 契約・口座・税務 | すべて有効（2026-11-06 確認） |
 | TestFlight | ビルド18 ベータ版審査通過・テスト中。公開リンク https://testflight.apple.com/join/s5b3c6F8 |
 | 課金の審査用スクリーンショット | 登録済み（app/store/iap/noads_review.png、Actions → Store screenshots → target=iap で再登録可） |
-| 本審査 | 2026-11-06 10:50 提出（iOS 1.0 ビルド18 ＋ 広告なし版）。コンテンツ配信権「いいえ」、課金の配信可否は全175地域 |
+| 本審査 | 11-06 ビルド18で提出→「バイナリが無効」（理由不明、同一ビルドでは再提出不可）。11-07 10:53 ビルド33（利用目的文＋PrivacyInfo.xcprivacy追加、NSUserTrackingUsageDescriptionは入れない＝プライバシー回答「トラッキングなし」と矛盾するため）で再提出→審査待ち |
+| 審査メールの宛先 | アカウント保有者 atusi7528@docomo.ne.jp ＋ App Manager honda.aqua77@gmail.com（11-07 追加。Gmailは Claude が読める） |
+| 状態確認 | Actions → ASC status → Run workflow（ログインなしで審査状態を表示） |
 
 Apple Developer Program の承認後、この順に入力する。値はそのまま貼り付けられる。
 
