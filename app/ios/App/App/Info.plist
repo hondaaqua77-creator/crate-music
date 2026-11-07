@@ -76,8 +76,6 @@
 	<string>移調した楽譜の画像を保存するために使用します。</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>このアプリはマイクを録音には使用しません。</string>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>広告の表示のために使用します。トラッキングは行いません。</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>広告の表示のために使用します。位置情報は保存しません。</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
