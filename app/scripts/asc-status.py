@@ -34,6 +34,6 @@ for s in get(f'/apps/{APP_ID}/reviewSubmissions?limit=5').get('data', []):
 for i in get(f'/apps/{APP_ID}/inAppPurchasesV2?limit=10').get('data', []):
     a = i['attributes']
     print(f"IAP {a.get('productId')} state={a.get('state')}")
-for b in get(f'/apps/{APP_ID}/builds?limit=3&sort=-uploadedDate').get('data', []):
+for b in get(f'/builds?filter[app]={APP_ID}&sort=-uploadedDate&limit=3').get('data', []):
     a = b['attributes']
     print(f"BUILD {a.get('version')} processing={a.get('processingState')} expired={a.get('expired')}")
