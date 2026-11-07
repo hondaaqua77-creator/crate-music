@@ -1,0 +1,21 @@
+# Prints App Store review status (run by hand: Actions → ASC status → Run workflow).
+name: ASC status
+on:
+  workflow_dispatch:
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Write App Store Connect API key
+        run: |
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s' "$ASC_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
+      - name: Status
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 app/scripts/asc-status.py
