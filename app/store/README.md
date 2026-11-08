@@ -1,6 +1,8 @@
 # App Store Connect 入力シート（CRATE）
 
-## 登録状況（2026-11-05）
+## 登録状況（2026-11-08）
+
+**2026-11-08 審査通過・本田さんがリリース → 配信準備完了（Ready for Sale）。App Store反映は数時間。** 公開リンク https://apps.apple.com/jp/app/id6830933661
 
 | 項目 | 値 |
 |---|---|
