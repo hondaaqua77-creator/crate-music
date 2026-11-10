@@ -995,6 +995,9 @@ body.is-playing .np-art::before{translate:0 -24%;animation:crateSpin 5s linear i
   .side .grip{margin-left:4px}}
 body.selmode .main{padding-bottom:calc(var(--player-h) + 120px)}
 .side{padding-bottom:calc(var(--player-h) + 40px)}
+body.ad-banner .main{padding-bottom:calc(var(--player-h) + 40px + var(--ad-h,50px))}
+body.ad-banner .side{padding-bottom:calc(var(--player-h) + 40px + var(--ad-h,50px))}
+body.ad-banner .progress,body.ad-banner .bulk{bottom:calc(var(--player-h) + 16px + var(--ad-h,50px) + env(safe-area-inset-bottom,0px))}
 .cf-row{grid-template-columns:64px 116px 52px auto auto 1fr}.cf-row .cf-rs{grid-column:4}.cf-row .cf-lock,.cf-row .cf-rs+button{grid-column:5}
 .cf-link{left:230px}
 .sv-stage:has(.sv-tips) .sv-edge{display:none}
@@ -2960,18 +2963,31 @@ const blobB64=b=>new Promise((ok,ng)=>{const r=new FileReader();r.onload=()=>ok(
 /* 広告と「広告なし版」（アプリ版のみ。Web版には広告を出さない） */
 const PRO_ID='com.hondaatsushi.crate.noads';
 /* 本番の広告IDは AdMob 登録後に差し替える。test:true の間は Google のテスト広告だけが出る */
-const AD_CFG={test:true,interstitial:'ca-app-pub-3940256099942544/4411468910',every:3,gapMs:180000};
+const AD_CFG={test:true,interstitial:'ca-app-pub-3940256099942544/4411468910',banner:'ca-app-pub-3940256099942544/2934735716',every:3,gapMs:180000};
 const natPlugin=n=>{const C=window.Capacitor||{},P=C.Plugins||{};return P[n]||(C.registerPlugin?C.registerPlugin(n):null)};
 const Pro={on:(()=>{try{return localStorage.getItem('crate.noads')==='1'}catch(_){return false}})(),price:'',ad:null};
-function setPro(v){Pro.on=!!v;try{localStorage.setItem('crate.noads',v?'1':'0')}catch(_){}}
+function setPro(v){Pro.on=!!v;try{localStorage.setItem('crate.noads',v?'1':'0')}catch(_){}if(v)adBannerOff()}
 async function proCheck(){const NP=natPlugin('NativePurchases');if(!NP)return;
   try{const r=await NP.getPurchases({onlyCurrentEntitlements:true});setPro((r&&r.purchases||[]).some(t=>t.productIdentifier===PRO_ID&&!t.revocationDate))}catch(e){console.warn('purchases',e)}}
 async function proInit(){if(!isNative())return;const NP=natPlugin('NativePurchases');
   if(NP){try{const r=await NP.getProducts({productIdentifiers:[PRO_ID]});const p=r&&r.products&&r.products[0];if(p)Pro.price=p.priceString||''}catch(e){console.warn('products',e)}await proCheck()}
   adPrepare()}
 async function adPrepare(){if(Pro.on||!isNative())return;const A=natPlugin('AdMob');if(!A)return;
-  try{if(!Pro.ad){await A.initialize({initializeForTesting:AD_CFG.test});Pro.ad='init'}
+  try{if(!Pro.ad){await A.initialize({initializeForTesting:AD_CFG.test});Pro.ad='init';adBannerStart()}
     await A.prepareInterstitial({adId:AD_CFG.interstitial,isTesting:AD_CFG.test,npa:true});Pro.ad='ready'}catch(e){console.warn('ad',e)}}
+/* バナー：曲一覧など「読む画面以外」の下部だけ。楽譜を開いている間・再生画面全体表示・まとめて選択中は隠す。広告なし版では出さない */
+const Ban={on:false,shown:false,busy:false,obs:null};
+function adBottomPx(){let ph=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--player-h'))||88,sa=0;
+  try{const p=document.createElement('div');p.style.cssText='position:fixed;bottom:0;height:env(safe-area-inset-bottom,0px);visibility:hidden';document.body.appendChild(p);sa=p.getBoundingClientRect().height;p.remove()}catch(_){}return Math.round(ph+sa)}
+function adBannerWant(){const b=document.body.classList;return !Pro.on&&isNative()&&!!Pro.ad&&!b.contains('score-open')&&!b.contains('np-full')&&!b.contains('selmode')&&!b.contains('score-editing')}
+async function adBannerSync(){const A=natPlugin('AdMob');if(!A||Ban.busy)return;const want=adBannerWant();if(want===Ban.shown)return;Ban.busy=true;
+  try{if(want){if(!Ban.on){await A.showBanner({adId:AD_CFG.banner,adSize:'ADAPTIVE_BANNER',position:'BOTTOM_CENTER',margin:adBottomPx(),isTesting:AD_CFG.test,npa:true});Ban.on=true}else await A.resumeBanner();Ban.shown=true;document.body.classList.add('ad-banner')}
+    else{await A.hideBanner();Ban.shown=false;document.body.classList.remove('ad-banner')}}catch(e){console.warn('banner',e)}
+  Ban.busy=false;if(adBannerWant()!==Ban.shown)setTimeout(adBannerSync,300)}
+function adBannerStart(){const A=natPlugin('AdMob');if(!A||Ban.obs)return;
+  try{A.addListener('bannerAdSizeChanged',i=>{const h=i&&i.height||0;document.documentElement.style.setProperty('--ad-h',h+'px')})}catch(_){}
+  Ban.obs=new MutationObserver(()=>adBannerSync());Ban.obs.observe(document.body,{attributes:true,attributeFilter:['class']});adBannerSync()}
+async function adBannerOff(){const A=natPlugin('AdMob');document.body.classList.remove('ad-banner');if(!A||!Ban.on)return;Ban.on=false;Ban.shown=false;try{await A.removeBanner()}catch(_){}}
 /* 演奏中は出さない。PDFの保存・送信が終わった後に、3回に1回・3分以上あけて表示 */
 async function adAfterExport(){if(Pro.on||!isNative()||Pro.ad!=='ready')return;let n=0,last=0;
   try{n=+(localStorage.getItem('crate.adN')||0)+1;last=+(localStorage.getItem('crate.adT')||0);localStorage.setItem('crate.adN',String(n))}catch(_){}

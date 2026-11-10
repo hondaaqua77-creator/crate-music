@@ -21,6 +21,13 @@ if (adId) {
   const from = "const AD_CFG={test:true,interstitial:'ca-app-pub-3940256099942544/4411468910'";
   if (!html.includes(from)) throw new Error('AD_CFG not found in index.html');
   html = html.replace(from, `const AD_CFG={test:false,interstitial:'${adId}'`);
+  const bannerId = process.env.ADMOB_BANNER_ID;
+  if (bannerId) {
+    if (!/^ca-app-pub-\d+\/\d+$/.test(bannerId)) throw new Error('ADMOB_BANNER_ID has the wrong form');
+    const fromB = "banner:'ca-app-pub-3940256099942544/2934735716'";
+    if (!html.includes(fromB)) throw new Error('banner id not found in index.html');
+    html = html.replace(fromB, `banner:'${bannerId}'`);
+  }
   console.log('using production AdMob ad unit');
 }
 writeFileSync(p, html);
