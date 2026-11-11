@@ -37,3 +37,10 @@ for i in get(f'/apps/{APP_ID}/inAppPurchasesV2?limit=10').get('data', []):
 for b in get(f'/builds?filter[app]={APP_ID}&sort=-uploadedDate&limit=3').get('data', []):
     a = b['attributes']
     print(f"BUILD {a.get('version')} processing={a.get('processingState')} expired={a.get('expired')}")
+# screenshot sets of the newest version
+vs = get(f'/apps/{APP_ID}/appStoreVersions?filter[platform]=IOS&limit=1').get('data', [])
+if vs:
+    for l in get(f"/appStoreVersions/{vs[0]['id']}/appStoreVersionLocalizations").get('data', []):
+        for s in get(f"/appStoreVersionLocalizations/{l['id']}/appScreenshotSets").get('data', []):
+            n = len(get(f"/appScreenshotSets/{s['id']}/appScreenshots?limit=20").get('data', []))
+            print(f"SHOTS {vs[0]['attributes']['versionString']} {l['attributes']['locale']} {s['attributes']['screenshotDisplayType']} n={n}")
