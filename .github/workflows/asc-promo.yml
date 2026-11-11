@@ -1,0 +1,24 @@
+# Sets the App Store promotional text (no review needed). Actions → ASC promo → Run workflow.
+name: ASC promo
+on:
+  workflow_dispatch:
+    inputs:
+      text:
+        description: 'プロモーションテキスト（170文字以内）'
+        required: true
+        type: string
+jobs:
+  promo:
+    runs-on: ubuntu-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      PROMO_TEXT: ${{ inputs.text }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s' "$ASC_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
+          python3 -m pip install --quiet pyjwt cryptography
+          python3 app/scripts/asc-promo.py
