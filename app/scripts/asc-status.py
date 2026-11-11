@@ -44,3 +44,10 @@ if vs:
         for s in get(f"/appStoreVersionLocalizations/{l['id']}/appScreenshotSets").get('data', []):
             n = len(get(f"/appScreenshotSets/{s['id']}/appScreenshots?limit=20").get('data', []))
             print(f"SHOTS {vs[0]['attributes']['versionString']} {l['attributes']['locale']} {s['attributes']['screenshotDisplayType']} n={n}")
+if os.environ.get('ASC_DUMP_META'):
+    for l in get(f"/appStoreVersions/{vs[0]['id']}/appStoreVersionLocalizations").get('data', []):
+        a = l['attributes']
+        print('META_BEGIN'); print('PROMO:', a.get('promotionalText')); print('KEYWORDS:', a.get('keywords')); print('WHATSNEW:', a.get('whatsNew')); print('DESC:'); print(a.get('description')); print('META_END')
+    for i in get(f'/apps/{APP_ID}/appInfos').get('data', []):
+        for l in get(f"/appInfos/{i['id']}/appInfoLocalizations").get('data', []):
+            print('NAME:', l['attributes'].get('name'), '| SUBTITLE:', l['attributes'].get('subtitle'))
