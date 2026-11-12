@@ -1,0 +1,28 @@
+# App Store release steps through the API. Actions → ASC release → Run workflow.
+name: ASC release
+on:
+  workflow_dispatch:
+    inputs:
+      step:
+        description: 'meta = バージョン作成＋掲載情報 / attach = ビルド添付 / submit = 審査提出 / shots = スクリーンショット'
+        type: choice
+        options: [meta, attach, submit, shots]
+      version:
+        description: 'バージョン（例 1.0.2）'
+        required: true
+        type: string
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s' "$ASC_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
+          python3 -m pip install --quiet pyjwt cryptography
+          if [ "${{ inputs.step }}" = shots ]; then python3 app/scripts/asc-screenshots.py; else python3 app/scripts/asc-release.py "${{ inputs.step }}"; fi

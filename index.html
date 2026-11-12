@@ -122,6 +122,7 @@ input::placeholder{color:#9AA0AC}
 .chip{font-size:11px;padding:1px 8px;border-radius:999px;background:var(--hover);color:var(--ink2);border:1px solid var(--line)}
 .badge{font-size:10.5px;padding:1px 6px;border-radius:4px;background:var(--hover);color:var(--muted);margin-left:8px;vertical-align:1px;font-weight:600}
 .empty{padding:56px 20px;text-align:center;color:var(--muted)}
+.hero{padding:40px 20px 48px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}.hero .heroic{width:64px;height:64px;border-radius:18px;background:var(--primary);color:var(--primary-ink);display:grid;place-items:center;margin-bottom:6px}.hero .heroic svg{width:32px;height:32px}.hero>b{font-size:22px;line-height:1.3}.hero>span{color:var(--muted);max-width:34em;line-height:1.6}.hero .actions{margin-top:8px}.hero .hlink{margin-top:4px;color:var(--muted);text-decoration:underline}
 .empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:6px}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:22px 18px}
@@ -1423,7 +1424,7 @@ function rowHTML(t,i,ctx,dnd){const cur=S.queue[S.qi]===t.id,sel=S.sel.has(t.id)
    <div class="dur">${fmt(t.duration)}</div>
    <span class="racts"><button class="more edit" data-act="rename" data-id="${t.id}" aria-label="「${esc(t.title)}」の曲名・メモを編集" title="曲名・メモを編集">${IC.pen}</button><button class="more" data-menu="${t.id}" aria-label="「${esc(t.title)}」のメニュー">${IC.dots}</button></span></div>`}
 const EMPTY={none:['まだ曲がありません','右上の「曲を取り込む」から、端末やGoogleドライブの音楽ファイルを選んでください。'],pl:['このプレイリストはまだ空です','上の「曲を追加」から、ライブラリの曲や新しい曲を入れられます。'],cat:['このカテゴリにはまだ曲がありません','上の「曲を追加」から、ライブラリの曲や新しい曲を入れられます。'],lib:['曲が見つかりません','検索語を変えるか、曲を取り込んでください。']};
-function listBlock(list,ctx,dnd){if(!list.length){const[a,b]=(ctx==='lib'&&!S.q&&!songN())?EMPTY.none:EMPTY[ctx]||EMPTY.lib;return`<div class="list"><div class="empty"><b>${a}</b>${b}</div></div>`}
+function listBlock(list,ctx,dnd){if(!list.length){if(ctx==='lib'&&!S.q&&!songN())return`<div class="list"><div class="hero"><span class="heroic">${IC.score}</span><b>楽譜を撮るだけで、好きなキーに</b><span>印刷の楽譜をPDFか写真で取り込むと、♯♭ボタンで移調できます。まずはサンプルで試してみてください。</span><div class="actions" style="justify-content:center;flex-wrap:wrap"><button class="btn primary" data-act="scoreSample">${IC.score}サンプル楽譜で試す</button><button class="btn" data-act="scoreAdd">${IC.plus}自分の楽譜を取り込む</button></div><button class="hlink" data-act="import">音楽ファイルを取り込む</button></div></div>`;const[a,b]=EMPTY[ctx]||EMPTY.lib;return`<div class="list"><div class="empty"><b>${a}</b>${b}</div></div>`}
   return`<div class="list"${dnd?` data-sortable="${ctx==='pl'?'pl':'order'}"`:''}><div class="row th"><span></span><span class="idx">#</span><span></span><span>タイトル</span><span>アルバム</span><span>評価</span><span class="dur">${IC.clock}</span><span></span></div>${list.map((t,i)=>rowHTML(t,i,ctx,dnd)).join('')}</div>`}
 function headHTML(title,meta,acts,o={}){let cv=o.list?mosaic(o.list,title,'cover',o.custom,true):'';
   if(cv&&o.coverAct)cv=`<button class="coverbtn" data-act="${o.coverAct}" aria-label="画像を変更" title="画像を変更">${cv}<span class="coverhint">${IC.image}画像を変更</span></button>`;
@@ -2989,6 +2990,8 @@ function adBannerStart(){const A=natPlugin('AdMob');if(!A||Ban.obs)return;
   Ban.obs=new MutationObserver(()=>adBannerSync());Ban.obs.observe(document.body,{attributes:true,attributeFilter:['class']});adBannerSync()}
 async function adBannerOff(){const A=natPlugin('AdMob');document.body.classList.remove('ad-banner');if(!A||!Ban.on)return;Ban.on=false;Ban.shown=false;try{await A.removeBanner()}catch(_){}}
 /* 演奏中は出さない。PDFの保存・送信が終わった後に、3回に1回・3分以上あけて表示 */
+async function askReview(){if(!isNative())return;let n=0;try{n=+(localStorage.getItem('crate.exportN')||0)+1;localStorage.setItem('crate.exportN',String(n))}catch(_){}
+  if(n!==2&&n!==10&&n!==40)return;const R=natPlugin('InAppReview');if(!R)return;try{await R.requestReview()}catch(e){console.warn('review',e)}}
 async function adAfterExport(){if(Pro.on||!isNative()||Pro.ad!=='ready')return;let n=0,last=0;
   try{n=+(localStorage.getItem('crate.adN')||0)+1;last=+(localStorage.getItem('crate.adT')||0);localStorage.setItem('crate.adN',String(n))}catch(_){}
   if(n%AD_CFG.every||Date.now()-last<AD_CFG.gapMs)return;const A=natPlugin('AdMob');
@@ -3041,12 +3044,12 @@ function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropE
       catch(err){if(my!==job)return;console.error(err);msg.textContent='PDFを作成できませんでした。このPDFは保護されている可能性があります。'}};
     const rename=()=>{if(file){file=new File([file],safeName($('#pdfName').value),{type:'application/pdf'})}};
     const save=async()=>{if(!file)return;
-      if(isNative()){try{if(await nativeShareFile(file,file.name)){msg.textContent=`共有画面で「"ファイル"に保存」を選ぶと、「${file.name}」が保存されます。`;adAfterExport()}}catch(err){console.error(err);msg.textContent='保存できませんでした。もう一度お試しください。'}return}
+      if(isNative()){try{if(await nativeShareFile(file,file.name)){msg.textContent=`共有画面で「"ファイル"に保存」を選ぶと、「${file.name}」が保存されます。`;adAfterExport();askReview()}}catch(err){console.error(err);msg.textContent='保存できませんでした。もう一度お試しください。'}return}
       if(isMobile()&&canShareFile(file)){try{await navigator.share({files:[file],title:file.name});msg.textContent=`「${file.name}」を保存しました。`;return}catch(err){if(err&&err.name==='AbortError')return}}
       const u=URL.createObjectURL(file);const a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);
       msg.innerHTML=`「${esc(file.name)}」を保存しました。${isMobile()?'':'ダウンロードフォルダを確認してください。'} <a href="${u}" target="_blank" rel="noopener">開いて確認</a>`;toast('PDFを保存しました')};
     const send=async()=>{if(!file)return;rename();
-      if(isNative()){try{if(await nativeShareFile(file,file.name,{text:shareText()})){msg.textContent=`「${file.name}」を送りました。`;toast('楽譜を送りました');adAfterExport()}}catch(err){console.error(err);msg.textContent='送れませんでした。もう一度お試しください。'}return}
+      if(isNative()){try{if(await nativeShareFile(file,file.name,{text:shareText()})){msg.textContent=`「${file.name}」を送りました。`;toast('楽譜を送りました');adAfterExport();askReview()}}catch(err){console.error(err);msg.textContent='送れませんでした。もう一度お試しください。'}return}
       try{await navigator.share({files:[file],title:file.name,text:shareText()});msg.textContent=`「${file.name}」を送りました。`;toast('楽譜を送りました')}
       catch(err){if(err&&err.name==='AbortError')return;/* 文章つきで送れないアプリ向けに、ファイルだけでもう一度 */try{await navigator.share({files:[file]});msg.textContent=`「${file.name}」を送りました。`}catch(e2){if(!e2||e2.name!=='AbortError')msg.textContent='送れませんでした。「保存する」で保存してから、アプリで添付してください。'}}};
     $('#pdfName').addEventListener('input',rename);
@@ -3169,6 +3172,7 @@ function designSheet(){const cur=themeId(),p=wallPrefs(),old=$('#layer .dsg')&&$
     const c=$('#wallClear');if(c)c.onclick=clearWall;
     const d=$('#wallDim');if(d)d.oninput=e=>{try{localStorage.setItem('crate.wallDim',e.target.value)}catch(_){}applyWall()};
     const bl=$('#wallBlur');if(bl)bl.onchange=e=>{try{localStorage.setItem('crate.wallBlur',e.target.checked?'1':'0')}catch(_){}applyWall()}})}
+function bugMail(){const body=`\n\n----\nCRATE ${window.CRATE_VER||'Web版'}\n${navigator.userAgent}\n画面: ${innerWidth}x${innerHeight}`;return'mailto:crate.scoreapp@gmail.com?subject='+encodeURIComponent('CRATE 不具合・要望')+'&body='+encodeURIComponent('起きたこと・やりたいこと：\n\n手順：\n1. \n2. \n'+body)}
 async function settingsSheet(){const m=modeText();let used='確認できません';
   try{const e=await navigator.storage?.estimate?.();if(e&&e.usage!=null)used=`${(e.usage/1048576).toFixed(0)}MB 使用中${e.quota?`（上限の目安 ${(e.quota/1073741824).toFixed(1)}GB）`:''}`}catch(_){}
   const real=all().filter(t=>!t.sample),noFile=real.filter(t=>!t.local&&!t.assetId).length;
@@ -3176,7 +3180,7 @@ async function settingsSheet(){const m=modeText();let used='確認できませ�
    <div class="sec"><h5>保存の状態</h5><div class="kv"><span>モード</span><b><span class="dot${S.cloudState==='on'?' on':''}"></span>${esc(m.t)}</b><span>曲数</span><b class="mono">${real.length}曲${noFile?`（うち${noFile}曲はこの端末にファイルなし）`:''}</b><span>端末の使用量</span><b class="mono">${esc(used)}</b></div><p class="muted" style="margin:8px 0 0">${esc(m.d)}</p></div>
    ${isNative()?'':`<div class="sec"><h5>曲の保護</h5><div class="pstat sm ${S.prot&&S.prot.ok?'ok':'ng'}">${S.prot&&S.prot.ok?IC.check:IC.lock}<div><b>${S.prot&&S.prot.ok?'保護されています（自動で消えません）':'まだ保護されていません'}</b><span>${S.prot&&S.prot.ok?'取り込んだ曲はブラウザに自動で削除されません。':'ブラウザが曲を自動で削除する場合があります。'}</span></div><button class="btn" data-act="protInfo">${S.prot&&S.prot.ok?'詳しく':'保護する'}</button></div></div>`}
    ${proSec()}
-   <div class="sec"><h5>このアプリについて</h5><div class="actions" style="flex-wrap:wrap">${isNative()?'':`<a class="btn primary" style="text-decoration:none" href="https://apps.apple.com/jp/app/id6830933661" target="_blank" rel="noopener">App Storeで入手（iPhone・iPad）</a>`}${[['support/','サポート・お問い合わせ'],['support/privacy.html','プライバシーポリシー'],['support/terms.html','利用規約']].map(([u,l])=>`<a class="btn" style="text-decoration:none" href="https://hondaaqua77-creator.github.io/crate-music/${u}" target="_blank" rel="noopener">${l}</a>`).join('')}</div></div>
+   <div class="sec"><h5>このアプリについて</h5><p class="muted" style="margin:0 0 10px">バージョン ${esc(window.CRATE_VER||'Web版')}</p><div class="actions" style="flex-wrap:wrap"><a class="btn" style="text-decoration:none" href="${bugMail()}">不具合を報告・要望を送る</a>${isNative()?'':`<a class="btn primary" style="text-decoration:none" href="https://apps.apple.com/jp/app/id6830933661" target="_blank" rel="noopener">App Storeで入手（iPhone・iPad）</a>`}${[['support/','サポート・お問い合わせ'],['support/privacy.html','プライバシーポリシー'],['support/terms.html','利用規約']].map(([u,l])=>`<a class="btn" style="text-decoration:none" href="https://hondaaqua77-creator.github.io/crate-music/${u}" target="_blank" rel="noopener">${l}</a>`).join('')}</div></div>
    <div class="sec"><h5>デザイン・壁紙</h5><div class="actions"><button class="btn" data-act="design">${IC.pen}デザインと壁紙を選ぶ</button><span class="muted" style="font-size:12.5px">いま：${esc(themeName())}${S.wall?'・壁紙あり':''}</span></div></div>
    <div class="sec"><h5>再生</h5><p class="muted" style="margin:0">曲が終わると自動で止まります。▶を押すと次の曲を再生します。</p>
    <div class="bgnote">${IC.check}<div><b>画面を消しても再生が続きます</b><span>ロック画面・通知の操作パネルから、再生／一時停止／前後の曲の操作ができます。</span></div></div></div>

@@ -12,7 +12,10 @@ for (const f of ['index.html', 'manifest.webmanifest']) cpSync(join(root, f), jo
 for (const d of ['icons', 'vendor']) cpSync(join(root, d), join(out, d), { recursive: true });
 // Mark the build as the native app (the page reads window.CRATE_NATIVE).
 const p = join(out, 'index.html');
-let html = readFileSync(p, 'utf8').replace('<head>', '<head>\n<script>window.CRATE_NATIVE=true</script>');
+const pbx = readFileSync(join(here, '..', 'ios', 'App', 'App.xcodeproj', 'project.pbxproj'), 'utf8');
+const mv = (pbx.match(/MARKETING_VERSION = ([^;]+);/) || [])[1] || '';
+const ver = mv + (process.env.CRATE_BUILD ? ` (${process.env.CRATE_BUILD})` : '');
+let html = readFileSync(p, 'utf8').replace('<head>', `<head>\n<script>window.CRATE_NATIVE=true;window.CRATE_VER=${JSON.stringify(ver)}</script>`);
 // Production ads: the release build passes the AdMob ad unit ID (GitHub secret ADMOB_INTERSTITIAL_ID).
 // Without it the app keeps Google's test ads, so test builds can never show real ads.
 const adId = process.env.ADMOB_INTERSTITIAL_ID;
