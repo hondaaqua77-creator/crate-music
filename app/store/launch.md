@@ -1,4 +1,4 @@
-# 公開初日の告知文（CRATE 移調できる楽譜アプリ）
+# 公開初日の告知文（CRATE - 楽譜をかんたん移調）
 
 公開リンク：https://apps.apple.com/jp/app/id6830933661（審査通過・公開後に有効）
 Web版：https://hondaaqua77-creator.github.io/crate-music/
@@ -19,8 +19,8 @@ Web版：https://hondaaqua77-creator.github.io/crate-music/
 ```
 楽譜アプリを作りました。
 
-CRATE（クレート）
-印刷した楽譜のPDFや写真を読み込んで、♭♯ボタンで別のキーに移調できます。
+CRATE（クレート）- 楽譜をかんたん移調
+印刷した楽譜を写真に撮るだけで、♭♯ボタンで別のキーに移調できます。
 歌う人のキーに合わせて楽譜を書き直す、あの作業がなくなります。
 
 ・移調した楽譜をPDFで保存・LINEで送る
