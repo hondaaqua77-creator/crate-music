@@ -1389,7 +1389,7 @@ function renderSide(){const{lib,cats,none,pls}=navItems();const cur=S.view.split
   const btn=i=>`<button data-view="${esc(i.k)}" aria-current="${cur===i.k}"${i.sid?` data-sid="${esc(i.sid)}"`:''}>${i.sid?`<span class="grip" title="ドラッグで並べ替え">${IC.grip}</span>`:''}${i.ic}<span>${esc(i.label)}</span><span class="n">${i.n}</span></button>`;
   const cs=S.cloudState==='on'?'<span class="dot on"></span>PC・スマホで同期中':S.cloudState==='checking'?'<span class="dot"></span>同期を確認中…':'<span class="dot on"></span>この端末に保存・オフライン対応';
   const ms=$('#mSet');if(ms&&!ms.innerHTML)ms.innerHTML=IC.gear;
-  const brand=`<i>${IC.disc}</i><div>CRAT<b>E</b><small>PERSONAL MUSIC LIBRARY</small></div>`;$('#mbrand').innerHTML=brand;
+  const brand=`<i>${IC.disc}</i><div>CRAT<b>E</b><small>楽譜をかんたん移調</small></div>`;$('#mbrand').innerHTML=brand;
   $('#side').innerHTML=`<div class="brand">${brand}</div>
    <div class="actions"><button class="btn primary" data-act="import">${IC.plus}曲を取り込む</button><button class="btn" data-act="importDir">フォルダごと</button></div>
    <div class="shelf"><h3>ライブラリ</h3><div class="nav">${lib.map(btn).join('')}</div></div>
@@ -2968,7 +2968,7 @@ const blobB64=b=>new Promise((ok,ng)=>{const r=new FileReader();r.onload=()=>ok(
 /* 広告と「広告なし版」（アプリ版のみ。Web版には広告を出さない） */
 const PRO_ID='com.hondaatsushi.crate.noads';
 /* 本番の広告IDは AdMob 登録後に差し替える。test:true の間は Google のテスト広告だけが出る */
-const AD_CFG={test:true,interstitial:'ca-app-pub-3940256099942544/4411468910',banner:'ca-app-pub-3940256099942544/2934735716',every:3,gapMs:180000};
+const AD_CFG={test:true,interstitial:'ca-app-pub-3940256099942544/4411468910',banner:'ca-app-pub-3940256099942544/2934735716',every:2,gapMs:90000,ttlMs:50*60000};
 const natPlugin=n=>{const C=window.Capacitor||{},P=C.Plugins||{};return P[n]||(C.registerPlugin?C.registerPlugin(n):null)};
 const Pro={on:(()=>{try{return localStorage.getItem('crate.noads')==='1'}catch(_){return false}})(),price:'',ad:null};
 function setPro(v){Pro.on=!!v;try{localStorage.setItem('crate.noads',v?'1':'0')}catch(_){}if(v)adBannerOff()}
@@ -2978,8 +2978,12 @@ async function proInit(){if(!isNative())return;const NP=natPlugin('NativePurchas
   if(NP){try{const r=await NP.getProducts({productIdentifiers:[PRO_ID]});const p=r&&r.products&&r.products[0];if(p)Pro.price=p.priceString||''}catch(e){console.warn('products',e)}await proCheck()}
   adPrepare()}
 async function adPrepare(){if(Pro.on||!isNative())return;const A=natPlugin('AdMob');if(!A)return;
-  try{if(!Pro.ad){await A.initialize({initializeForTesting:AD_CFG.test});Pro.ad='init';adBannerStart()}
-    await A.prepareInterstitial({adId:AD_CFG.interstitial,isTesting:AD_CFG.test,npa:true});Pro.ad='ready'}catch(e){console.warn('ad',e)}}
+  try{if(!Pro.ad){await A.initialize({initializeForTesting:AD_CFG.test});Pro.ad='init';adBannerStart()}}catch(e){console.warn('ad',e)}}
+/* インタースティシャルは「次の書き出しで出す番」のときだけ読み込む（読み込んだ広告は約1時間で失効するため、起動時の先読みはしない） */
+function adNextWillShow(){let n=0,last=0;try{n=+(localStorage.getItem('crate.adN')||0)+1;last=+(localStorage.getItem('crate.adT')||0)}catch(_){}return n%AD_CFG.every===0&&Date.now()-last>=AD_CFG.gapMs}
+async function adLoad(){if(Pro.on||!isNative()||!Pro.ad||Pro.ad==='loading')return;if(Pro.ad==='ready'&&Date.now()-(Pro.adAt||0)<AD_CFG.ttlMs)return;const A=natPlugin('AdMob');if(!A)return;
+  try{Pro.ad='loading';await A.prepareInterstitial({adId:AD_CFG.interstitial,isTesting:AD_CFG.test,npa:true});Pro.ad='ready';Pro.adAt=Date.now()}catch(e){Pro.ad='init';console.warn('ad load',e)}}
+function adMaybeLoad(){if(adNextWillShow())adLoad()}
 /* バナー：曲一覧など「読む画面以外」の下部だけ。楽譜を開いている間・再生画面全体表示・まとめて選択中は隠す。広告なし版では出さない */
 const Ban={on:false,shown:false,busy:false,obs:null};
 function adBottomPx(){let ph=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--player-h'))||88,sa=0;
@@ -2993,14 +2997,14 @@ function adBannerStart(){const A=natPlugin('AdMob');if(!A||Ban.obs)return;
   try{A.addListener('bannerAdSizeChanged',i=>{const h=i&&i.height||0;document.documentElement.style.setProperty('--ad-h',h+'px')})}catch(_){}
   Ban.obs=new MutationObserver(()=>adBannerSync());Ban.obs.observe(document.body,{attributes:true,attributeFilter:['class']});adBannerSync()}
 async function adBannerOff(){const A=natPlugin('AdMob');document.body.classList.remove('ad-banner');if(!A||!Ban.on)return;Ban.on=false;Ban.shown=false;try{await A.removeBanner()}catch(_){}}
-/* 演奏中は出さない。PDFの保存・送信が終わった後に、3回に1回・3分以上あけて表示 */
+/* 演奏中は出さない。PDFの保存・送信が終わった後に、2回に1回・90秒以上あけて表示 */
+async function scoreSampleLoad(){try{progress('サンプル楽譜を読み込み中…');const r=await fetch('vendor/sample-score.pdf');const b=await r.blob();progress(null);S.pdfTarget=null;S.pdfNew=true;importScoreFiles([new File([b],'サンプル楽譜（シューマン「詩人の恋」第2曲）.pdf',{type:'application/pdf'})])}catch(e){progress(null);toast('サンプル楽譜を読み込めませんでした')}}
 async function askReview(){if(!isNative())return;let n=0;try{n=+(localStorage.getItem('crate.exportN')||0)+1;localStorage.setItem('crate.exportN',String(n))}catch(_){}
   if(n!==2&&n!==10&&n!==40)return;const R=natPlugin('InAppReview');if(!R)return;try{await R.requestReview()}catch(e){console.warn('review',e)}}
-async function adAfterExport(){if(Pro.on||!isNative()||Pro.ad!=='ready')return;let n=0,last=0;
-  try{n=+(localStorage.getItem('crate.adN')||0)+1;last=+(localStorage.getItem('crate.adT')||0);localStorage.setItem('crate.adN',String(n))}catch(_){}
-  if(n%AD_CFG.every||Date.now()-last<AD_CFG.gapMs)return;const A=natPlugin('AdMob');
-  try{Pro.ad='used';await A.showInterstitial();try{localStorage.setItem('crate.adT',String(Date.now()))}catch(_){}}catch(e){console.warn('ad show',e)}
-  setTimeout(adPrepare,1000)}
+async function adAfterExport(){if(Pro.on||!isNative()||!Pro.ad)return;const show=adNextWillShow();let n=0;
+  try{n=+(localStorage.getItem('crate.adN')||0)+1;localStorage.setItem('crate.adN',String(n))}catch(_){}
+  if(!show)return;if(Pro.ad!=='ready'||Date.now()-(Pro.adAt||0)>=AD_CFG.ttlMs){try{localStorage.setItem('crate.adN',String(n-1))}catch(_){}return}
+  const A=natPlugin('AdMob');try{Pro.ad='init';await A.showInterstitial();try{localStorage.setItem('crate.adT',String(Date.now()))}catch(_){}}catch(e){console.warn('ad show',e)}}
 async function proBuy(){const NP=natPlugin('NativePurchases'),m=$('#proMsg');if(!NP){if(m)m.textContent='購入はApp Store版のアプリでご利用いただけます。';return}
   if(m)m.textContent='App Storeに接続しています…';
   try{await NP.purchaseProduct({productIdentifier:PRO_ID,productType:'inapp'});setPro(true);toast('広告なし版になりました。ありがとうございます');settingsSheet()}
@@ -3093,15 +3097,15 @@ function modeText(){return S.cloudState==='on'?{t:'PC・スマホで同期中',d
   :S.cloudState==='checking'?{t:'同期を確認中…',d:''}
   :{t:'この端末に保存（オフライン対応）',d:`曲と整理の内容はすべてこの端末の${isNative()?'アプリ':'ブラウザ'}内に保存され、外部のサーバーには一切送信されません。他の端末へ移すときは「バックアップを書き出す」を使ってください。`}}
 function welcomeSheet(){const m=modeText();
-  sheet(`<div class="welcome"><div class="brand big"><i>${IC.disc}</i><div>CRAT<b>E</b><small>PERSONAL MUSIC LIBRARY</small></div></div>
-   <p class="lead">手持ちの音楽ファイルを取り込んで、整理・プレイリスト作成・再生ができる自分専用の音楽ライブラリです。</p>
+  sheet(`<div class="welcome"><div class="brand big"><i>${IC.disc}</i><div>CRAT<b>E</b><small>楽譜をかんたん移調</small></div></div>
+   <p class="lead">印刷した楽譜を写真に撮るだけで、歌いやすいキーに移調。音符をタップして再生したり、PDFで保存してLINEで送れます。</p>
    <ol class="steps">
-    <li><b>曲を取り込む</b><span>「曲を取り込む」から mp3・m4a・flac などを選びます。曲名やジャケットは自動で読み取ります。</span></li>
-    <li><b>整理する</b><span>カテゴリ分け・★評価・タグ・メモで整理。左端の ⋮⋮ をドラッグすると順番を変えられます。</span></li>
-    <li><b>プレイリストで聴く</b><span>手動で作るほか、「★4以上×作業用」のような条件で自動作成もできます。</span></li>
+    <li><b>楽譜を読み込む</b><span>「楽譜を追加」から写真を撮るか、PDF・画像を選びます。読み取りミスは音符をタップして直せます。</span></li>
+    <li><b>移調する</b><span>画面上の ♯ ♭ ボタンを押すだけ。音符も調号も自動で書き換わります。</span></li>
+    <li><b>再生して、送る</b><span>再生ボタンで確認。「PDF保存」からそのままLINEやメールで送れます。音源と一緒に管理もできます。</span></li>
    </ol>
-   <div class="note">${IC.lock}<div><b>あなたの曲とメモは、あなたにしか見えません。</b><br>曲ファイルと整理内容はこの端末の中だけに保存され、インターネット上のどこにも送信されません。<br><span class="muted">保存の状態：${esc(m.t)}</span></div></div>
-   <div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">サンプルで試す</button><button class="btn primary" data-act="welcomeImport">${IC.plus}自分の曲を取り込む</button></span></div></div>`);
+   <div class="note">${IC.lock}<div><b>あなたの楽譜と曲は、あなたにしか見えません。</b><br>読み込んだ楽譜・曲ファイル・整理内容はこの端末の中だけに保存され、インターネット上のどこにも送信されません。<br><span class="muted">保存の状態：${esc(m.t)}</span></div></div>
+   <div class="foot"><span></span><span class="actions"><button class="btn" data-act="welcomeSample">サンプル楽譜で試す</button><button class="btn primary" data-act="welcomeScore">${IC.plus}楽譜を追加する</button></span></div></div>`);
   try{localStorage.setItem('crate.welcomed','1')}catch(_){}}
 /* ---------- 曲の保護（ブラウザによる自動削除を防ぐ） ---------- */
 let installEvt=null;
@@ -3260,7 +3264,7 @@ document.addEventListener('click',e=>{
     if(act==='keySet'){setKeyFor(id||S.queue[S.qi],+a.dataset.k);return}
     if(act==='keyOpen'){keySheet(id);return}
     if(act==='scoreAdd'){scoreAdd();return}
-    if(act==='scoreSample'){(async()=>{try{progress('サンプル楽譜を読み込み中…');const r=await fetch('vendor/sample-score.pdf');const b=await r.blob();progress(null);S.pdfTarget=null;S.pdfNew=true;importScoreFiles([new File([b],'サンプル楽譜（シューマン「詩人の恋」第2曲）.pdf',{type:'application/pdf'})])}catch(e){progress(null);toast('サンプル楽譜を読み込めませんでした')}})();return}
+    if(act==='scoreSample'){scoreSampleLoad();return}
     if(act==='scorePick'){closeSheet();pickScore(id);return}
     if(act==='songPick'){songPickSheet(id||SV.id);return}
     if(act==='scoreRename'){const t=S.tracks.get(id||SV.id);if(t)nameSheet('楽譜の名前',t.title,v=>{t.title=v;saveTrack(t);render();const b=$('.sv-title b');if(b)b.textContent=v});return}
@@ -3327,7 +3331,7 @@ document.addEventListener('click',e=>{
     if(act==='pgDel'){const i=+a.dataset.i;pgChange(e=>{if(e.order.length>1)e.order.splice(i,1)});toast('ページを外しました（「外したページ」から戻せます）');return}
     if(act==='pgBack'){const o=+a.dataset.o;pgChange(e=>{let i=e.order.findIndex(x=>x>o);if(i<0)i=e.order.length;e.order.splice(i,0,o)});return}
     if(act==='pgReset'){pgChange(e=>{e.order=Array.from({length:SV.doc.numPages},(_,i)=>i+1)});return}
-    if(act==='svExport'){exportScore();return}
+    if(act==='svExport'){adMaybeLoad();exportScore();return}
     if(act==='svEditReset'){sheet(`<h2>編集をすべて取り消しますか？</h2><p style="margin:0;color:var(--muted)">書き込み・白塗り・回転・トリミング・ページの並べ替えをすべて消して、取り込んだときの楽譜に戻します。</p><div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">キャンセル</button><button class="btn danger" data-act="svEditResetGo">すべて取り消す</button></span></div>`);return}
     if(act==='svEditResetGo'){const t=curT();closeSheet();if(t){pushUndo(snapEd());delete t.score.edit;t.score.view={};saveTrack(t);SV.thumbs.clear();gotoPage(1);renderTools();toast('取り込んだときの楽譜に戻しました')}return}
     if(act==='scorePage'){SV.lastUser=Date.now();gotoPage(SV.page+(+a.dataset.d));return}
@@ -3404,6 +3408,8 @@ document.addEventListener('click',e=>{
       case'clearSamples':removeSamples();break;
       case'settings':settingsSheet();break;case'design':designSheet();break;case'themePick':applyTheme(a.dataset.t);designSheet();try{if(!$('#scoreView').hidden)drawAnnLayer()}catch(_){}break;case'help':welcomeSheet();break;
       case'welcomeImport':closeSheet();$('#fileIn').click();break;
+      case'welcomeSample':closeSheet();scoreSampleLoad();break;
+      case'welcomeScore':closeSheet();scoreAdd();break;
     }return}
   const one=e.target.closest('[data-play-one]');if(one){startQueue([S.tracks.get(one.dataset.playOne)].filter(Boolean),null,false);return}
   const r=e.target.closest('[data-play]');if(r){const id=r.dataset.play;
