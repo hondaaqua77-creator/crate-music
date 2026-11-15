@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       step:
-        description: 'meta = バージョン作成＋掲載情報 / attach = ビルド添付 / submit = 審査提出 / shots = スクリーンショット'
+        description: 'meta = バージョン作成＋掲載情報 / attach = ビルド添付 / submit = 審査提出 / cancel = 提出取り下げ / shots = スクリーンショット'
         type: choice
-        options: [meta, attach, submit, shots]
+        options: [meta, attach, submit, cancel, shots]
       version:
         description: 'バージョン（例 1.0.2）'
         required: true

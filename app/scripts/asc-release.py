@@ -5,6 +5,7 @@
             Japanese metadata from app/store/meta (name, subtitle, keywords, description, what's new, promo).
   attach  : attach the newest VALID build of VERSION to that version and set manual release.
   submit  : create a review submission with that version and submit it.
+  cancel  : cancel the pending (WAITING_FOR_REVIEW) review submission so a new build can be attached.
 Env: ASC_KEY_ID, ASC_ISSUER_ID, RUNNER_TEMP, VERSION (e.g. 1.0.2), optional ASC_APP_ID.
 """
 import json, os, sys, time, urllib.request, urllib.error
@@ -67,5 +68,12 @@ def submit():
     call('PATCH',f"/reviewSubmissions/{sub['id']}",{'data':{'type':'reviewSubmissions','id':sub['id'],'attributes':{'submitted':True}}})
     print('submitted',VERSION,'submission',sub['id'])
 
+def cancel():
+    subs=call('GET',f'/apps/{APP_ID}/reviewSubmissions?filter[platform]=IOS&filter[state]=WAITING_FOR_REVIEW,READY_FOR_REVIEW,UNRESOLVED_ISSUES&limit=5')['data']
+    assert subs, 'no pending submission'
+    for sub in subs:
+        call('PATCH',f"/reviewSubmissions/{sub['id']}",{'data':{'type':'reviewSubmissions','id':sub['id'],'attributes':{'canceled':True}}})
+        print('canceled submission',sub['id'],sub['attributes'].get('state'))
+
 if __name__=='__main__':
-    {'meta':meta,'attach':attach,'submit':submit}[sys.argv[1]]()
+    {'meta':meta,'attach':attach,'submit':submit,'cancel':cancel}[sys.argv[1]]()
