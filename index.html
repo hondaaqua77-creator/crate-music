@@ -1108,15 +1108,15 @@ body.has-wall .row,body.has-wall .trow{background:color-mix(in srgb,var(--bg) 62
 </style>
 
 <style id="splashcss">
-#splash{position:fixed;inset:0;z-index:9999;background:#0E0F14;display:none;align-items:center;justify-content:center;overflow:hidden;transition:opacity .55s ease}
+#splash{position:fixed;inset:0;z-index:9999;background:#781A28;display:none;align-items:center;justify-content:center;overflow:hidden;transition:opacity .55s ease}
 html.native #splash{display:flex}
 #splash.out{opacity:0;pointer-events:none}
-#splash .glow{position:absolute;left:50%;top:50%;width:140vmax;height:140vmax;transform:translate(-50%,-50%);background:radial-gradient(closest-side,rgba(150,110,60,.45),rgba(14,15,20,0) 70%);animation:spGlow 1.6s ease-out both}
+#splash .glow{position:absolute;left:50%;top:50%;width:140vmax;height:140vmax;transform:translate(-50%,-50%);background:radial-gradient(closest-side,rgba(210,52,74,.75),rgba(120,26,40,0) 70%);animation:spGlow 1.6s ease-out both}
 #splash .c{position:relative;display:flex;flex-direction:column;align-items:center;gap:0;transform:translateY(-4vh)}
 #splash img{width:88px;height:88px;border-radius:20px;box-shadow:0 18px 40px rgba(0,0,0,.5);animation:spUp .7s cubic-bezier(.2,.7,.2,1) both}
 #splash .w{margin-top:30px;color:#fff;font:500 40px/1 -apple-system,"Helvetica Neue",Inter,sans-serif;letter-spacing:.42em;padding-left:.42em;animation:spTrack 1.1s cubic-bezier(.2,.7,.2,1) both .1s}
-#splash .r{width:0;height:1.5px;background:#DEC496;margin:22px 0 18px;animation:spRule .6s ease-out both .55s}
-#splash .t{color:#EBE4D7;font:300 15px/1 "Hiragino Mincho ProN","Noto Serif CJK JP","Yu Mincho",serif;letter-spacing:.08em;opacity:0;animation:spFade .6s ease-out both .75s}
+#splash .r{width:0;height:1.5px;background:#FFDCC8;margin:22px 0 18px;animation:spRule .6s ease-out both .55s}
+#splash .t{color:#FFEBE6;font:300 15px/1 "Hiragino Mincho ProN","Noto Serif CJK JP","Yu Mincho",serif;letter-spacing:.08em;opacity:0;animation:spFade .6s ease-out both .75s}
 @keyframes spUp{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
 @keyframes spTrack{from{opacity:0;letter-spacing:.9em;padding-left:.9em}to{opacity:1;letter-spacing:.42em;padding-left:.42em}}
 @keyframes spRule{from{width:0}to{width:24px}}
