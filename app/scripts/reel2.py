@@ -123,12 +123,12 @@ def main():
     grade = "eq=contrast=1.06:saturation=0.92:brightness=-0.02,vignette=PI/4.2,unsharp=3:3:0.4"
     for i, (c, (lines, tag, y)) in enumerate(zip(clips, CAPS)):
         ov = os.path.join(tmp, f"cap{i}.png")
-        caption_png(ov, lines, tag, y, size=84)
+        caption_png(ov, lines, tag, y, size=104 if i == 0 else 84)
         p = os.path.join(tmp, f"part{i}.mp4")
         vf = (
             f"[0:v]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},"
             f"trim=0:{CLIP_LEN},setpts=PTS-STARTPTS,{grade}[v];"
-            f"[1:v]format=rgba,fade=t=in:st=0.5:d=0.5:alpha=1,fade=t=out:st={CLIP_LEN-0.7}:d=0.5:alpha=1[o];"
+            f"[1:v]format=rgba,{'' if i == 0 else 'fade=t=in:st=0.5:d=0.5:alpha=1,'}fade=t=out:st={CLIP_LEN-0.7}:d=0.5:alpha=1[o];"
             f"[v][o]overlay=0:0:shortest=1,format=yuv420p"
         )
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", c, "-loop", "1", "-t", str(CLIP_LEN), "-i", ov,
@@ -155,7 +155,7 @@ def main():
         lbl = f"[x{k}]" if k < n - 1 else "[vout]"
         fc += f"{prev}[{k}:v]xfade=transition={trans}:duration={XF}:offset={off:.2f}{lbl};"
         prev = lbl
-    fc = fc.rstrip(";") + ",fade=t=in:st=0:d=0.4,fade=t=out:st=%.2f:d=0.6[vfin]" % (off + END_LEN - 0.6)
+    fc = fc.rstrip(";") + ",fade=t=out:st=%.2f:d=0.6[vfin]" % (off + END_LEN - 0.6)
     fc = fc.replace("[vout];", "[vout];[vout]")  # no-op guard
     fc = fc.replace("[vout],fade", "[vout];[vout]fade")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", *inputs,
