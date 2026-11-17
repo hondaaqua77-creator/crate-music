@@ -72,6 +72,9 @@ def cancel():
     subs=call('GET',f'/apps/{APP_ID}/reviewSubmissions?filter[platform]=IOS&filter[state]=WAITING_FOR_REVIEW,READY_FOR_REVIEW,UNRESOLVED_ISSUES&limit=5')['data']
     assert subs, 'no pending submission'
     for sub in subs:
+        items=call('GET',f"/reviewSubmissions/{sub['id']}/items?include=appStoreVersion,appCustomProductPageVersion")['data']
+        if not any((it.get('relationships',{}).get('appStoreVersion',{}).get('data')) for it in items):
+            print('skip (no app version in it)',sub['id']);continue
         call('PATCH',f"/reviewSubmissions/{sub['id']}",{'data':{'type':'reviewSubmissions','id':sub['id'],'attributes':{'canceled':True}}})
         print('canceled submission',sub['id'],sub['attributes'].get('state'))
 
