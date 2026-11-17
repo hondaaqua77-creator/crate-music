@@ -7,5 +7,9 @@
     "backgroundColor": "#781A28",
     "limitsNavigationsToAppBoundDomains": false,
     "scrollEnabled": false
+  },
+  "android": {
+    "backgroundColor": "#781A28",
+    "allowMixedContent": false
   }
 }

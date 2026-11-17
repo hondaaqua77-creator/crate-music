@@ -1,0 +1,72 @@
+# Android (Google Play) build — Actions → Android build → Run workflow.
+# Without signing secrets it produces a debug APK (install on a phone to test) and an unsigned AAB.
+# With ANDROID_KEYSTORE_B64 / ANDROID_KEYSTORE_PASSWORD / ANDROID_KEY_ALIAS / ANDROID_KEY_PASSWORD set,
+# the AAB is signed with the upload key and is ready for Play Console.
+name: Android build
+on:
+  workflow_dispatch:
+    inputs:
+      production_ads:
+        description: 'Use production AdMob IDs (needs ADMOB_ANDROID_* secrets)'
+        type: boolean
+        default: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CRATE_BUILD: ${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Version from the iOS project
+        run: |
+          V=$(grep -m1 -o 'MARKETING_VERSION = [0-9.]*' app/ios/App/App.xcodeproj/project.pbxproj | awk '{print $3}')
+          echo "CRATE_VERSION=$V" >> "$GITHUB_ENV"
+          echo "version $V build $CRATE_BUILD"
+      - name: Copy web app and sync Capacitor
+        working-directory: app
+        env:
+          ADMOB_INTERSTITIAL_ID: ${{ inputs.production_ads && secrets.ADMOB_ANDROID_INTERSTITIAL_ID || '' }}
+          ADMOB_BANNER_ID: ${{ inputs.production_ads && secrets.ADMOB_ANDROID_BANNER_ID || '' }}
+        run: |
+          npm ci
+          node scripts/copy-web.mjs
+          npx cap sync android
+      - name: Production AdMob app ID
+        if: ${{ inputs.production_ads }}
+        env:
+          APPID: ${{ secrets.ADMOB_ANDROID_APP_ID }}
+        run: |
+          [[ "$APPID" =~ ^ca-app-pub-[0-9]+~[0-9]+$ ]] || { echo "::error::ADMOB_ANDROID_APP_ID missing or malformed"; exit 1; }
+          sed -i "s|ca-app-pub-3940256099942544~3347511713|$APPID|" app/android/app/src/main/res/values/strings.xml
+      - name: Upload key
+        env:
+          KS: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KS" ]; then
+            printf '%s' "$KS" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+          else
+            echo "::warning::No upload key secret — the AAB will be unsigned (debug APK is still installable)."
+          fi
+      - name: Build
+        working-directory: app/android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug bundleRelease
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crate-android-${{ env.CRATE_VERSION }}-${{ github.run_number }}
+          path: |
+            app/android/app/build/outputs/apk/debug/*.apk
+            app/android/app/build/outputs/bundle/release/*.aab

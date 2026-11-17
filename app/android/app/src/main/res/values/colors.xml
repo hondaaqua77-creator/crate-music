@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#D2344A</color>
+    <color name="colorPrimaryDark">#781A28</color>
+    <color name="colorAccent">#D2344A</color>
+    <color name="crate_splash">#781A28</color>
+</resources>
