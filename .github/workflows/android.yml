@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       production_ads:
-        description: 'Use production AdMob IDs (needs ADMOB_ANDROID_* secrets)'
+        description: 'Use production AdMob IDs (off = Google test ads)'
         type: boolean
-        default: false
+        default: true
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,8 +32,8 @@ jobs:
       - name: Copy web app and sync Capacitor
         working-directory: app
         env:
-          ADMOB_INTERSTITIAL_ID: ${{ inputs.production_ads && secrets.ADMOB_ANDROID_INTERSTITIAL_ID || '' }}
-          ADMOB_BANNER_ID: ${{ inputs.production_ads && secrets.ADMOB_ANDROID_BANNER_ID || '' }}
+          ADMOB_INTERSTITIAL_ID: ${{ inputs.production_ads && (secrets.ADMOB_ANDROID_INTERSTITIAL_ID || 'ca-app-pub-6323228654710695/8650556642') || '' }}
+          ADMOB_BANNER_ID: ${{ inputs.production_ads && (secrets.ADMOB_ANDROID_BANNER_ID || 'ca-app-pub-6323228654710695/8588470750') || '' }}
         run: |
           npm ci
           node scripts/copy-web.mjs
@@ -41,7 +41,7 @@ jobs:
       - name: Production AdMob app ID
         if: ${{ inputs.production_ads }}
         env:
-          APPID: ${{ secrets.ADMOB_ANDROID_APP_ID }}
+          APPID: ${{ secrets.ADMOB_ANDROID_APP_ID || 'ca-app-pub-6323228654710695~2406205783' }}
         run: |
           [[ "$APPID" =~ ^ca-app-pub-[0-9]+~[0-9]+$ ]] || { echo "::error::ADMOB_ANDROID_APP_ID missing or malformed"; exit 1; }
           sed -i "s|ca-app-pub-3940256099942544~3347511713|$APPID|" app/android/app/src/main/res/values/strings.xml
