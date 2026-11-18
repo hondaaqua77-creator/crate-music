@@ -48,9 +48,12 @@ jobs:
       - name: Upload key
         env:
           KS: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          KSPW: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: |
           if [ -n "$KS" ]; then
-            printf '%s' "$KS" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            printf '%s' "$KS" | tr -d ' \r\n\t' | base64 -d > "$RUNNER_TEMP/upload.jks" || { echo "::error::ANDROID_KEYSTORE_B64 is not valid base64 (copy the whole file again)"; exit 1; }
+            keytool -list -keystore "$RUNNER_TEMP/upload.jks" -storepass "$KSPW" >/dev/null || { echo "::error::Keystore could not be opened — check ANDROID_KEYSTORE_PASSWORD or re-paste ANDROID_KEYSTORE_B64"; exit 1; }
+            echo "upload key OK"
             echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
           else
             echo "::warning::No upload key secret — the AAB will be unsigned (debug APK is still installable)."
