@@ -113,11 +113,6 @@ def cover_c(bg):
     d = ImageDraw.Draw(im)
     ft = ImageFont.truetype(SANS_M, 32); t = "CRATE  ·  TRANSPOSE"
     sp(d, (W - sw(d, t, ft, 12)) / 2, 300, t, ft, GOLD, 12)
-    f = ImageFont.truetype(SERIF_B, 150)
-    def txt(dd, sc):
-        for s, y in (("歌いやすい", 380), ("キーへ。", 560)):
-            sp(dd, (W - sw(dd, s, f, 6)) / 2, y + (8 if sc else 0), s, f, sc or WHITE, 6)
-    shadow_text(im, txt)
     d = ImageDraw.Draw(im); fs = ImageFont.truetype(SERIF_L, 50)
     s = "写真1枚で、楽譜を移調。"
     d.text(((W - d.textlength(s, font=fs)) / 2, 1400), s, font=fs, fill=(240, 230, 215))
