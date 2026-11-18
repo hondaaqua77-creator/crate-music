@@ -3090,7 +3090,7 @@ function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropE
     const shareText=()=>{const k=tpLabel(t),b=k?`${k}の楽譜です。`:'楽譜を送ります。';return Pro.on?b:`${b}\n\n（楽譜アプリ「CRATE」で移調しました）\n${APP_URL}`};
     const ready=()=>{const kb=Math.max(1,Math.round(file.size/1024));go.disabled=false;sh.disabled=false;sh.hidden=!canShareFile(file);/* スマホは「送る」を主役に */const sp=!sh.hidden&&(isMobile()||isNative());sh.classList.toggle('primary',sp);go.classList.toggle('primary',!sp);
       msg.textContent=sh.hidden?`PDFができました（${kb}KB）。${isMobile()?'「保存する」で共有画面が開きます。「"ファイル"に保存」を選ぶと端末に保存されます。':'「保存する」でダウンロードフォルダに保存されます。'}元のPDFは変わりません。`
-        :`PDFができました（${kb}KB）。「送る」でLINE・メール・AirDropなどにそのまま送れます。${isMobile()||isNative()?'「保存する」は共有画面で「"ファイル"に保存」を選んでください。':'「保存する」はダウンロードフォルダに保存します。'}`};
+        :`PDFができました（${kb}KB）。「送る」でLINE・メール${IS_ANDROID?'':'・AirDrop'}などにそのまま送れます。${IS_ANDROID?'「保存する」は共有画面で「ドライブ」や「ファイル」を選んでください。':isMobile()||isNative()?'「保存する」は共有画面で「"ファイル"に保存」を選んでください。':'「保存する」はダウンロードフォルダに保存します。'}`};
     const build=async()=>{const my=++job;file=null;go.disabled=true;sh.disabled=true;msg.textContent='PDFを準備しています…';
       try{const bytes=await buildEditedPdf(t,{ann:$('#pdfAnn').checked,keyLabel:!!($('#pdfKey')&&$('#pdfKey').checked),credit:!Pro.on});if(my!==job)return;
         file=new File([bytes],safeName($('#pdfName').value),{type:'application/pdf'});SV.savedSig=snapEd();ready()}
