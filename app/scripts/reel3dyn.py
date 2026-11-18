@@ -149,7 +149,7 @@ def main():
     bpm = float(sys.argv[5]) if len(sys.argv) > 5 else 124.0
     beat = 60.0 / bpm
     C = lambda n, **k: Clip(os.path.join(cd, f"c{n}.mp4"), **k)
-    clips = {1: C(1, ss=0.6), 2: C(2), 3: C(6, ss=2.2), 4: C(4), 5: C(5), 6: C(6, ss=0.3), 7: C(2, ss=2.4)}
+    clips = {1: C(5, ss=2.6), 2: C(2), 3: C(6, ss=2.2), 4: C(4), 5: C(5), 6: C(6, ss=0.3), 7: C(2, ss=2.4), 8: C(2, ss=1.0)}
     ph_tp = phone_img(os.path.join(fr, "fr_c_tp.png"))
     ph_done = phone_img(os.path.join(fr, "fr_f_done.png"))
     ph_pdf = phone_img(os.path.join(fr, "fr_g_pdf.png"))
@@ -201,7 +201,7 @@ def main():
         return r
 
     def endcard(t, i):
-        im = darken(slow_zoom(clips[1].at(i), t, 0.03).convert("RGBA"), 0.62)
+        im = darken(slow_zoom(clips[8].at(i), t, 0.03).convert("RGBA"), 0.62)
         d = ImageDraw.Draw(im)
         if icon:
             p = ease_back(t / 0.4); s = max(1, int(280 * p))
