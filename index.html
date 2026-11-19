@@ -1000,9 +1000,12 @@ body.is-playing .np-art::before{translate:0 -24%;animation:crateSpin 5s linear i
   .side .grip{margin-left:4px}}
 body.selmode .main{padding-bottom:calc(var(--player-h) + 120px)}
 .side{padding-bottom:calc(var(--player-h) + 40px)}
-body.ad-banner .main{padding-bottom:calc(var(--player-h) + 40px + var(--ad-h,50px))}
+/* AdMobポリシー：バナーは画面最下部の専用の帯に置き、コンテンツやボタンの下に潜らせない。プレーヤーはその上に持ち上げ、8pxの余白で誤タップを防ぐ */
+body.ad-banner .player{bottom:calc(var(--ad-h,50px) + 8px + env(safe-area-inset-bottom,0px))!important;padding-bottom:0!important}
+body.ad-banner::after{content:"";position:fixed;left:0;right:0;bottom:0;height:calc(var(--ad-h,50px) + 8px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line);z-index:21;pointer-events:none}
+body.ad-banner .main{padding-bottom:calc(var(--player-h) + 48px + var(--ad-h,50px))}
 body.ad-banner .side{padding-bottom:calc(var(--player-h) + 40px + var(--ad-h,50px))}
-body.ad-banner .progress,body.ad-banner .bulk{bottom:calc(var(--player-h) + 16px + var(--ad-h,50px) + env(safe-area-inset-bottom,0px))}
+body.ad-banner .progress,body.ad-banner .bulk{bottom:calc(var(--player-h) + 24px + var(--ad-h,50px) + env(safe-area-inset-bottom,0px))}
 .cf-row{grid-template-columns:64px 116px 52px auto auto 1fr}.cf-row .cf-rs{grid-column:4}.cf-row .cf-lock,.cf-row .cf-rs+button{grid-column:5}
 .cf-link{left:230px}
 .sv-stage:has(.sv-tips) .sv-edge{display:none}
@@ -3019,7 +3022,7 @@ function adBottomPx(){let ph=parseFloat(getComputedStyle(document.documentElemen
 const AD_COVER_SEL='#layer .veil,#menu,#splash,[role="dialog"],[aria-modal="true"]';
 function adBannerWant(){const b=document.body.classList;return !Pro.on&&isNative()&&!!Pro.ad&&!b.contains('score-open')&&!b.contains('np-full')&&!b.contains('selmode')&&!b.contains('score-editing')&&!document.querySelector(AD_COVER_SEL)}
 async function adBannerSync(){const A=natPlugin('AdMob');if(!A||Ban.busy)return;const want=adBannerWant();if(want===Ban.shown)return;Ban.busy=true;
-  try{if(want){if(!Ban.on){await A.showBanner({adId:AD_CFG.banner,adSize:'ADAPTIVE_BANNER',position:'BOTTOM_CENTER',margin:adBottomPx(),isTesting:AD_CFG.test,npa:true});Ban.on=true}else await A.resumeBanner();Ban.shown=true;document.body.classList.add('ad-banner')}
+  try{if(want){if(!Ban.on){await A.showBanner({adId:AD_CFG.banner,adSize:'ADAPTIVE_BANNER',position:'BOTTOM_CENTER',margin:0,isTesting:AD_CFG.test,npa:true});Ban.on=true}else await A.resumeBanner();Ban.shown=true;document.body.classList.add('ad-banner')}
     else{await A.hideBanner();Ban.shown=false;document.body.classList.remove('ad-banner')}}catch(e){console.warn('banner',e)}
   Ban.busy=false;if(adBannerWant()!==Ban.shown)setTimeout(adBannerSync,300)}
 function adBannerStart(){const A=natPlugin('AdMob');if(!A||Ban.obs)return;
