@@ -2997,6 +2997,15 @@ const PRO_ID='com.hondaatsushi.crate.noads';
 const AD_CFG={test:true,interstitial:'ca-app-pub-3940256099942544/4411468910',banner:'ca-app-pub-3940256099942544/2934735716',every:2,gapMs:90000,ttlMs:50*60000};
 const natPlugin=n=>{const C=window.Capacitor||{},P=C.Plugins||{};return P[n]||(C.registerPlugin?C.registerPlugin(n):null)};
 const Pro={on:(()=>{try{return localStorage.getItem('crate.noads')==='1'}catch(_){return false}})(),price:'',ad:null};
+/* 紹介のお礼：アプリ内で紹介メッセージ・移調カードを送ると、その日は24時間広告なし（1日1回まで）。
+   友だちのダウンロードや評価は条件にしない（App Store審査ガイドライン3.2.2(x)／3.1.1に配慮） */
+function adFreeUntil(){try{return+(localStorage.getItem('crate.adFreeUntil')||0)}catch(_){return 0}}
+function noAds(){return Pro.on||Date.now()<adFreeUntil()}
+let adFreeTimer=null;function adFreeArm(){clearTimeout(adFreeTimer);const left=adFreeUntil()-Date.now();if(left>0&&left<864e5+6e4)adFreeTimer=setTimeout(()=>{try{adBannerSync()}catch(_){}},left+500)}
+function grantAdFree(){if(Pro.on)return false;const day=new Date().toDateString();let done='';try{done=localStorage.getItem('crate.adFreeDay')||''}catch(_){}
+  if(done===day)return false;try{localStorage.setItem('crate.adFreeDay',day);localStorage.setItem('crate.adFreeUntil',String(Date.now()+864e5))}catch(_){return false}
+  try{adBannerSync()}catch(_){}adFreeArm();return true}
+setTimeout(adFreeArm,0);
 function setPro(v){Pro.on=!!v;try{localStorage.setItem('crate.noads',v?'1':'0')}catch(_){}if(v)adBannerOff()}
 async function proCheck(){const NP=natPlugin('NativePurchases');if(!NP)return;
   try{const r=await NP.getPurchases({onlyCurrentEntitlements:true});setPro((r&&r.purchases||[]).some(t=>t.productIdentifier===PRO_ID&&!t.revocationDate))}catch(e){console.warn('purchases',e)}}
@@ -3007,7 +3016,7 @@ async function adPrepare(){if(Pro.on||!isNative())return;const A=natPlugin('AdMo
   try{if(!Pro.ad){await A.initialize({initializeForTesting:AD_CFG.test});Pro.ad='init';adBannerStart()}}catch(e){console.warn('ad',e)}}
 /* インタースティシャルは「次の書き出しで出す番」のときだけ読み込む（読み込んだ広告は約1時間で失効するため、起動時の先読みはしない） */
 function adNextWillShow(){let n=0,last=0;try{n=+(localStorage.getItem('crate.adN')||0)+1;last=+(localStorage.getItem('crate.adT')||0)}catch(_){}return n%AD_CFG.every===0&&Date.now()-last>=AD_CFG.gapMs}
-async function adLoad(){if(Pro.on||!isNative()||!Pro.ad||Pro.ad==='loading')return;if(Pro.ad==='ready'&&Date.now()-(Pro.adAt||0)<AD_CFG.ttlMs)return;const A=natPlugin('AdMob');if(!A)return;
+async function adLoad(){if(noAds()||!isNative()||!Pro.ad||Pro.ad==='loading')return;if(Pro.ad==='ready'&&Date.now()-(Pro.adAt||0)<AD_CFG.ttlMs)return;const A=natPlugin('AdMob');if(!A)return;
   try{Pro.ad='loading';await A.prepareInterstitial({adId:AD_CFG.interstitial,isTesting:AD_CFG.test,npa:true});Pro.ad='ready';Pro.adAt=Date.now()}catch(e){Pro.ad='init';console.warn('ad load',e)}}
 function adMaybeLoad(){if(adNextWillShow())adLoad()}
 /* バナー：曲一覧など「読む画面以外」の下部だけ。楽譜を開いている間・再生画面全体表示・まとめて選択中は隠す。広告なし版では出さない */
@@ -3015,12 +3024,12 @@ const Ban={on:false,shown:false,busy:false,obs:null,loaded:false,err:'',retry:0,
 /* バナーの読み込みに失敗（在庫なし・通信）したら、30秒→1分→2分…（最大5分）で読み込み直す */
 function adBannerRetry(){if(Ban.rt)return;const d=Math.min(30000*2**Ban.retry,300000);Ban.retry++;
   Ban.rt=setTimeout(async()=>{Ban.rt=0;if(Ban.loaded||!adBannerWant())return;const A=natPlugin('AdMob');if(!A)return;try{await A.removeBanner()}catch(_){}Ban.on=false;Ban.shown=false;adBannerSync()},d)}
-function adStatus(){if(!isNative())return'';if(Pro.on)return'広告：なし（広告なし版）';if(!Pro.ad)return'広告：準備中';return'広告：'+(Ban.loaded?'表示中':Ban.on?'読み込み中'+(Ban.err?'（'+Ban.err+'）':''):'待機')}
+function adStatus(){if(!isNative())return'';if(Pro.on)return'広告：なし（広告なし版）';if(noAds())return'広告：なし（紹介のお礼・'+new Date(adFreeUntil()).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+'まで）';if(!Pro.ad)return'広告：準備中';return'広告：'+(Ban.loaded?'表示中':Ban.on?'読み込み中'+(Ban.err?'（'+Ban.err+'）':''):'待機')}
 function adBottomPx(){let ph=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--player-h'))||88,sa=0;
   try{const p=document.createElement('div');p.style.cssText='position:fixed;bottom:0;height:env(safe-area-inset-bottom,0px);visibility:hidden';document.body.appendChild(p);sa=p.getBoundingClientRect().height;p.remove()}catch(_){}return Math.round(ph+sa)}
 /* AdMobポリシー：広告をアプリの内容（シート・メニュー・ダイアログ・起動画面）の前面に重ねない。何か開いている間はバナーを隠す */
 const AD_COVER_SEL='#layer .veil,#menu,#splash,[role="dialog"],[aria-modal="true"]';
-function adBannerWant(){const b=document.body.classList;return !Pro.on&&isNative()&&!!Pro.ad&&!b.contains('score-open')&&!b.contains('np-full')&&!b.contains('selmode')&&!b.contains('score-editing')&&!document.querySelector(AD_COVER_SEL)}
+function adBannerWant(){const b=document.body.classList;return !noAds()&&isNative()&&!!Pro.ad&&!b.contains('score-open')&&!b.contains('np-full')&&!b.contains('selmode')&&!b.contains('score-editing')&&!document.querySelector(AD_COVER_SEL)}
 async function adBannerSync(){const A=natPlugin('AdMob');if(!A||Ban.busy)return;const want=adBannerWant();if(want===Ban.shown)return;Ban.busy=true;
   try{if(want){if(!Ban.on){await A.showBanner({adId:AD_CFG.banner,adSize:'ADAPTIVE_BANNER',position:'BOTTOM_CENTER',margin:0,isTesting:AD_CFG.test,npa:true});Ban.on=true}else await A.resumeBanner();Ban.shown=true;document.body.classList.add('ad-banner')}
     else{await A.hideBanner();Ban.shown=false;document.body.classList.remove('ad-banner')}}catch(e){console.warn('banner',e)}
@@ -3043,7 +3052,49 @@ function proUpsellMaybe(){if(Pro.on||!isNative())return;let n=0;try{n=+(localSto
    <div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">あとで</button><button class="btn primary" data-act="proBuy">広告なし版にする</button></span></div>`),900)}
 async function askReview(){if(!isNative())return;let n=0;try{n=+(localStorage.getItem('crate.exportN')||0)+1;localStorage.setItem('crate.exportN',String(n))}catch(_){}
   if(n!==2&&n!==8&&n!==25)return;const R=natPlugin('InAppReview');if(!R)return;await new Promise(r=>setTimeout(r,1500));try{await R.requestReview()}catch(e){console.warn('review',e)}}
-async function adAfterExport(){if(Pro.on||!isNative()||!Pro.ad)return;const show=adNextWillShow();let n=0;
+
+/* ===== 紹介したくなる仕組み ===== */
+const REFER_MSGS=[
+  ['合唱・パートの仲間へ','合唱の楽譜、自分のパートの歌いやすいキーに移調できるアプリを見つけました。印刷した楽譜を撮って♯♭を押すだけで、音符も調号も書き換わります。PDFでそのまま送れるので、練習の楽譜配りにも便利です。'],
+  ['生徒・レッスン仲間へ','レッスンで使っている楽譜の移調アプリです。楽譜を写真で撮るだけで、音符も調号も自動で書き換わります。無料で使えます。'],
+  ['友だちへ','原曲キーが高くて歌えない曲も、楽譜を撮るだけで歌いやすいキーにできるアプリがあるよ🎤 無料！']];
+function referText(i){return REFER_MSGS[i][1]+'\n\n楽譜アプリ「CRATE」\n'+APP_URL}
+function referRewardNote(){return Pro.on?'':(adFreeUntil()>Date.now()?'<p class="muted" style="margin:0 0 12px">今は紹介のお礼で広告なしです。ありがとうございます。</p>':'<p class="lead" style="margin:0 0 12px"><b>送ると、お礼に今から24時間、広告なし</b>でお使いいただけます（1日1回）。</p>')}
+async function shareTextOnly(text){if(isNative()){const C=window.Capacitor||{},P=C.Plugins||{},SH=P.Share||(C.registerPlugin?C.registerPlugin('Share'):null);if(!SH)return false;try{await SH.share({text,dialogTitle:'CRATEを教える'});return true}catch(e){if(/cancel/i.test(String(e&&e.message||e)))return false;throw e}}
+  if(navigator.share){try{await navigator.share({text});return true}catch(e){if(e&&e.name==='AbortError')return false;throw e}}
+  try{await navigator.clipboard.writeText(text);toast('紹介文をコピーしました。LINEなどに貼り付けて送れます');return true}catch(_){return false}}
+function referDone(){const g=grantAdFree();closeSheet();toast(g?'ありがとうございます！今から24時間、広告なしでお使いいただけます':'ありがとうございます！')}
+function referSheet(id){const t=id?S.tracks.get(id):null,card=!!(t&&tpLabel(t));
+  sheet(`<h3>CRATEを教える</h3>${referRewardNote()}
+   <p class="muted" style="margin:0 0 10px">送る相手を選ぶと、そのまま送れる紹介文が開きます。</p>
+   <div style="display:grid;gap:8px;margin:0 0 12px">${REFER_MSGS.map((m,i)=>`<button class="btn" style="justify-content:flex-start;text-align:left" data-act="referSend" data-k="${i}">${IC.share}${esc(m[0])}</button>`).join('')}
+   ${card?`<button class="btn primary" style="justify-content:flex-start" data-act="referCard" data-id="${esc(id)}">${IC.image}移調カードを作って送る</button>`:''}</div>
+   <div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">閉じる</button></span></div>`)}
+async function referSend(i){try{if(await shareTextOnly(referText(i)))referDone()}catch(e){console.warn('refer',e);toast('送れませんでした。もう一度お試しください')}}
+/* 移調カード：結果を自慢したくなる1枚（SNS・LINE向け 1080×1350） */
+function keyCardBlob(t){const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
+  const sans='"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif',serif='"Hiragino Mincho ProN","Noto Serif CJK JP","Yu Mincho",serif';
+  const gr=g.createRadialGradient(W/2,H*.42,40,W/2,H*.42,W*.95);gr.addColorStop(0,'#B8263E');gr.addColorStop(1,'#5A1220');g.fillStyle=gr;g.fillRect(0,0,W,H);
+  const tp=tpOf(t),k=tpKey(tp.key),sg=(tp.semi>0?'＋':'−')+Math.abs(tp.semi),nk=k?keyInfo({i:md12(k.i+tp.semi),m:k.m}).ja:`移調 ${sg}`,ok=k?keyInfo(k).ja:'';
+  g.textAlign='center';g.fillStyle='rgba(255,236,226,.85)';g.font=`500 34px ${sans}`;g.fillText('MY KEY',W/2,250);
+  g.fillStyle='#fff';g.font=`600 58px ${serif}`;const title=(t.title||'').slice(0,18);if(title)g.fillText('♪ '+title,W/2,350);
+  g.font=`700 150px ${serif}`;g.fillText(nk,W/2,600);
+  if(ok){g.fillStyle='#FFDCC8';g.font=`400 46px ${serif}`;g.fillText(`原調 ${ok} から ${sg}`,W/2,690)}
+  g.fillStyle='rgba(255,255,255,.9)';g.font=`500 44px ${sans}`;g.fillText('歌いやすいキーにしました',W/2,790);
+  /* 下：二次元コード＋案内 */
+  const rows=STORE_QR.split(','),n=rows.length,Q=200,x0=170,y0=1010,m=Q/(n+6);g.fillStyle='#fff';g.fillRect(x0,y0,Q,Q);g.fillStyle='#2A1418';
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(rows[y][x]==='1')g.fillRect(Math.floor(x0+(x+3)*m),Math.floor(y0+(y+3)*m),Math.ceil(m),Math.ceil(m));
+  g.textAlign='left';g.fillStyle='#fff';g.font=`600 54px ${sans}`;g.fillText('CRATE',x0+Q+50,y0+80);
+  g.fillStyle='rgba(255,236,226,.9)';g.font=`400 34px ${sans}`;g.fillText('楽譜を撮って、好きなキーに。',x0+Q+50,y0+140);g.fillText(IS_ANDROID?'Google Playで「CRATE 移調」':'App Storeで「CRATE 移調」',x0+Q+50,y0+188);
+  return new Promise(r=>c.toBlob(r,'image/png'))}
+async function referCard(id){const t=S.tracks.get(id);if(!t)return;try{const b=await keyCardBlob(t),name='CRATE_移調カード.png',text=`${tpLabel(t)}にしました🎶\n\n楽譜アプリ「CRATE」\n${APP_URL}`;
+  let ok=false;if(isNative())ok=await nativeShareFile(b,name,{text,title:'移調カード'});
+  else{const f=new File([b],name,{type:'image/png'});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text});ok=true}catch(e){if(!e||e.name!=='AbortError')throw e}}else{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();ok=true}}
+  if(ok)referDone()}catch(e){console.warn('card',e);toast('カードを作れませんでした')}}
+/* 楽譜を送った直後（うれしい瞬間）に、4・12・30回目だけ控えめに声をかける（評価2・8・25回目、広告なし版3・15・40回目とは重ならない） */
+function referMaybe(id){if(!isNative())return;let n=0;try{n=+(localStorage.getItem('crate.exportN')||0)}catch(_){}if(n!==4&&n!==12&&n!==30)return;
+  setTimeout(()=>{if($('#layer .veil'))return;referSheet(id)},1600)}
+async function adAfterExport(){if(noAds()||!isNative()||!Pro.ad)return;const show=adNextWillShow();let n=0;
   try{n=+(localStorage.getItem('crate.adN')||0)+1;localStorage.setItem('crate.adN',String(n))}catch(_){}
   if(!show)return;if(Pro.ad!=='ready'||Date.now()-(Pro.adAt||0)>=AD_CFG.ttlMs){try{localStorage.setItem('crate.adN',String(n-1))}catch(_){}return}
   const A=natPlugin('AdMob');try{Pro.ad='init';await A.showInterstitial();try{localStorage.setItem('crate.adT',String(Date.now()))}catch(_){}}catch(e){console.warn('ad show',e)}}
@@ -3089,7 +3140,7 @@ function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropE
    <div class="pdfsum"><div><b>${scPages(t)}</b><span>ページ</span></div><div><b>${nAnn}</b><span>書き込み・音符</span></div><div><b>${Object.values(e.rot).filter(Boolean).length+Object.keys(e.crop).length}</b><span>回転・トリミング</span></div></div>
    <label class="sv-auto"><input type="checkbox" id="pdfAnn" checked><span>書き込み・音符・白塗りを含める</span></label>
    ${tpLabel(t)?`<label class="sv-auto"><input type="checkbox" id="pdfKey" checked><span>1ページ目の右上に調を書き入れる：<b>${esc(tpLabel(t))}</b></span></label>`:''}
-   ${Pro.on?'':'<p class="muted" style="margin:0;font-size:12px">無料版では、最後のページの下に小さく「CRATEで移調」と入ります（広告なし版では入りません）。</p>'}
+   ${noAds()?'':'<p class="muted" style="margin:0;font-size:12px">無料版では、最後のページの下に小さく「CRATEで移調」と入ります（広告なし版では入りません）。</p>'}
    <p class="muted" id="pdfMsg" style="margin:0;font-size:12.5px">PDFを準備しています…</p>
    <div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">閉じる</button><button class="btn" id="pdfShare" hidden>${IC.share}送る</button><button class="btn primary" id="pdfGo" disabled>${IC.dl}保存する</button></span></div>`,root=>{
     /* 開いたらすぐ裏でPDFを作っておく：「送る」「保存する」を1回押すだけで済むように（共有画面はタップ直後でないと開けないため） */
@@ -3100,7 +3151,7 @@ function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropE
       msg.textContent=sh.hidden?`PDFができました（${kb}KB）。${isMobile()?'「保存する」で共有画面が開きます。「"ファイル"に保存」を選ぶと端末に保存されます。':'「保存する」でダウンロードフォルダに保存されます。'}元のPDFは変わりません。`
         :`PDFができました（${kb}KB）。「送る」でLINE・メール${IS_ANDROID?'':'・AirDrop'}などにそのまま送れます。${IS_ANDROID?'「保存する」は共有画面で「ドライブ」や「ファイル」を選んでください。':isMobile()||isNative()?'「保存する」は共有画面で「"ファイル"に保存」を選んでください。':'「保存する」はダウンロードフォルダに保存します。'}`};
     const build=async()=>{const my=++job;file=null;go.disabled=true;sh.disabled=true;msg.textContent='PDFを準備しています…';
-      try{const bytes=await buildEditedPdf(t,{ann:$('#pdfAnn').checked,keyLabel:!!($('#pdfKey')&&$('#pdfKey').checked),credit:!Pro.on});if(my!==job)return;
+      try{const bytes=await buildEditedPdf(t,{ann:$('#pdfAnn').checked,keyLabel:!!($('#pdfKey')&&$('#pdfKey').checked),credit:!noAds()});if(my!==job)return;
         file=new File([bytes],safeName($('#pdfName').value),{type:'application/pdf'});SV.savedSig=snapEd();ready()}
       catch(err){if(my!==job)return;console.error(err);msg.textContent='PDFを作成できませんでした。このPDFは保護されている可能性があります。'}};
     const rename=()=>{if(file){file=new File([file],safeName($('#pdfName').value),{type:'application/pdf'})}};
@@ -3110,7 +3161,7 @@ function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropE
       const u=URL.createObjectURL(file);const a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);
       msg.innerHTML=`「${esc(file.name)}」を保存しました。${isMobile()?'':'ダウンロードフォルダを確認してください。'} <a href="${u}" target="_blank" rel="noopener">開いて確認</a>`;toast('PDFを保存しました')};
     const send=async()=>{if(!file)return;rename();
-      if(isNative()){try{if(await nativeShareFile(file,file.name,{text:shareText()})){msg.textContent=`「${file.name}」を送りました。`;toast('楽譜を送りました');adAfterExport();askReview();proUpsellMaybe()}}catch(err){console.error(err);msg.textContent='送れませんでした。もう一度お試しください。'}return}
+      if(isNative()){try{if(await nativeShareFile(file,file.name,{text:shareText()})){msg.textContent=`「${file.name}」を送りました。`;toast('楽譜を送りました');adAfterExport();askReview();proUpsellMaybe();referMaybe(t.id)}}catch(err){console.error(err);msg.textContent='送れませんでした。もう一度お試しください。'}return}
       try{await navigator.share({files:[file],title:file.name,text:shareText()});msg.textContent=`「${file.name}」を送りました。`;toast('楽譜を送りました')}
       catch(err){if(err&&err.name==='AbortError')return;/* 文章つきで送れないアプリ向けに、ファイルだけでもう一度 */try{await navigator.share({files:[file]});msg.textContent=`「${file.name}」を送りました。`}catch(e2){if(!e2||e2.name!=='AbortError')msg.textContent='送れませんでした。「保存する」で保存してから、アプリで添付してください。'}}};
     $('#pdfName').addEventListener('input',rename);
@@ -3241,7 +3292,7 @@ async function settingsSheet(){const m=modeText();let used='確認できませ�
    <div class="sec"><h5>保存の状態</h5><div class="kv"><span>モード</span><b><span class="dot${S.cloudState==='on'?' on':''}"></span>${esc(m.t)}</b><span>曲数</span><b class="mono">${real.length}曲${noFile?`（うち${noFile}曲はこの端末にファイルなし）`:''}</b><span>端末の使用量</span><b class="mono">${esc(used)}</b></div><p class="muted" style="margin:8px 0 0">${esc(m.d)}</p></div>
    ${isNative()?'':`<div class="sec"><h5>曲の保護</h5><div class="pstat sm ${S.prot&&S.prot.ok?'ok':'ng'}">${S.prot&&S.prot.ok?IC.check:IC.lock}<div><b>${S.prot&&S.prot.ok?'保護されています（自動で消えません）':'まだ保護されていません'}</b><span>${S.prot&&S.prot.ok?'取り込んだ曲はブラウザに自動で削除されません。':'ブラウザが曲を自動で削除する場合があります。'}</span></div><button class="btn" data-act="protInfo">${S.prot&&S.prot.ok?'詳しく':'保護する'}</button></div></div>`}
    ${proSec()}
-   <div class="sec"><h5>このアプリについて</h5><p class="muted" style="margin:0 0 10px">バージョン ${esc(window.CRATE_VER||'Web版')}${isNative()?'<br>'+esc(adStatus()):''}</p><div class="actions" style="flex-wrap:wrap"><a class="btn" style="text-decoration:none" href="${bugMail()}">不具合を報告・要望を送る</a>${isNative()?'':`<a class="btn primary" style="text-decoration:none" href="https://apps.apple.com/jp/app/id6830933661" target="_blank" rel="noopener">App Storeで入手（iPhone・iPad）</a>`}${[['support/','サポート・お問い合わせ'],['support/privacy.html','プライバシーポリシー'],['support/terms.html','利用規約']].map(([u,l])=>`<a class="btn" style="text-decoration:none" href="https://hondaaqua77-creator.github.io/crate-music/${u}" target="_blank" rel="noopener">${l}</a>`).join('')}</div></div>
+   <div class="sec"><h5>このアプリについて</h5><p class="muted" style="margin:0 0 10px">バージョン ${esc(window.CRATE_VER||'Web版')}${isNative()?'<br>'+esc(adStatus()):''}</p><div class="actions" style="flex-wrap:wrap"><button class="btn primary" data-act="refer">${IC.share}CRATEを友だちに教える</button><a class="btn" style="text-decoration:none" href="${bugMail()}">不具合を報告・要望を送る</a>${isNative()?'':`<a class="btn primary" style="text-decoration:none" href="https://apps.apple.com/jp/app/id6830933661" target="_blank" rel="noopener">App Storeで入手（iPhone・iPad）</a>`}${[['support/','サポート・お問い合わせ'],['support/privacy.html','プライバシーポリシー'],['support/terms.html','利用規約']].map(([u,l])=>`<a class="btn" style="text-decoration:none" href="https://hondaaqua77-creator.github.io/crate-music/${u}" target="_blank" rel="noopener">${l}</a>`).join('')}</div></div>
    <div class="sec"><h5>デザイン・壁紙</h5><div class="actions"><button class="btn" data-act="design">${IC.pen}デザインと壁紙を選ぶ</button><span class="muted" style="font-size:12.5px">いま：${esc(themeName())}${S.wall?'・壁紙あり':''}</span></div></div>
    <div class="sec"><h5>再生</h5><p class="muted" style="margin:0">曲が終わると自動で止まります。▶を押すと次の曲を再生します。</p>
    <div class="bgnote">${IC.check}<div><b>画面を消しても再生が続きます</b><span>ロック画面・通知の操作パネルから、再生／一時停止／前後の曲の操作ができます。</span></div></div></div>
@@ -3434,6 +3485,9 @@ document.addEventListener('click',e=>{
       case'setArtNow':{const cid=S.queue[S.qi],t=S.tracks.get(cid);if(t&&!t.sample)pickImage({type:'track',id:cid});else if(t)toast('サンプル曲の画像は変更できません');break}
       case'protect':protectNow();break;
       case'proBuy':proBuy();break;
+      case'refer':referSheet(a.dataset.id||'');break;
+      case'referSend':referSend(+a.dataset.k);break;
+      case'referCard':referCard(a.dataset.id);break;
       case'proRestore':proRestore();break;
       case'protInfo':closeSheet();if(S.prot&&!S.prot.ok)protectNow();else protectSheet();break;
       case'protLater':try{localStorage.setItem('crate.protDismiss',String(Date.now()))}catch(_){}renderView();toast('3日後にもう一度お知らせします。設定からいつでも保護できます');break;
