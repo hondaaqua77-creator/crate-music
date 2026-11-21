@@ -27,8 +27,9 @@ def ease_back(t, s=1.9):
 class Clip:
     """decodes to a raw file on disk and reads frames on demand (keeps memory low)"""
     def __init__(self, path, ss=0.0, speed=1.0, max_frames=150):
-        import tempfile
+        import tempfile, atexit
         self.raw = tempfile.mktemp(suffix=".rgb")
+        atexit.register(lambda p=self.raw: os.path.exists(p) and os.remove(p))  # never leave ~1GB caches behind
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", str(ss), "-i", path, "-vf",
                         f"setpts=PTS/{speed},fps={FPS},scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},"
                         "eq=contrast=1.1:saturation=1.05,vignette=PI/4.5",
