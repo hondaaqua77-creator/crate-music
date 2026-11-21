@@ -835,7 +835,7 @@ button.badge.key:hover{background:var(--accent);color:var(--on-accent)}
 .sv-tl2 button svg{width:17px;height:17px}.sv-tl2 button.on{border-color:var(--ink);background:var(--ink);color:var(--bg)}.sv-tl2 button:disabled{opacity:.4;cursor:default}
 .sv-hintline{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);min-width:0}.sv-hintline svg{width:14px;height:14px;flex:none}.sv-hintline span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sv-tips{position:absolute;inset:0;z-index:5;user-select:none;-webkit-user-select:none;background:rgba(20,22,27,.42);display:grid;place-items:center;padding:16px}
-.sv-tipcard{background:var(--surf);border-radius:16px;padding:20px;max-width:380px;width:100%;display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 60px -20px rgba(0,0,0,.5)}
+.sv-tipcard{background:var(--surf);border-radius:16px;padding:20px;max-width:380px;width:100%;max-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 60px -20px rgba(0,0,0,.5)}
 .sv-tiph{font-size:17px}.sv-tipcard ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
 .sv-tipcard li{display:flex;gap:12px;align-items:flex-start}.sv-tipcard li i{width:32px;height:32px;border-radius:9px;background:var(--sel);color:var(--accent);display:grid;place-items:center;flex:none}.sv-tipcard li i svg{width:17px;height:17px}
 .sv-tipcard li span{display:flex;flex-direction:column;font-size:12.5px;color:var(--muted);line-height:1.5}.sv-tipcard li b{font-size:14px;color:var(--ink)}
@@ -2059,6 +2059,7 @@ function scoreShell(t){const sc=t.score;
   <div class="sv-turn" id="svTurn"></div><div class="sv-tools" id="svTools" hidden></div><div class="sv-tp" id="svTp" hidden></div>`}
 function scoreTips(){const st=$('#svStage');if(!st||$('#svTips'))return;const d=document.createElement('div');d.className='sv-tips';d.id='svTips';
   d.innerHTML=`<div class="sv-tipcard" role="dialog" aria-label="楽譜の使い方"><b class="sv-tiph">楽譜の使い方</b><ul>
+   <li><i style="font-style:normal;font-weight:700">♯♭</i><span><b>移調する</b>上の「移調」→ ♯ ♭ で半音ずつ。音符も調号も書き換わります</span></li>
    <li><i>${IC.chev}</i><span><b>ページをめくる</b>左右の矢印をタップ、または横にスワイプ</span></li>
    <li><i>${IC.flag}</i><span><b>再生に合わせて自動でめくる</b>再生中に下の「⚑」で、ページを表示する時間を登録</span></li>
    <li><i>${IC.pen}</i><span><b>編集</b>上の「編集」で音符に印が付きます。印をタップして動かす・変える。ペンや文字は「書く」、回転や並べ替えは「ページ」。終わったら「完了」</span></li>
