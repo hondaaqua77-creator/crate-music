@@ -2220,8 +2220,8 @@ function attachStaff(it,D0,ly){const g=SV.g,st=(SV.staves||{})[`${SV.o}|${g.r}`]
   if(ly&&ly.length)for(const sg of r.segs){const m=ly.find(([e])=>Math.abs(e-sg[1])<.6);if(m&&Math.abs(m[1]-m[0])<1.5){sg[1]=sg[3]=m[1]}}
   {const ex=.4;for(const sg of r.segs){sg[0]-=ex;sg[2]+=ex}}
   it.sl=r.segs.map(([x1,y1,x2,y2])=>{const a=unrotPt(g.r,g.W,g.H,x1,y1),b=unrotPt(g.r,g.W,g.H,x2,y2);return[+a[0].toFixed(1),+a[1].toFixed(1),+b[0].toFixed(1),+b[1].toFixed(1)]});it.th=+r.th.toFixed(2);if(r.lum!=null&&r.lum>40)it.lc=r.lum}
-const staffCol=it=>it.lc!=null?`rgb(${it.lc},${it.lc},${it.lc})`:'#1a1a1a';
-function drawStaffSegs(ctx,it,map,unit){if(!it.sl)return;ctx.save();ctx.strokeStyle=staffCol(it);const lw=(it.th||.8)*unit;ctx.lineWidth=Math.max(1,lw);if(lw<1)ctx.globalAlpha=Math.max(.35,lw);ctx.lineCap='butt';ctx.beginPath();for(const[x1,y1,x2,y2]of it.sl){const a=map(x1,y1),b=map(x2,y2);ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1])}ctx.stroke();ctx.restore()}
+/* 測った明るさは線のふちのにじみを含むので、実際の線の芯はもっと濃い */const staffCol=it=>{if(it.lc==null)return'#1a1a1a';const v=Math.round(Math.min(60,it.lc*.4));return`rgb(${v},${v},${v})`};
+function drawStaffSegs(ctx,it,map,unit){if(!it.sl)return;ctx.save();ctx.strokeStyle=staffCol(it);/* 細い線を半透明にすると元の五線より薄く見えるので、太さ1以上・不透明で描く */const lw=(it.th||.8)*unit;ctx.lineWidth=Math.max(1,lw*1.1);ctx.lineCap='butt';ctx.beginPath();for(const[x1,y1,x2,y2]of it.sl){const a=map(x1,y1),b=map(x2,y2);ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1])}ctx.stroke();ctx.restore()}
 function fillSnap(ctx,B){const x=Math.floor(B.x),y=Math.floor(B.y);ctx.fillRect(x,y,Math.ceil(B.x+B.w)-x,Math.ceil(B.y+B.h)-y)}
 function pxBox(map,x,y,w,h){const a=map(x,y),b=map(x+w,y+h);return{x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),w:Math.abs(a[0]-b[0]),h:Math.abs(a[1]-b[1])}}
 const patchCache=new Map();
@@ -2486,7 +2486,7 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
       /* 調号の記号：音部記号の後ろに、幅の狭い記号（♯・♭）が近い間隔で並ぶ。音部記号との間が広い楽譜もある */
       const runs=[];if(ce>0){const lim=Math.min(w-1,ce+Math.round(s0.sp*12)),raw=[];let xx=ce;while(xx<lim){while(xx<lim&&!colInk(xx))xx++;if(xx>=lim)break;const a=xx;while(xx<lim&&colInk(xx))xx++;
           const r={a,b:xx-1},p=raw[raw.length-1];/* 線を消した時に切れた細いかけらは前の記号につなげる */if(p&&(r.b-r.a+1<s0.sp*.4||p.b-p.a+1<s0.sp*.4)&&r.a-p.b<=s0.sp*.35&&r.b-p.a<s0.sp*.95)p.b=r.b;else raw.push(r)}
-        let last=ce;for(const r of raw){const gap=r.a-last,wd=r.b-r.a+1;if(runs.length>=7||gap>s0.sp*(runs.length?.75:1.5)||wd<s0.sp*.3||wd>s0.sp*.95){/* 手書き風の楽譜：くっついた♯がひとかたまりになっている */if(!runs.length&&gap<=s0.sp*1.5&&wd>s0.sp*.95&&wd<=s0.sp*7)s0.ksWide=r;break}runs.push(r);last=r.b+1}
+        let last=ce;for(const r of raw){const gap=r.a-last,wd=r.b-r.a+1;/* ヘ音記号の右の2つの点（五線の上半分だけにある小さな記号）は飛ばす */if(!runs.length&&bassL&&wd<s0.sp*.62&&gap<=s0.sp*.8){let lo=false;for(let y=Math.round(top+s0.sp*2.2);y<=Math.min(h-1,bot+Math.round(s0.sp*.5))&&!lo;y++)for(let x=r.a;x<=r.b;x++)if(clean[y*w+x]){lo=true;break}if(!lo){last=r.b+1;continue}}if(runs.length>=7||gap>s0.sp*(runs.length?.75:1.5)||wd<s0.sp*.3||wd>s0.sp*.95){/* 手書き風の楽譜：くっついた♯がひとかたまりになっている */if(!runs.length&&gap<=s0.sp*1.5&&wd>s0.sp*.95&&wd<=s0.sp*7)s0.ksWide=r;break}runs.push(r);last=r.b+1}
         if(runs.length)s0.sigEnd=Math.max(s0.sigEnd,runs[runs.length-1].b+2)}
       /* ト音記号は上の線からつながって上へ1.5間ほど伸びる。ヘ音記号は伸びない（縦線・括弧は長すぎるので除く） */let upX=0;{const lim=Math.round(s0.sp*2.8),T0=Math.max(1,top-Math.round(s0.th||2)-1),XA=Math.max(1,Math.round(x0+s0.sp*.15)),XB=Math.min(w-2,Math.round(x0+s0.sp*3.2)),YL=Math.max(0,T0-lim-2),seen=new Set();
         for(let sx=XA;sx<=XB;sx++){const k0=T0*w+sx;if(!ink[k0]||seen.has(k0))continue;const q=[k0];seen.add(k0);let mn=T0,mx=sx,mnx=sx;
@@ -2669,6 +2669,19 @@ async function detectHeads(){const g=SV.g;if(!g||!SV.doc)return[];const key=`${S
      if((out>0&&wd>=sp*1.1)||wd>sp*2.4)break}});
    /* 拍子記号は同じ位置に上下の段そろって出る（1段目だけの楽譜はそのまま） */
    for(const c of cand){const ok=c.si===0||cand.some(d=>d!==c&&Math.abs(d.si-c.si)===1&&Math.abs(d.a-c.a)<staves[c.si].sp*1.5);if(!ok)continue;for(const hd of heads)if(hd.sti===c.si&&hd._c&&hd._c[0]>=c.a-2&&hd._c[0]<=c.b+2)drop.add(hd)}
+   /* 段の途中の音部記号：符頭に見える部分が、縦に長く（4.5間以上）、中に大きな輪（すき間）を持つ記号の一部なら除く */
+   for(const hd of heads){if(drop.has(hd)||hd.sti==null||!hd._c)continue;const s0=staves[hd.sti],sp=s0.sp,top=s0.top,bot=top+4*sp;
+    const X0=Math.max(0,Math.round(hd._c[0]-sp*3)),X1=Math.min(w-1,Math.round(hd._c[0]+sp*3)),Y0=Math.max(0,Math.round(top-sp*3)),Y1=Math.min(h-1,Math.round(bot+sp*3)),BW=X1-X0+1,BH=Y1-Y0+1;
+    let sx=-1,sy=-1;for(let r=0;r<sp*.6&&sx<0;r++)for(let dy=-r;dy<=r&&sx<0;dy++)for(let dx=-r;dx<=r;dx++){const x=Math.round(hd._c[0])+dx,y=Math.round(hd._c[1])+dy;if(x>=X0&&x<=X1&&y>=Y0&&y<=Y1&&clean[y*w+x]){sx=x;sy=y;break}}
+    if(sx<0)continue;const comp=new Uint8Array(BW*BH),q=[(sy-Y0)*BW+(sx-X0)];comp[q[0]]=1;let mnx=sx,mxx=sx,mny=sy,mxy=sy,n=0;
+    while(q.length&&n<40000){const k=q.pop(),y=((k/BW)|0)+Y0,x=k%BW+X0;n++;if(x<mnx)mnx=x;if(x>mxx)mxx=x;if(y<mny)mny=y;if(y>mxy)mxy=y;
+     for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const yy=y+dy,xx=x+dx;if(yy<Y0||yy>Y1||xx<X0||xx>X1)continue;const kk=(yy-Y0)*BW+(xx-X0);if(!comp[kk]&&clean[yy*w+xx]){comp[kk]=1;q.push(kk)}}}
+    const ch=mxy-mny+1,cw=mxx-mnx+1;if(ch<sp*4.5||cw<sp*1.7||cw>sp*3.2)continue;
+    /* 輪の中のすき間：外からつながらない白い部分 */
+    const bw=cw+2,bh=ch+2,seen=new Uint8Array(bw*bh),isInk=(x,y)=>{const X=x+mnx-1,Y=y+mny-1;return X>=X0&&X<=X1&&Y>=Y0&&Y<=Y1&&comp[(Y-Y0)*BW+(X-X0)]===1};
+    const st=[0];seen[0]=1;while(st.length){const k=st.pop(),y=(k/bw)|0,x=k%bw;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=bw||yy>=bh)continue;const kk=yy*bw+xx;if(!seen[kk]&&!isInk(xx,yy)){seen[kk]=1;st.push(kk)}}}
+    let best=0;const vis=new Uint8Array(bw*bh);for(let k=0;k<bw*bh;k++){if(seen[k]||vis[k]||isInk(k%bw,(k/bw)|0))continue;let c=0;const s2=[k];vis[k]=1;while(s2.length){const kk=s2.pop(),y=(kk/bw)|0,x=kk%bw;c++;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=bw||yy>=bh)continue;const k2=yy*bw+xx;if(!seen[k2]&&!vis[k2]&&!isInk(xx,yy)){vis[k2]=1;s2.push(k2)}}}if(c>best)best=c}
+    if(best>=sp*sp*.5)drop.add(hd)}
    if(drop.size){const keep=heads.filter(hd=>!drop.has(hd));heads.length=0;heads.push(...keep)}}
   {const grp=[];let gi=0;staves.forEach((s0,si)=>{if(si>0){const pS=staves[si-1];if(!(pS.bD||[]).some(x=>(s0.bU||[]).some(y=>Math.abs(x-y)<s0.sp*.6)))gi++}grp.push(gi)});
    const mode=a=>{const m={};let best=null,bc=0;for(const v of a){m[v]=(m[v]||0)+1;if(m[v]>bc){bc=m[v];best=v}}return best};
