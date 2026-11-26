@@ -61,13 +61,15 @@ def render(W, H, before, after, head=HEAD):
     af = f(SANS_B, S(64)); s = "♭♭"
     d.text((gx + r - d.textlength(s, font=af) / 2, ay + r - S(46)), s, font=af, fill=RED)
     d.text((gx + 2 * r + S(36), ay + r - S(42)), s2, font=lf, fill=WHITE)
-    by = H - S(360)
-    items = ["撮るだけ", "全パート一括", "PDFで共有"]
+    by = H - S(420)
+    items = ["写真で移調", "キー変更", "PDFで共有"]
     bf = f(SANS_B, S(52)); gap = S(28)
     ws = [d.textlength(t, font=bf) + S(80) for t in items]; x = (W - sum(ws) - gap * 2) / 2
     for t, w_ in zip(items, ws):
         d.rounded_rectangle((x, by, x + w_, by + S(120)), S(60), outline=WHITE, width=S(5))
         d.text((x + S(40), by + S(28)), t, font=bf, fill=WHITE); x += w_ + gap
+    # pricing model in plain words (no amount — the price may change): free with ads, one-time purchase removes them
+    ctext(d, by + S(170), "無料（広告あり）・広告なし版は買い切りで月額なし", f(SANS_M, S(44)), (255, 225, 228), W)
     return im.convert("RGB")
 
 
