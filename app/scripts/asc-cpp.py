@@ -105,7 +105,15 @@ def create():
             print('created page', name, page['id'])
         ver = editable_version(page['id'])
         if not ver:
-            print('  no editable version (already in review or live)'); continue
+            vers = call('GET', f'/appCustomProductPages/{page["id"]}/appCustomProductPageVersions?limit=10')['data']
+            states = [v['attributes'].get('state') for v in vers]
+            print('  versions:', states)
+            if any(st in ('WAITING_FOR_REVIEW', 'IN_REVIEW', 'READY_FOR_REVIEW') for st in states):
+                print('  in review — skip'); continue
+            # live page: open a new version to update (the live one keeps showing until the new one is approved)
+            ver = call('POST', '/appCustomProductPageVersions', {'data': {'type': 'appCustomProductPageVersions',
+                       'relationships': {'appCustomProductPage': {'data': {'type': 'appCustomProductPages', 'id': page['id']}}}}})['data']
+            print('  new version', ver['id'], ver['attributes'].get('state'))
         locs = call('GET', f'/appCustomProductPageVersions/{ver["id"]}/appCustomProductPageLocalizations')['data']
         loc = next((l for l in locs if l['attributes']['locale'] == 'ja'), None)
         if not loc:
