@@ -1,6 +1,9 @@
 import UIKit
 import Capacitor
 import AVFoundation
+#if canImport(FirebaseCore)
+import FirebaseCore
+#endif
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -15,6 +18,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } catch {
             print("AVAudioSession error: \(error)")
         }
+        // 利用状況の計測（匿名・広告IDは使わない）
+        #if canImport(FirebaseCore)
+        if FirebaseApp.app() == nil { FirebaseApp.configure() }
+        #endif
         return true
     }
 

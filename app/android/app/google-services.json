@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "762487461978",
+    "project_id": "crate-615be",
+    "storage_bucket": "crate-615be.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:762487461978:android:51b095b6043c40ad906063",
+        "android_client_info": {
+          "package_name": "com.hondaatsushi.crate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLsHOx4U7ISIXpWZFZyGUyL1KnOj_c0lg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
