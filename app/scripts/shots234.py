@@ -65,7 +65,7 @@ def shot_parts(W, H, cap):
 
 
 def shot_share(W, H, cap):
-    im, d, S = base(W, H, "PDFで、そのまま", "仲間に送れる。", "LINE・メール・AirDropで共有")
+    im, d, S = base(W, H, "PDFで、そのまま", "仲間に送れる。", "LINE・メール・Googleドライブで共有" if ANDROID else "LINE・メール・AirDropで共有")
     px, py, pw, ph = S(70), S(680), W - S(140), S(1500)
     panel = Image.new("RGB", (pw, ph), (236, 239, 244)); pd = ImageDraw.Draw(panel)
     pd.rectangle((0, 0, pw, S(150)), fill=WHITE)
@@ -97,7 +97,7 @@ def shot_share(W, H, cap):
     panel = panel.crop((0, 0, pw, min(ph, y + S(30))))
     shadow_paste(im, panel, (px, py), r=S(56))
     d = ImageDraw.Draw(im); yb = py + panel.height + S(110)
-    tf = f(SANS_B, S(56)); items = ["LINE", "メール", "AirDrop", "印刷"]
+    tf = f(SANS_B, S(56)); items = ["LINE", "メール", "ドライブ" if ANDROID else "AirDrop", "印刷"]
     ws = [d.textlength(t, font=tf) + S(80) for t in items]; gap = S(22); x = (W - sum(ws) - gap * 3) / 2
     for t, w_ in zip(items, ws):
         d.rounded_rectangle((x, yb, x + w_, yb + S(130)), S(65), outline=WHITE, width=S(5))
@@ -116,10 +116,13 @@ def shot_card(W, H, card):
     return im.convert("RGB")
 
 
+ANDROID = "--android" in sys.argv  # Google Play: no iOS-only wording
+
+
 def main():
-    src, out = sys.argv[1:3]
+    src, out = [a for a in sys.argv[1:] if not a.startswith("--")][:2]
     cap = Image.open(os.path.join(src, "cap_after.png")).convert("RGB")
-    card = Image.open(os.path.join(src, "keycard.png")).convert("RGB")
+    card = Image.open(os.path.join(src, "keycard_android.png" if ANDROID else "keycard.png")).convert("RGB")
     for tag, (W, H) in SIZES.items():
         for name, fn, arg in (("2_parts", shot_parts, cap), ("3_share", shot_share, cap), ("4_card", shot_card, card)):
             p = os.path.join(out, f"phone_{tag}_{name}.png"); fn(W, H, arg).save(p, optimize=True); print("wrote", p)

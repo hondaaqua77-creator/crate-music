@@ -60,6 +60,12 @@ def main():
         fit_canvas(f, (1080, 2160)).save(os.path.join(OUT, "phone", os.path.basename(f).replace("phone_6.5inch_", "")))
     for f in sorted(glob.glob(os.path.join(STORE, "screenshots", "pad_13inch_*.png"))):
         fit_canvas(f, (1536, 2048)).save(os.path.join(OUT, "tablet10", os.path.basename(f).replace("pad_13inch_", "")))
+    # Google Play: #3/#4 without iOS-only wording (AirDrop, App Store) — shots234.py --android
+    import subprocess, tempfile
+    with tempfile.TemporaryDirectory() as td:
+        subprocess.run(["python3", os.path.join(ROOT, "app", "scripts", "shots234.py"), os.path.join(STORE, "shot1"), td, "--android"], check=True, capture_output=True)
+        for n in ("3_share", "4_card"):
+            fit_canvas(os.path.join(td, f"phone_6.5inch_{n}.png"), (1080, 2160)).save(os.path.join(OUT, "phone", f"{n}.png"))
     feature()
     print("ok")
 
