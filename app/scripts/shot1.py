@@ -26,13 +26,16 @@ def card(im, x, y, w, h, r=48):
     ImageDraw.Draw(im).rounded_rectangle((x, y, x + w, y + h), r, fill=WHITE + (255,))
 
 
-def render(W, H, before, after):
+HEAD = ("高くて歌えない曲を、", "歌えるキーに。", "楽譜の写真から、音符も調号も書き換え")
+
+
+def render(W, H, before, after, head=HEAD):
     k = W / 1320
     im = Image.new("RGBA", (W, H), RED + (255,)); d = ImageDraw.Draw(im)
     S = lambda v: int(v * k)
-    ctext(d, S(170), "高くて歌えない曲を、", f(SANS_B, S(118)), WHITE, W)
-    ctext(d, S(330), "歌えるキーに。", f(SANS_B, S(150)), WHITE, W)
-    ctext(d, S(540), "楽譜の写真から、音符も調号も書き換え", f(SANS_M, S(52)), (255, 225, 228), W)
+    ctext(d, S(170), head[0], f(SANS_B, S(118)), WHITE, W)
+    ctext(d, S(330), head[1], f(SANS_B, S(150)), WHITE, W)
+    ctext(d, S(540), head[2], f(SANS_M, S(52)), (255, 225, 228), W)
     mx = S(60); cw = W - 2 * mx
     sw = cw - S(40); sc = sw / before.width; shh = int(before.height * sc)
     ch = shh + S(190)
@@ -68,11 +71,20 @@ def render(W, H, before, after):
     return im.convert("RGB")
 
 
+# Custom Product Page variants: python3 shot1.py <before> <after> <out_dir> [choir|singer|teacher]
+VARIANTS = {
+    "choir": ("合唱の楽譜を、", "声域に合わせて。", "パート全員分を移調して、PDFでそのまま配れる"),
+    "singer": HEAD,
+    "teacher": ("生徒の声に、", "すぐ合わせる。", "レッスンの楽譜を撮るだけで、音符も調号も書き換え"),
+}
+
+
 def main():
     b, a, out = sys.argv[1:4]
+    head = VARIANTS[sys.argv[4]] if len(sys.argv) > 4 else HEAD
     before = Image.open(b).convert("RGB").crop(CROP); after = Image.open(a).convert("RGB").crop(CROP)
     for name, (W, H) in {"phone_6.9inch_1_transpose.png": (1320, 2868), "phone_6.5inch_1_transpose.png": (1284, 2778)}.items():
-        render(W, H, before, after).save(os.path.join(out, name), optimize=True)
+        render(W, H, before, after, head).save(os.path.join(out, name), optimize=True)
         print("wrote", name)
 
 

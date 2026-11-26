@@ -3095,14 +3095,13 @@ async function adBannerOff(){const A=natPlugin('AdMob');document.body.classList.
 /* 演奏中は出さない。PDFの保存・送信が終わった後に、2回に1回・90秒以上あけて表示 */
 async function scoreSampleLoad(){try{progress('サンプル楽譜を読み込み中…');const r=await fetch('vendor/sample-score.pdf');const b=await r.blob();progress(null);S.pdfTarget=null;S.pdfNew=true;importScoreFiles([new File([b],'サンプル楽譜（シューマン「詩人の恋」第2曲）.pdf',{type:'application/pdf'})])}catch(e){progress(null);toast('サンプル楽譜を読み込めませんでした')}}
 /* 広告なし版の案内：PDFを3回・15回・40回書き出したあとに1回ずつ（全画面広告とは重ならない回） */
-function proUpsellMaybe(){if(Pro.on||!isNative())return;let n=0;try{n=+(localStorage.getItem('crate.exportN')||0)}catch(_){}if(n!==3&&n!==15&&n!==40)return;
+function proUpsellMaybe(){if(Pro.on||!isNative())return;
   setTimeout(()=>sheet(`<h2>広告なしで使いませんか</h2>
    <p class="lead" style="margin:0 0 12px">いつもCRATEを使っていただき、ありがとうございます。広告なし版にすると、次のようになります。</p>
    <ul style="margin:0 0 12px;padding-left:1.2em;line-height:1.9"><li>バナーと全画面の広告が出なくなる</li><li>書き出したPDFに「CRATEで移調」の表記が入らなくなる</li><li>買い切り${Pro.price?'（'+esc(Pro.price)+'）':''}。月額料金はかかりません</li></ul>
    <p class="muted" id="proMsg" style="margin:0 0 6px"></p>
    <div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">あとで</button><button class="btn primary" data-act="proBuy">広告なし版にする</button></span></div>`),900)}
-async function askReview(){if(!isNative())return;let n=0;try{n=+(localStorage.getItem('crate.exportN')||0)+1;localStorage.setItem('crate.exportN',String(n))}catch(_){}
-  if(n!==2&&n!==8&&n!==25)return;const R=natPlugin('InAppReview');if(!R)return;await new Promise(r=>setTimeout(r,1500));try{await R.requestReview()}catch(e){console.warn('review',e)}}
+async function askReview(){if(!isNative())return;const R=natPlugin('InAppReview');if(!R)return;await new Promise(r=>setTimeout(r,1500));try{await R.requestReview()}catch(e){console.warn('review',e)}}
 
 /* ===== 紹介したくなる仕組み ===== */
 const REFER_MSGS=[
@@ -3143,8 +3142,16 @@ async function referCard(id){const t=S.tracks.get(id);if(!t)return;try{const b=a
   else{const f=new File([b],name,{type:'image/png'});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text});ok=true}catch(e){if(!e||e.name!=='AbortError')throw e}}else{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();ok=true}}
   if(ok)referDone()}catch(e){console.warn('card',e);toast('カードを作れませんでした')}}
 /* 楽譜を送った直後（うれしい瞬間）に、4・12・30回目だけ控えめに声をかける（評価2・8・25回目、広告なし版3・15・40回目とは重ならない） */
-function referMaybe(id){if(!isNative())return;let n=0;try{n=+(localStorage.getItem('crate.exportN')||0)}catch(_){}if(n!==4&&n!==12&&n!==30)return;
+function referMaybe(id){if(!isNative())return;
   setTimeout(()=>{if($('#layer .veil'))return;referSheet(id)},1600)}
+/* 書き出しの後に出すものは、1回に1つだけ（いくつも重ねると、どれも読まれない）。
+   優先：評価のお願い（2・8・25回目）＞紹介（4・12・30回目）＞広告なし版の案内（3・15・40回目）＞全画面広告。
+   初めての書き出しでは全画面広告を出さない。案内を出した回も広告は出さない */
+function afterExport(id){if(!isNative())return;let n=0;try{n=+(localStorage.getItem('crate.exportN')||0)+1;localStorage.setItem('crate.exportN',String(n))}catch(_){}
+  if(n===2||n===8||n===25){askReview();return}
+  if((n===4||n===12||n===30)&&id){referMaybe(id);return}
+  if((n===3||n===15||n===40)&&!Pro.on){proUpsellMaybe();return}
+  if(n>1)adAfterExport()}
 async function adAfterExport(){if(noAds()||!isNative()||!Pro.ad)return;const show=adNextWillShow();let n=0;
   try{n=+(localStorage.getItem('crate.adN')||0)+1;localStorage.setItem('crate.adN',String(n))}catch(_){}
   if(!show)return;if(Pro.ad!=='ready'||Date.now()-(Pro.adAt||0)>=AD_CFG.ttlMs){try{localStorage.setItem('crate.adN',String(n-1))}catch(_){}return}
@@ -3191,7 +3198,7 @@ function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropE
    <div class="pdfsum"><div><b>${scPages(t)}</b><span>ページ</span></div><div><b>${nAnn}</b><span>書き込み・音符</span></div><div><b>${Object.values(e.rot).filter(Boolean).length+Object.keys(e.crop).length}</b><span>回転・トリミング</span></div></div>
    <label class="sv-auto"><input type="checkbox" id="pdfAnn" checked><span>書き込み・音符・白塗りを含める</span></label>
    ${tpLabel(t)?`<label class="sv-auto"><input type="checkbox" id="pdfKey" checked><span>1ページ目の右上に調を書き入れる：<b>${esc(tpLabel(t))}</b></span></label>`:''}
-   ${noAds()?'':'<p class="muted" style="margin:0;font-size:12px">無料版では、最後のページの下に小さく「CRATEで移調」と入ります（広告なし版では入りません）。</p>'}
+   ${Pro.on?'':'<p class="muted" style="margin:0;font-size:12px">無料版では、最後のページの下に小さく「CRATEで移調」と入ります（広告なし版では入りません）。</p>'}
    <p class="muted" id="pdfMsg" style="margin:0;font-size:12.5px">PDFを準備しています…</p>
    <div class="foot"><span></span><span class="actions"><button class="btn" data-act="close">閉じる</button><button class="btn" id="pdfShare" hidden>${IC.share}送る</button><button class="btn primary" id="pdfGo" disabled>${IC.dl}保存する</button></span></div>`,root=>{
     /* 開いたらすぐ裏でPDFを作っておく：「送る」「保存する」を1回押すだけで済むように（共有画面はタップ直後でないと開けないため） */
@@ -3202,17 +3209,17 @@ function exportScore(){const t=curT();if(!t||!SV.doc)return;if(SV.cropMode)cropE
       msg.textContent=sh.hidden?`PDFができました（${kb}KB）。${isMobile()?'「保存する」で共有画面が開きます。「"ファイル"に保存」を選ぶと端末に保存されます。':'「保存する」でダウンロードフォルダに保存されます。'}元のPDFは変わりません。`
         :`PDFができました（${kb}KB）。「送る」でLINE・メール${IS_ANDROID?'':'・AirDrop'}などにそのまま送れます。${IS_ANDROID?'「保存する」は共有画面で「ドライブ」や「ファイル」を選んでください。':isMobile()||isNative()?'「保存する」は共有画面で「"ファイル"に保存」を選んでください。':'「保存する」はダウンロードフォルダに保存します。'}`};
     const build=async()=>{const my=++job;file=null;go.disabled=true;sh.disabled=true;msg.textContent='PDFを準備しています…';
-      try{const bytes=await buildEditedPdf(t,{ann:$('#pdfAnn').checked,keyLabel:!!($('#pdfKey')&&$('#pdfKey').checked),credit:!noAds()});if(my!==job)return;
+      try{const bytes=await buildEditedPdf(t,{ann:$('#pdfAnn').checked,keyLabel:!!($('#pdfKey')&&$('#pdfKey').checked),credit:!Pro.on});if(my!==job)return;
         file=new File([bytes],safeName($('#pdfName').value),{type:'application/pdf'});SV.savedSig=snapEd();ready()}
       catch(err){if(my!==job)return;console.error(err);msg.textContent='PDFを作成できませんでした。このPDFは保護されている可能性があります。'}};
     const rename=()=>{if(file){file=new File([file],safeName($('#pdfName').value),{type:'application/pdf'})}};
     const save=async()=>{if(!file)return;
-      if(isNative()){try{if(await nativeShareFile(file,file.name)){msg.textContent=`共有画面で「"ファイル"に保存」を選ぶと、「${file.name}」が保存されます。`;adAfterExport();askReview();proUpsellMaybe()}}catch(err){console.error(err);msg.textContent='保存できませんでした。もう一度お試しください。'}return}
+      if(isNative()){try{if(await nativeShareFile(file,file.name)){msg.textContent=`共有画面で「"ファイル"に保存」を選ぶと、「${file.name}」が保存されます。`;afterExport(t.id)}}catch(err){console.error(err);msg.textContent='保存できませんでした。もう一度お試しください。'}return}
       if(isMobile()&&canShareFile(file)){try{await navigator.share({files:[file],title:file.name});msg.textContent=`「${file.name}」を保存しました。`;return}catch(err){if(err&&err.name==='AbortError')return}}
       const u=URL.createObjectURL(file);const a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);
       msg.innerHTML=`「${esc(file.name)}」を保存しました。${isMobile()?'':'ダウンロードフォルダを確認してください。'} <a href="${u}" target="_blank" rel="noopener">開いて確認</a>`;toast('PDFを保存しました')};
     const send=async()=>{if(!file)return;rename();
-      if(isNative()){try{if(await nativeShareFile(file,file.name,{text:shareText()})){msg.textContent=`「${file.name}」を送りました。`;toast('楽譜を送りました');adAfterExport();askReview();proUpsellMaybe();referMaybe(t.id)}}catch(err){console.error(err);msg.textContent='送れませんでした。もう一度お試しください。'}return}
+      if(isNative()){try{if(await nativeShareFile(file,file.name,{text:shareText()})){msg.textContent=`「${file.name}」を送りました。`;toast('楽譜を送りました');afterExport(t.id)}}catch(err){console.error(err);msg.textContent='送れませんでした。もう一度お試しください。'}return}
       try{await navigator.share({files:[file],title:file.name,text:shareText()});msg.textContent=`「${file.name}」を送りました。`;toast('楽譜を送りました')}
       catch(err){if(err&&err.name==='AbortError')return;/* 文章つきで送れないアプリ向けに、ファイルだけでもう一度 */try{await navigator.share({files:[file]});msg.textContent=`「${file.name}」を送りました。`}catch(e2){if(!e2||e2.name!=='AbortError')msg.textContent='送れませんでした。「保存する」で保存してから、アプリで添付してください。'}}};
     $('#pdfName').addEventListener('input',rename);
