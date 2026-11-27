@@ -2017,7 +2017,7 @@ async function removeScore(id){const t=S.tracks.get(id);if(!t)return;await tx('b
 const SV={id:null,doc:null,page:1,o:1,z:1,x:0,y:0,pw:0,ph:0,task:null,rz:null,lastUser:0,noFile:false,
   edit:false,tool:'pr',color:{pen:'#14161B',mk:'#FFD60A',tx:'#E5484D',nt:'#14161B'},size:{pen:1,mk:1,tx:1},g:null,C:{x:0,y:0,w:0,h:0},rs:1,op:null,undo:[],redo:[],cropMode:false,cropR:null,cropAll:false,thumbs:new Map(),sel:null,ntType:'q',ntDot:false,staves:{},lastSp:7};
 /* 元の音符に印を付ける（細かい楽譜は自動で拡大） */
-function findHeads(){const o=SV.o;const cached=(SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`];if(!cached)progress('音符を探しています…');detectHeads().then(hs=>{progress(null);if(SV.o!==o||!SV.edit)return;{const spx=(SV.lastSp||7)*baseScale()*SV.z;if(hs.length&&spx<10){const{w,h}=stageSize();/* 拡大しても段の左端（音部記号・調号）が見えるよう、ページの左端を基準にする */if(!SV.preEdit){const t0=curT(),v0=t0&&t0.score.view&&t0.score.view[SV.o];SV.preEdit={z:SV.z,o:SV.o,v:v0?{...v0}:null}}zoomAt(SV.z*10/spx,Math.max(0,SV.x),Math.max(0,SV.y));clearTimeout(svSaveT)}}drawAnnLayer();renderTools();const nn=hs.filter(x=>!headOff(x)).length;if(!cached)track('omr_done',{notes:nn,found:nn>0?1:0});if(!cached){if(hs.length)toast(`${nn}個の音符に印を付けました。印のない音符もタップすると追加できます`);else actToast('このページで音符を見つけられませんでした。写真なら撮り直すと見つかりやすくなります','撮り方のコツ','shotGuideM')}})}
+function findHeads(){const o=SV.o;const cached=(SV.heads||{})[`${SV.o}|${SV.g?SV.g.r:0}`];if(!cached)progress('音符を探しています…');detectHeads().then(hs=>{progress(null);if(SV.o!==o||!SV.edit)return;{const spx=(SV.lastSp||7)*baseScale()*SV.z;if(hs.length&&spx<10){const{w,h}=stageSize();/* 拡大しても段の左端（音部記号・調号）が見えるよう、ページの左端を基準にする */if(!SV.preEdit){const t0=curT(),v0=t0&&t0.score.view&&t0.score.view[SV.o];SV.preEdit={z:SV.z,o:SV.o,v:v0?{...v0}:null}}zoomAt(SV.z*10/spx,Math.max(0,SV.x),Math.max(0,SV.y));clearTimeout(svSaveT)}}drawAnnLayer();renderTools();const nn=hs.filter(x=>!headOff(x)).length;if(!cached)track('omr_done',{notes:nn,found:nn>0?1:0});if(!cached){let nb=0;try{const bc=beatCheck();nb=bc?bc.bad.length:0}catch(_){}if(hs.length)track('beat_check',{bad:nb});if(nb)toast(`${nn}個の音符に印を付けました。拍の数が多い小節が${nb}か所あります（オレンジの枠）。音符の種類を確かめてください`);else if(hs.length)toast(`${nn}個の音符に印を付けました。印のない音符もタップすると追加できます`);else actToast('このページで音符を見つけられませんでした。写真なら撮り直すと見つかりやすくなります','撮り方のコツ','shotGuideM')}})}
 const PEN_W=[0.9,1.8,3.6],MK_W=[7,12,20],TX_S=[11,16,26],TXF='"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif';
 const INK={nt:['#14161B','#E5484D','#2F6FEB','#1F9D55'],pen:['#14161B','#E5484D','#2F6FEB','#1F9D55'],mk:['#FFD60A','#FF8FB1','#7CD4FF','#9BE37B'],tx:['#14161B','#E5484D','#2F6FEB','#1F9D55']};
 function scEd(t){const sc=t.score;if(!sc.edit)sc.edit={};const e=sc.edit;
@@ -2768,7 +2768,26 @@ async function addHeadAt(d){const g=SV.g;if(!g)return;const key=`${SV.o}|${g.r}`
   const hs=SV.heads[key]||[];const near=hs.find(x=>!x.used&&Math.hypot(x.x-hd.x,x.y-hd.y)<hd.sp*.6);const use=near||hd;if(!near)hs.push(hd);
   const r=adoptHead(use,true);if(r){showNoteName(null,r.it);toast('この音符を動かせるようにしました')}}
 function hideHead(hd){const t=curT();if(!t||!SV.g)return;pushUndo(snapEd());const e=scEd(t),g=SV.g;e.hid=e.hid||{};const b=unrotPt(g.r,g.W,g.H,hd.x,hd.y);(e.hid[SV.o]=e.hid[SV.o]||[]).push([+b[0].toFixed(1),+b[1].toFixed(1)]);saveEdSoon();hideLoupe();drawAnnLayer();renderTools();try{navigator.vibrate&&navigator.vibrate(25)}catch(_){}undoToast('印を外しました')}
-function drawHeadMarks(ctx){if(!SV.edit||SV.tool!=='pr')return;const hs=(SV.heads||{})[`${SV.o}|${SV.g.r}`];if(!hs)return;const s=SV.rs,C=SV.C;ctx.save();
+/* 拍の数チェック：小節ごとに音符の長さを足し、このページで一番多い拍数（＝拍子）より多い小節を返す。
+   印刷の休符はまだ読み取らないので、足りない小節は印を付けない（休符のある小節を誤って指摘しないため） */
+function beatCheck(){const g=SV.g;if(!g)return null;const key=`${SV.o}|${g.r}`,hs=(SV.heads||{})[key],BL=(SV.bars||{})[key],ST=(SV.stv||{})[key];if(!hs||!BL||!ST||!ST.length)return null;
+  const ev=ST.map(()=>[]),stOf=y=>{let b=-1,bd=1e9;ST.forEach((q,i)=>{const c=q.top+q.sp*2,d=Math.abs(y-c);if(d<q.sp*4.5&&d<bd){bd=d;b=i}});return b};
+  for(const hd of hs)if(hd.sti!=null&&ev[hd.sti]&&!headOff(hd)&&DUR[hd.t])ev[hd.sti].push({x:hd.x,d:DUR[hd.t]*(hd.d?1.5:1)});
+  const t=curT();for(const o of t?annOf(SV.o):[]){if(o.k!=='nt'||!DUR[o.t])continue;const q=rotPt(g.r,g.W,g.H,o.x,o.y),si=o.sti!=null&&ev[o.sti]?o.sti:stOf(q[1]);if(si>=0)ev[si].push({x:q[0],d:DUR[o.t]*(o.d?1.5:1)})}
+  const M=[];ST.forEach((q,si)=>{const bars=BL[si]||[];if(bars.length<2)return;const by={};for(const e of ev[si]){const m=bars.filter(b=>b<e.x).length;if(m>=bars.length)continue;(by[m]=by[m]||[]).push(e)}
+    for(const m in by){const L=by[m].sort((a,b)=>a.x-b.x),C=[];for(const e of L){const c=C[C.length-1];if(c&&e.x-c.x<q.sp*.7){c.d=Math.min(c.d,e.d);c.k++}else C.push({x:e.x,d:e.d,k:1})}
+      const x0=+m>0?bars[+m-1]:L[0].x-q.sp*1.2;M.push({si,m:+m,sum:Math.round(C.reduce((a,c)=>a+c.d,0)*8)/8,n:C.length,poly:C.some(c=>c.k>1),w:bars[+m]-x0,x0,x1:bars[+m],top:q.top,sp:q.sp})}});
+  const cnt={};for(const r of M)if(r.n>=2)cnt[r.sum]=(cnt[r.sum]||0)+1;let exp=null,best=0;for(const k in cnt)if(cnt[k]>best||(cnt[k]===best&&+k>exp)){best=cnt[k];exp=+k}
+  if(exp==null||best<3||exp<1)return null;
+  /* 誤指摘を避ける：和音・複数声部の小節、小節線の見落とし（幅が広すぎる・拍が1.5倍超）は対象外。指摘がページの15%を超えるなら読み取り自体が不安定なので出さない */
+  const W=M.filter(r=>r.n>=2).map(r=>r.w).sort((a,b)=>a-b),mw=W[W.length>>1]||1e9;
+  const bad=M.filter(r=>r.sum>exp+.01&&r.sum<=exp*1.5+.01&&!r.poly&&r.w<=mw*1.7);if(bad.length>Math.max(2,M.length*.15))return{exp,bad:[],unsure:true};return{exp,bad}}
+const beatTxt=v=>{const r=Math.round(v*8),i=Math.floor(r/8),f=['','⅛','¼','⅜','½','⅝','¾','⅞'][r%8];return(i||!f?String(i):'')+f};
+function drawBeatMarks(ctx){const bc=beatCheck();if(!bc||!bc.bad.length)return;const s=SV.rs,C=SV.C;ctx.save();
+  for(const r of bc.bad){const x=(r.x0-C.x)*s,x1=(r.x1-C.x)*s,y=(r.top-r.sp*1.6-C.y)*s,h=r.sp*7.2*s;ctx.fillStyle='rgba(230,120,20,.10)';ctx.fillRect(x,y,x1-x,h);ctx.strokeStyle='#E07814';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);ctx.strokeRect(x,y,x1-x,h);ctx.setLineDash([]);
+    const fs=Math.max(11,Math.min(14,r.sp*1.3*s)),tx=`拍が多い？ ${beatTxt(r.sum)}拍（ほかは${beatTxt(bc.exp)}拍）`;ctx.font=`700 ${fs}px ${TXF}`;const tw=ctx.measureText(tx).width+10;ctx.fillStyle='#E07814';ctx.fillRect(x,y-fs-6,tw,fs+6);ctx.fillStyle='#fff';ctx.textBaseline='middle';ctx.fillText(tx,x+5,y-fs/2-3)}
+  ctx.restore()}
+function drawHeadMarks(ctx){if(!SV.edit||SV.tool!=='pr')return;const hs=(SV.heads||{})[`${SV.o}|${SV.g.r}`];if(!hs)return;try{drawBeatMarks(ctx)}catch(_){}const s=SV.rs,C=SV.C;ctx.save();
   for(const hd of hs){if(headOff(hd))continue;const x=(hd.x-C.x)*s,y=(hd.y-C.y)*s,r=Math.max(hd.sp*1.1,14/(baseScale()*SV.z))*s;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle='rgba(47,111,235,.14)';ctx.fill();ctx.strokeStyle='#2F6FEB';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);ctx.stroke()}ctx.restore()}
 function hitHead(e){const hs=(SV.heads||{})[`${SV.o}|${SV.g.r}`];if(!hs){toast('音符を探しています。少し待ってからもう一度タップしてください');return null}const d=cl2disp(e);let best=null,bd=1e9;for(const hd of hs){if(headOff(hd))continue;const dd=Math.hypot(d[0]-hd.x,d[1]-hd.y);const lim=Math.max(hd.sp*1.4,22/(baseScale()*SV.z));if(dd<lim&&dd<bd){bd=dd;best=hd}}return best}
 /* 音名（ト音記号として計算。移調パネルの「元のキー」の調号を反映） */
